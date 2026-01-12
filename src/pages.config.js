@@ -8,6 +8,7 @@ import StepKey from './pages/StepKey';
 import Teams from './pages/Teams';
 import TeamDashboard from './pages/TeamDashboard';
 import ProjectDetail from './pages/ProjectDetail';
+import Kanban from './pages/Kanban';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "Teams": Teams,
     "TeamDashboard": TeamDashboard,
     "ProjectDetail": ProjectDetail,
+    "Kanban": Kanban,
 }
 
 export const pagesConfig = {
