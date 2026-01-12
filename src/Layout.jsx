@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
-import { LayoutGrid, Calendar, Briefcase, BarChart3, User } from 'lucide-react';
+import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen } from 'lucide-react';
 
 export default function Layout({ children, currentPageName }) {
   const navItems = [
@@ -9,6 +9,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Calendar', page: 'Calendar', icon: Calendar },
     { name: 'Ventures', page: 'Ventures', icon: Briefcase },
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
+    { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
     { name: 'Profile', page: 'Profile', icon: User }
   ];
 

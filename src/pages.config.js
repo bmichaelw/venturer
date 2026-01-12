@@ -4,6 +4,7 @@ import Calendar from './pages/Calendar';
 import Stats from './pages/Stats';
 import Profile from './pages/Profile';
 import VentureDetail from './pages/VentureDetail';
+import StepKey from './pages/StepKey';
 import __Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Stats": Stats,
     "Profile": Profile,
     "VentureDetail": VentureDetail,
+    "StepKey": StepKey,
 }
 
 export const pagesConfig = {
