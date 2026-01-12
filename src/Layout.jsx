@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
 import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
 import FloatingAIButton from './components/ai/FloatingAIButton';
+
+const createPageUrl = (pageName) => `#/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
