@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { X, Trash2 } from 'lucide-react';
 import CommentSection from '../collaboration/CommentSection';
 import DocumentList from '../documents/DocumentList';
+import TaskSuggestions from '../ai/TaskSuggestions';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
@@ -74,6 +75,11 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
     updateMutation.mutate({ id: item.id, data: formData });
   };
 
+  const handleSuggestionUpdate = (updates) => {
+    setFormData({ ...formData, ...updates });
+    updateMutation.mutate({ id: item.id, data: { ...formData, ...updates } });
+  };
+
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete this item?')) {
       deleteMutation.mutate(item.id);
@@ -100,6 +106,10 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
 
         {/* Content */}
         <div className="p-6 space-y-6">
+          {/* AI Suggestions */}
+          {formData.type === 'task' && (
+            <TaskSuggestions item={formData} onUpdate={handleSuggestionUpdate} />
+          )}
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
