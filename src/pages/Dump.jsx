@@ -4,14 +4,24 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, Grid3x3 } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ItemCard from '../components/dump/ItemCard';
 import ItemDetailPanel from '../components/dump/ItemDetailPanel';
 import FilterBar from '../components/dump/FilterBar';
+import KanbanCard from '../components/kanban/KanbanCard';
+
+const STATUSES = [
+  { id: 'not_started', label: 'Not Started', color: 'bg-slate-100' },
+  { id: 'in_progress', label: 'In Progress', color: 'bg-blue-100' },
+  { id: 'completed', label: 'Completed', color: 'bg-emerald-100' },
+  { id: 'canceled', label: 'Canceled', color: 'bg-red-100' },
+];
 
 export default function DumpPage() {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
   const [filters, setFilters] = useState({
     venture_id: null,
     project_id: null,
@@ -124,6 +134,25 @@ export default function DumpPage() {
     });
   };
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ itemId, newStatus }) =>
+      base44.entities.Item.update(itemId, { status: newStatus }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+    },
+  });
+
+  const handleDragEnd = (result) => {
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+    updateStatusMutation.mutate({ itemId: draggableId, newStatus: destination.droppableId });
+  };
+
+  const kanbanItems = useMemo(() => {
+    return items.filter(item => item.type === 'task');
+  }, [items]);
+
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
@@ -166,21 +195,32 @@ export default function DumpPage() {
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </Button>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="-created_date">Newest First</SelectItem>
-              <SelectItem value="created_date">Oldest First</SelectItem>
-              <SelectItem value="-updated_date">Recently Updated</SelectItem>
-              <SelectItem value="due_date">Due Date (Earliest)</SelectItem>
-              <SelectItem value="-due_date">Due Date (Latest)</SelectItem>
-              <SelectItem value="s_sextant">Sextant (1-6)</SelectItem>
-              <SelectItem value="-p_priority">Priority (High-Low)</SelectItem>
-              <SelectItem value="p_priority">Priority (Low-High)</SelectItem>
-            </SelectContent>
-          </Select>
+          <Button
+            variant={viewMode === 'kanban' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
+            className="text-slate-600"
+          >
+            <Grid3x3 className="w-4 h-4 mr-2" />
+            {viewMode === 'kanban' ? 'List' : 'Kanban'}
+          </Button>
+          {viewMode === 'list' && (
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="-created_date">Newest First</SelectItem>
+                <SelectItem value="created_date">Oldest First</SelectItem>
+                <SelectItem value="-updated_date">Recently Updated</SelectItem>
+                <SelectItem value="due_date">Due Date (Earliest)</SelectItem>
+                <SelectItem value="-due_date">Due Date (Latest)</SelectItem>
+                <SelectItem value="s_sextant">Sextant (1-6)</SelectItem>
+                <SelectItem value="-p_priority">Priority (High-Low)</SelectItem>
+                <SelectItem value="p_priority">Priority (Low-High)</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
         <span className="text-sm text-slate-500">
           {items.length} {items.length === 1 ? 'item' : 'items'}
@@ -197,26 +237,75 @@ export default function DumpPage() {
         />
       )}
 
-      {/* Items List */}
-      <div className="space-y-3">
-        {isLoading ? (
-          <div className="text-center py-12 text-slate-500">Loading...</div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-slate-500 mb-2">No items yet</p>
-            <p className="text-sm text-slate-400">Start by adding something above</p>
+      {/* View Mode */}
+      {viewMode === 'list' ? (
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="text-center py-12 text-slate-500">Loading...</div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-slate-500 mb-2">No items yet</p>
+              <p className="text-sm text-slate-400">Start by adding something above</p>
+            </div>
+          ) : (
+            items.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                ventures={ventures}
+                onClick={() => setSelectedItem(item)}
+              />
+            ))
+          )}
+        </div>
+      ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {STATUSES.map((status) => {
+              const statusItems = kanbanItems.filter(item => item.status === status.id);
+              return (
+                <div
+                  key={status.id}
+                  className={`${status.color} rounded-xl border-2 border-dashed border-slate-300 p-4 min-h-[400px]`}
+                >
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-slate-900">{status.label}</h3>
+                    <p className="text-xs text-slate-600 mt-1">{statusItems.length} tasks</p>
+                  </div>
+                  <Droppable droppableId={status.id}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-3 transition-colors ${
+                          snapshot.isDraggingOver ? 'bg-white/50 rounded-lg p-2' : ''
+                        }`}
+                      >
+                        {statusItems.map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`transition-all ${snapshot.isDragging ? 'opacity-50' : ''}`}
+                                onClick={() => setSelectedItem(item)}
+                              >
+                                <KanbanCard item={item} ventures={ventures} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          items.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              ventures={ventures}
-              onClick={() => setSelectedItem(item)}
-            />
-          ))
-        )}
-      </div>
+        </DragDropContext>
+      )}
 
       {/* Item Detail Panel */}
       {selectedItem && (
