@@ -38,22 +38,22 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
       
       {/* Top Navigation */}
-      <nav className="bg-[#101827] dark:bg-gray-950 border-b border-gray-800/50 dark:border-gray-800 sticky top-0 z-50 transition-colors">
+      <nav className="bg-white dark:bg-gray-900 border-b border-black/[0.08] dark:border-gray-800 sticky top-0 z-50 transition-colors backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-12">
             {/* Logo */}
             <Link to={createPageUrl('Dump')} className="flex items-center gap-2.5 group">
               <div className="w-7 h-7 bg-[#3B82F6] rounded-lg flex items-center justify-center">
                 <span className="text-white font-semibold text-sm">V</span>
               </div>
               <div>
-                <span className="text-base font-medium tracking-tight text-white">Venturer</span>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest -mt-0.5" style={{letterSpacing: '0.08em'}}>Multi-Venture OS</p>
+                <span className="text-[15px] font-semibold tracking-tight text-[#0F172A] dark:text-white">Venturer</span>
+                <p className="text-[9px] text-[#6B7280] dark:text-gray-400 uppercase tracking-widest -mt-0.5" style={{letterSpacing: '0.1em'}}>Multi-Venture OS</p>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-1">
               <NotificationBell />
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -62,13 +62,13 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.page}
                     to={createPageUrl(item.page)}
-                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-sm font-medium ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-[13px] font-medium ${
                       isActive
-                        ? 'bg-[#3B82F6]/20 text-[#3B82F6] border-b-2 border-[#3B82F6]'
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                        ? 'text-[#3B82F6] bg-[#3B82F6]/10'
+                        : 'text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3.5 h-3.5" />
                     <span>{item.name}</span>
                   </Link>
                 );
@@ -78,12 +78,12 @@ export default function Layout({ children, currentPageName }) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-white" />
+                <X className="w-5 h-5 text-[#0F172A] dark:text-white" />
               ) : (
-                <Menu className="w-5 h-5 text-white" />
+                <Menu className="w-5 h-5 text-[#0F172A] dark:text-white" />
               )}
             </button>
           </div>
@@ -91,7 +91,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-800/50 bg-[#101827]">
+          <div className="md:hidden border-t border-black/[0.08] dark:border-gray-800 bg-white dark:bg-gray-900">
             <div className="py-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -103,8 +103,8 @@ export default function Layout({ children, currentPageName }) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
                       isActive
-                        ? 'bg-[#3B82F6]/20 text-[#3B82F6] border-l-2 border-[#3B82F6]'
-                        : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'
+                        ? 'bg-[#3B82F6]/10 text-[#3B82F6] border-l-2 border-[#3B82F6]'
+                        : 'text-[#64748B] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-[#0F172A] dark:hover:text-white'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
