@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function AIRambleInput({ ventures }) {
+export default function AIRambleInput({ ventures, onComplete }) {
   const [rambleText, setRambleText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
@@ -99,6 +99,7 @@ Return ONLY valid JSON array with this schema:
       queryClient.invalidateQueries({ queryKey: ['items'] });
       toast.success(`Created ${items.length} items from your ramble`);
       setRambleText('');
+      if (onComplete) onComplete();
     },
     onError: (error) => {
       toast.error('Failed to process ramble: ' + error.message);
@@ -167,11 +168,7 @@ Return ONLY valid JSON array with this schema:
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#14B8A6]/10 to-[#14B8A6]/5 rounded-xl border-2 border-dashed border-[#14B8A6]/30 p-6 mb-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-[#14B8A6]" />
-        <h3 className="text-lg font-semibold text-[#101827]">AI Brain Dump</h3>
-      </div>
+    <div className="space-y-4">
       <p className="text-sm text-[#4B5563] mb-4">
         Speak or type freely about tasks, ideas, and notes. AI will structure them for you.
       </p>

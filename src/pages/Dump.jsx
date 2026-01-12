@@ -10,7 +10,6 @@ import ItemCard from '../components/dump/ItemCard';
 import ItemDetailPanel from '../components/dump/ItemDetailPanel';
 import FilterBar from '../components/dump/FilterBar';
 import KanbanCard from '../components/kanban/KanbanCard';
-import AIRambleInput from '../components/ai/AIRambleInput';
 
 const STATUSES = [
   { id: 'not_started', label: 'Not Started', color: 'bg-slate-100' },
@@ -162,9 +161,6 @@ export default function DumpPage() {
         <p className="text-2xl font-semibold text-[#101827]">Get everything out of your head first.</p>
         <p className="text-[#4B5563] mt-1">We'll help you sort it later.</p>
       </div>
-
-      {/* AI Ramble Input */}
-      <AIRambleInput ventures={ventures} />
 
       {/* Quick Add */}
       <form onSubmit={handleQuickAdd} className="mb-6">

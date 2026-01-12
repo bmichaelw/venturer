@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
+import FloatingAIButton from './components/ai/FloatingAIButton';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -113,9 +114,12 @@ export default function Layout({ children, currentPageName }) {
           </nav>
 
           {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-        {children}
-      </main>
-    </div>
-  );
-}
+          <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+            {children}
+          </main>
+
+          {/* Floating AI Button */}
+          <FloatingAIButton />
+          </div>
+          );
+          }
