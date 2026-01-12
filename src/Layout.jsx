@@ -10,7 +10,6 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Dump', page: 'Dump', icon: LayoutGrid },
     { name: 'Calendar', page: 'Calendar', icon: Calendar },
-    { name: 'Kanban', page: 'Kanban', icon: LayoutGrid },
     { name: 'Ventures', page: 'Ventures', icon: Briefcase },
     { name: 'Teams', page: 'Teams', icon: User },
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
