@@ -10,6 +10,10 @@ import Teams from './pages/Teams';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
 import Settings from './pages/Settings';
+import Admin from './pages/Admin';
+import AdminUsers from './pages/AdminUsers';
+import AdminUserDetail from './pages/AdminUserDetail';
+import AdminRevenue from './pages/AdminRevenue';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +30,10 @@ export const PAGES = {
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
     "Settings": Settings,
+    "Admin": Admin,
+    "AdminUsers": AdminUsers,
+    "AdminUserDetail": AdminUserDetail,
+    "AdminRevenue": AdminRevenue,
 }
 
 export const pagesConfig = {
