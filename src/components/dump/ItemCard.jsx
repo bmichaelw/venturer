@@ -18,36 +18,36 @@ export default function ItemCard({ item, ventures, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl border border-stone-200/50 p-5 hover:shadow-md hover:border-amber-200 transition-all cursor-pointer group"
+      className="bg-white rounded-xl border border-black/[0.08] p-5 hover:shadow-md hover:border-black/[0.12] transition-all cursor-pointer group"
     >
       <div className="flex items-start gap-4">
         {/* Type Icon */}
-        <div className={`${config.color} rounded-lg p-2.5 flex-shrink-0 group-hover:scale-110 transition-transform`}>
+        <div className={`${config.color} rounded-lg p-2.5 flex-shrink-0 group-hover:scale-105 transition-transform`}>
           <Icon className="w-4 h-4" />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-slate-900 mb-1 line-clamp-1">
+          <h3 className="text-base font-medium text-slate-900 mb-1 line-clamp-1 leading-snug">
             {item.title}
           </h3>
 
           {item.description && (
-            <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+            <p className="text-[13px] text-slate-500 mb-3 line-clamp-2 leading-relaxed">
               {item.description}
             </p>
           )}
 
           {/* Meta Info */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-[11px] font-medium">
               {config.label}
             </Badge>
 
             {venture && (
               <Badge
                 variant="outline"
-                className="text-xs"
+                className="text-[11px] font-medium"
                 style={{ borderColor: venture.color, color: venture.color }}
               >
                 {venture.name}
@@ -55,7 +55,7 @@ export default function ItemCard({ item, ventures, onClick }) {
             )}
 
             {item.type === 'task' && item.due_date && (
-              <Badge variant="outline" className="text-xs text-slate-600">
+              <Badge variant="outline" className="text-[11px] text-slate-600 font-medium">
                 Due {format(new Date(item.due_date), 'MMM d')}
               </Badge>
             )}
@@ -63,11 +63,11 @@ export default function ItemCard({ item, ventures, onClick }) {
             {item.type === 'task' && item.status && (
               <Badge
                 variant="secondary"
-                className={`text-xs ${
+                className={`text-[11px] font-medium ${
                   item.status === 'completed'
-                    ? 'bg-emerald-100 text-emerald-700'
+                    ? 'bg-emerald-100 text-emerald-600'
                     : item.status === 'in_progress'
-                    ? 'bg-amber-100 text-amber-700'
+                    ? 'bg-amber-100 text-amber-600'
                     : 'bg-slate-100 text-slate-600'
                 }`}
               >
@@ -78,46 +78,46 @@ export default function ItemCard({ item, ventures, onClick }) {
 
           {/* STEP Indicators */}
           {(item.s_sextant || item.t_time || item.e_effort || item.p_priority) && (
-            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-stone-100">
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-black/[0.06]">
               {item.s_sextant && (
-                <div className="flex items-center gap-1 text-xs">
+                <div className="flex items-center gap-1 text-[11px]">
                   <span className="font-medium text-slate-500">S:</span>
-                  <span className={`px-1.5 py-0.5 rounded ${
+                  <span className={`px-1.5 py-0.5 rounded-md font-medium ${
                     item.s_sextant === 1 || item.s_sextant === 5
-                      ? 'bg-red-100 text-red-700'
+                      ? 'bg-red-50 text-red-600'
                       : item.s_sextant === 2
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-slate-100 text-slate-600'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'bg-slate-50 text-slate-600'
                   }`}>
                     {['I', 'II', 'III', 'IV', 'V', 'VI'][item.s_sextant - 1]}
                   </span>
                 </div>
               )}
               {item.t_time && (
-                <div className="flex items-center gap-1 text-xs">
+                <div className="flex items-center gap-1 text-[11px]">
                   <span className="font-medium text-slate-500">T:</span>
-                  <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">
+                  <span className="px-1.5 py-0.5 rounded-md bg-purple-50 text-purple-600 font-medium">
                     {item.t_time}
                   </span>
                 </div>
               )}
               {item.e_effort && (
-                <div className="flex items-center gap-1 text-xs">
+                <div className="flex items-center gap-1 text-[11px]">
                   <span className="font-medium text-slate-500">E:</span>
-                  <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">
+                  <span className="px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-600 font-medium">
                     {item.e_effort}
                   </span>
                 </div>
               )}
               {item.p_priority && (
-                <div className="flex items-center gap-1 text-xs">
+                <div className="flex items-center gap-1 text-[11px]">
                   <span className="font-medium text-slate-500">P:</span>
-                  <span className={`px-1.5 py-0.5 rounded ${
+                  <span className={`px-1.5 py-0.5 rounded-md font-medium ${
                     item.p_priority === 3
-                      ? 'bg-red-100 text-red-700'
+                      ? 'bg-red-50 text-red-600'
                       : item.p_priority === 2
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-green-100 text-green-700'
+                      ? 'bg-amber-50 text-amber-600'
+                      : 'bg-green-50 text-green-600'
                   }`}>
                     {item.p_priority}
                   </span>
