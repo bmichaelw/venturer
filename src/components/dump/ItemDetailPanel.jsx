@@ -407,7 +407,7 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
           <Button
             onClick={handleSave}
             disabled={updateMutation.isPending}
-            className="bg-slate-900 hover:bg-slate-800 text-white"
+            className="bg-[#14B8A6] hover:bg-[#0d9488] text-white"
           >
             Save Changes
           </Button>

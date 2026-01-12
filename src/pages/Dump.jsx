@@ -157,24 +157,25 @@ export default function DumpPage() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">DUMP</h1>
-        <p className="text-slate-600">Your brain dump zone. Capture everything, structure it later.</p>
+        <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">DUMP</h1>
+        <p className="text-2xl font-semibold text-[#101827]">Get everything out of your head first.</p>
+        <p className="text-[#4B5563] mt-1">We'll help you sort it later.</p>
       </div>
 
       {/* Quick Add */}
       <form onSubmit={handleQuickAdd} className="mb-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-stone-200/50 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
           <div className="flex gap-3">
             <Input
               value={quickAddValue}
               onChange={(e) => setQuickAddValue(e.target.value)}
               placeholder="What's on your mind?"
-              className="flex-1 text-base border-0 bg-stone-50 focus-visible:ring-1 focus-visible:ring-amber-500"
+              className="flex-1 text-base border-0 bg-stone-50 focus-visible:ring-1 focus-visible:ring-[#14B8A6]"
             />
             <Button
               type="submit"
               disabled={!quickAddValue.trim() || createItemMutation.isPending}
-              className="bg-slate-900 hover:bg-slate-800 text-white px-6"
+              className="bg-[#14B8A6] hover:bg-[#0d9488] text-white px-6"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add
@@ -241,11 +242,11 @@ export default function DumpPage() {
       {viewMode === 'list' ? (
         <div className="space-y-3">
           {isLoading ? (
-            <div className="text-center py-12 text-slate-500">Loading...</div>
+            <div className="text-center py-12 text-[#4B5563]">Loading...</div>
           ) : items.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-slate-500 mb-2">No items yet</p>
-              <p className="text-sm text-slate-400">Start by adding something above</p>
+            <div className="text-center py-16 bg-white rounded-xl border border-[#E5E7EB] p-8">
+              <p className="text-[#101827] text-lg font-medium mb-2">Got too many things in your head?</p>
+              <p className="text-[#4B5563]">Start dropping them here.</p>
             </div>
           ) : (
             items.map((item) => (

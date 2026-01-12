@@ -52,13 +52,13 @@ export default function TeamsPage() {
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Teams</h1>
-          <p className="text-slate-600">Collaborate with your team on ventures and projects</p>
+          <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">TEAMS</h1>
+          <p className="text-2xl font-semibold text-[#101827]">Clarity across every venture you touch.</p>
         </div>
         <div className="flex gap-2">
           <Button
             onClick={() => setModalOpen(true)}
-            className="bg-slate-900 hover:bg-slate-800"
+            className="bg-[#14B8A6] hover:bg-[#0d9488]"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Team
