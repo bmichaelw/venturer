@@ -198,6 +198,127 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
               </div>
             </>
           )}
+
+          {/* STEP Method */}
+          <div className="border-t border-stone-200 pt-6">
+            <h3 className="text-sm font-semibold text-slate-900 mb-4">STEP Method</h3>
+            
+            {/* Sextant */}
+            <div className="space-y-3 mb-5">
+              <Label>Sextant (Urgency & Importance)</Label>
+              <RadioGroup
+                value={formData.s_sextant?.toString() || ''}
+                onValueChange={(value) => setFormData({ ...formData, s_sextant: value ? parseInt(value) : null })}
+                className="space-y-2"
+              >
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="1" id="s1" />
+                  <Label htmlFor="s1" className="cursor-pointer flex-1 font-normal">
+                    1 - Urgent & Important
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="2" id="s2" />
+                  <Label htmlFor="s2" className="cursor-pointer flex-1 font-normal">
+                    2 - Not Urgent but Important
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="3" id="s3" />
+                  <Label htmlFor="s3" className="cursor-pointer flex-1 font-normal">
+                    3 - Urgent but Not Important
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="4" id="s4" />
+                  <Label htmlFor="s4" className="cursor-pointer flex-1 font-normal">
+                    4 - Not Urgent & Not Important
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="5" id="s5" />
+                  <Label htmlFor="s5" className="cursor-pointer flex-1 font-normal">
+                    5 - Late but Important
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
+                  <RadioGroupItem value="6" id="s6" />
+                  <Label htmlFor="s6" className="cursor-pointer flex-1 font-normal">
+                    6 - Late & Not Important
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Time, Effort, Priority */}
+            <div className="grid grid-cols-3 gap-4">
+              {/* Time */}
+              <div className="space-y-2">
+                <Label>Time</Label>
+                <RadioGroup
+                  value={formData.t_time?.toString() || ''}
+                  onValueChange={(value) => setFormData({ ...formData, t_time: value ? parseInt(value) : null })}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="1" id="t1" />
+                    <Label htmlFor="t1" className="cursor-pointer text-sm">Short</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="2" id="t2" />
+                    <Label htmlFor="t2" className="cursor-pointer text-sm">Medium</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="3" id="t3" />
+                    <Label htmlFor="t3" className="cursor-pointer text-sm">Long</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Effort */}
+              <div className="space-y-2">
+                <Label>Effort</Label>
+                <RadioGroup
+                  value={formData.e_effort?.toString() || ''}
+                  onValueChange={(value) => setFormData({ ...formData, e_effort: value ? parseInt(value) : null })}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="1" id="e1" />
+                    <Label htmlFor="e1" className="cursor-pointer text-sm">Low</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="2" id="e2" />
+                    <Label htmlFor="e2" className="cursor-pointer text-sm">Medium</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="3" id="e3" />
+                    <Label htmlFor="e3" className="cursor-pointer text-sm">High</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Priority */}
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <RadioGroup
+                  value={formData.p_priority?.toString() || ''}
+                  onValueChange={(value) => setFormData({ ...formData, p_priority: value ? parseInt(value) : null })}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="1" id="p1" />
+                    <Label htmlFor="p1" className="cursor-pointer text-sm">Low</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="2" id="p2" />
+                    <Label htmlFor="p2" className="cursor-pointer text-sm">Medium</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="3" id="p3" />
+                    <Label htmlFor="p3" className="cursor-pointer text-sm">High</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

@@ -75,6 +75,56 @@ export default function ItemCard({ item, ventures, onClick }) {
               </Badge>
             )}
           </div>
+
+          {/* STEP Indicators */}
+          {(item.s_sextant || item.t_time || item.e_effort || item.p_priority) && (
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-stone-100">
+              {item.s_sextant && (
+                <div className="flex items-center gap-1 text-xs">
+                  <span className="font-medium text-slate-500">S:</span>
+                  <span className={`px-1.5 py-0.5 rounded ${
+                    item.s_sextant === 1 || item.s_sextant === 5
+                      ? 'bg-red-100 text-red-700'
+                      : item.s_sextant === 2
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {item.s_sextant}
+                  </span>
+                </div>
+              )}
+              {item.t_time && (
+                <div className="flex items-center gap-1 text-xs">
+                  <span className="font-medium text-slate-500">T:</span>
+                  <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">
+                    {item.t_time}
+                  </span>
+                </div>
+              )}
+              {item.e_effort && (
+                <div className="flex items-center gap-1 text-xs">
+                  <span className="font-medium text-slate-500">E:</span>
+                  <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">
+                    {item.e_effort}
+                  </span>
+                </div>
+              )}
+              {item.p_priority && (
+                <div className="flex items-center gap-1 text-xs">
+                  <span className="font-medium text-slate-500">P:</span>
+                  <span className={`px-1.5 py-0.5 rounded ${
+                    item.p_priority === 3
+                      ? 'bg-red-100 text-red-700'
+                      : item.p_priority === 2
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {item.p_priority}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
