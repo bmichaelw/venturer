@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Bell, Check, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../../utils';
+
+const createPageUrl = (pageName) => `#/${pageName}`;
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
