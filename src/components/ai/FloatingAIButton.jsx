@@ -18,7 +18,7 @@ export default function FloatingAIButton() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-[#14B8A6] to-[#0d9488] rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-[#3B82F6] to-[#2563EB] rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center group"
       >
         <Sparkles className="w-6 h-6 text-white group-hover:animate-pulse" />
       </button>
@@ -26,11 +26,11 @@ export default function FloatingAIButton() {
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between rounded-t-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-[#E5E7EB] dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#14B8A6]" />
-                <h2 className="text-xl font-semibold text-[#101827]">AI Brain Dump</h2>
+                <Sparkles className="w-5 h-5 text-[#3B82F6]" />
+                <h2 className="text-xl font-semibold text-[#101827] dark:text-white">AI Brain Dump</h2>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                 <X className="w-5 h-5" />

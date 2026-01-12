@@ -164,19 +164,19 @@ export default function DumpPage() {
 
       {/* Quick Add */}
       <form onSubmit={handleQuickAdd} className="mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-black/[0.08] p-5 transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-black/[0.08] dark:border-gray-700 p-5 transition-all hover:shadow-md">
           <div className="flex gap-3">
             <Input
               value={quickAddValue}
               onChange={(e) => setQuickAddValue(e.target.value)}
               placeholder="What's on your mind?"
-              className="flex-1 text-[15px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-gray-400"
+              className="flex-1 text-[15px] border-0 bg-transparent dark:text-white focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               style={{ boxShadow: 'none' }}
             />
             <Button
               type="submit"
               disabled={!quickAddValue.trim() || createItemMutation.isPending}
-              className="bg-[#14B8A6] hover:bg-[#0d9488] text-white px-5 h-11 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+              className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 h-11 rounded-lg font-medium text-sm transition-all hover:shadow-md"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               Add

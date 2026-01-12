@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
-import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X } from 'lucide-react';
+import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 
@@ -15,16 +15,17 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Teams', page: 'Teams', icon: User },
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
     { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
-    { name: 'Profile', page: 'Profile', icon: User }
+    { name: 'Profile', page: 'Profile', icon: User },
+    { name: 'Settings', page: 'Settings', icon: Settings }
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 transition-colors">
       <style>{`
         :root {
           --color-primary: #101827;
-          --color-accent-teal: #14B8A6;
-          --color-accent-amber: #F59E0B;
+          --color-accent-blue: #3B82F6;
+          --color-accent-orange: #F97316;
           --color-graphite: #4B5563;
           --color-fog: #E5E7EB;
         }
@@ -36,12 +37,12 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
       
       {/* Top Navigation */}
-      <nav className="bg-[#101827] border-b border-gray-800/50 sticky top-0 z-50">
+      <nav className="bg-[#101827] dark:bg-gray-950 border-b border-gray-800/50 dark:border-gray-800 sticky top-0 z-50 transition-colors">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link to={createPageUrl('Dump')} className="flex items-center gap-2.5 group">
-              <div className="w-7 h-7 bg-[#14B8A6] rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 bg-[#3B82F6] rounded-lg flex items-center justify-center">
                 <span className="text-white font-semibold text-sm">V</span>
               </div>
               <div>
@@ -62,7 +63,7 @@ export default function Layout({ children, currentPageName }) {
                     to={createPageUrl(item.page)}
                     className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-sm font-medium ${
                       isActive
-                        ? 'bg-[#14B8A6]/20 text-[#14B8A6] border-b-2 border-[#14B8A6]'
+                        ? 'bg-[#3B82F6]/20 text-[#3B82F6] border-b-2 border-[#3B82F6]'
                         : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                     }`}
                   >
@@ -101,7 +102,7 @@ export default function Layout({ children, currentPageName }) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
                       isActive
-                        ? 'bg-[#14B8A6]/20 text-[#14B8A6] border-l-2 border-[#14B8A6]'
+                        ? 'bg-[#3B82F6]/20 text-[#3B82F6] border-l-2 border-[#3B82F6]'
                         : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'
                     }`}
                   >

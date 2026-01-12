@@ -18,7 +18,7 @@ export default function ItemCard({ item, ventures, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl border border-black/[0.08] p-5 hover:shadow-md hover:border-black/[0.12] transition-all cursor-pointer group"
+      className="bg-white dark:bg-gray-800 rounded-xl border border-black/[0.08] dark:border-gray-700 p-5 hover:shadow-md hover:border-black/[0.12] dark:hover:border-gray-600 transition-all cursor-pointer group"
     >
       <div className="flex items-start gap-4">
         {/* Type Icon */}
@@ -28,12 +28,12 @@ export default function ItemCard({ item, ventures, onClick }) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-medium text-slate-900 mb-1 line-clamp-1 leading-snug">
+          <h3 className="text-base font-medium text-slate-900 dark:text-white mb-1 line-clamp-1 leading-snug group-hover:text-[#3B82F6] dark:group-hover:text-[#3B82F6] transition-colors">
             {item.title}
           </h3>
 
           {item.description && (
-            <p className="text-[13px] text-slate-500 mb-3 line-clamp-2 leading-relaxed">
+            <p className="text-[13px] text-slate-500 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
               {item.description}
             </p>
           )}
