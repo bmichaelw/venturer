@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Trash2 } from 'lucide-react';
 import CommentSection from '../collaboration/CommentSection';
+import DocumentList from '../documents/DocumentList';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
@@ -374,6 +375,11 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
               {/* Comments Section */}
               <div className="border-t border-stone-200 pt-6">
               <CommentSection itemId={item.id} />
+              </div>
+
+              {/* Documents Section */}
+              <div className="border-t border-stone-200 pt-6">
+              <DocumentList entityType="item" entityId={item.id} />
               </div>
               </div>
 

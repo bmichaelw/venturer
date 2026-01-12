@@ -1,11 +1,142 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Plus, Edit, Folder } from 'lucide-react';
+import { createPageUrl } from '../utils';
+import DocumentList from '../components/documents/DocumentList';
 
 export default function VentureDetailPage() {
+  const [searchParams] = useSearchParams();
+  const ventureId = searchParams.get('id');
+
+  const { data: venture } = useQuery({
+    queryKey: ['venture', ventureId],
+    queryFn: async () => {
+      const ventures = await base44.entities.Venture.filter({ id: ventureId });
+      return ventures[0];
+    },
+    enabled: !!ventureId,
+  });
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects', ventureId],
+    queryFn: () => base44.entities.Project.filter({ venture_id: ventureId }, 'name'),
+    enabled: !!ventureId,
+  });
+
+  const { data: items = [] } = useQuery({
+    queryKey: ['items', ventureId],
+    queryFn: () => base44.entities.Item.filter({ venture_id: ventureId }),
+    enabled: !!ventureId,
+  });
+
+  if (!venture) {
+    return <div className="text-center py-12">Loading venture...</div>;
+  }
+
+  const tasks = items.filter(i => i.type === 'task');
+  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="text-center py-16">
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">Venture Details</h1>
-        <p className="text-slate-600">Coming in Milestone 2</p>
+      <Link to={createPageUrl('Ventures')} className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-6">
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back to Ventures
+      </Link>
+
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-8 mb-6">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-start gap-4">
+            <div 
+              className="w-16 h-16 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: venture.color }}
+            >
+              <span className="text-2xl text-white font-bold">
+                {venture.name[0].toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">{venture.name}</h1>
+              {venture.description && (
+                <p className="text-slate-600">{venture.description}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-6 mb-8">
+          <div className="text-center p-4 bg-stone-50 rounded-lg">
+            <div className="text-2xl font-bold text-slate-900">{projects.length}</div>
+            <div className="text-sm text-slate-600">Projects</div>
+          </div>
+          <div className="text-center p-4 bg-stone-50 rounded-lg">
+            <div className="text-2xl font-bold text-slate-900">{items.length}</div>
+            <div className="text-sm text-slate-600">Total Items</div>
+          </div>
+          <div className="text-center p-4 bg-stone-50 rounded-lg">
+            <div className="text-2xl font-bold text-slate-900">
+              {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
+            </div>
+            <div className="text-sm text-slate-600">Completion</div>
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div className="border-t border-stone-200 pt-6">
+          <DocumentList entityType="venture" entityId={ventureId} />
+        </div>
+      </div>
+
+      {/* Projects */}
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-900">Projects</h2>
+        </div>
+
+        {projects.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            No projects in this venture yet
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {projects.map(project => {
+              const projectItems = items.filter(i => i.project_id === project.id);
+              const projectTasks = projectItems.filter(i => i.type === 'task');
+              const completed = projectTasks.filter(t => t.status === 'completed').length;
+
+              return (
+                <Link
+                  key={project.id}
+                  to={createPageUrl('ProjectDetail') + '?id=' + project.id}
+                  className="block border border-stone-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Folder className="w-5 h-5 text-slate-500" />
+                      <div>
+                        <h3 className="font-semibold text-slate-900">{project.name}</h3>
+                        {project.description && (
+                          <p className="text-sm text-slate-600 mt-1">{project.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={project.status === 'completed' ? 'default' : 'outline'}>
+                        {project.status}
+                      </Badge>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {completed}/{projectTasks.length} tasks
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
