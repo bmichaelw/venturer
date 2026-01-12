@@ -130,7 +130,7 @@ export default function FilterBar({ filters, setFilters, ventures, projects }) {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                S:{val}
+                S:{['I', 'II', 'III', 'IV', 'V', 'VI'][val - 1]}
               </Badge>
             ))}
           </div>

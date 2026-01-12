@@ -214,37 +214,37 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="1" id="s1" />
                   <Label htmlFor="s1" className="cursor-pointer flex-1 font-normal">
-                    1 - Urgent & Important
+                    I - Urgent & Important
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="2" id="s2" />
                   <Label htmlFor="s2" className="cursor-pointer flex-1 font-normal">
-                    2 - Not Urgent but Important
+                    II - Not Urgent but Important
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="3" id="s3" />
                   <Label htmlFor="s3" className="cursor-pointer flex-1 font-normal">
-                    3 - Urgent but Not Important
+                    III - Urgent but Not Important
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="4" id="s4" />
                   <Label htmlFor="s4" className="cursor-pointer flex-1 font-normal">
-                    4 - Not Urgent & Not Important
+                    IV - Not Urgent & Not Important
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="5" id="s5" />
                   <Label htmlFor="s5" className="cursor-pointer flex-1 font-normal">
-                    5 - Late but Important
+                    V - Late but Important
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-stone-50">
                   <RadioGroupItem value="6" id="s6" />
                   <Label htmlFor="s6" className="cursor-pointer flex-1 font-normal">
-                    6 - Late & Not Important
+                    VI - Late & Not Important
                   </Label>
                 </div>
               </RadioGroup>

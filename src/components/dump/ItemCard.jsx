@@ -89,7 +89,7 @@ export default function ItemCard({ item, ventures, onClick }) {
                       ? 'bg-blue-100 text-blue-700'
                       : 'bg-slate-100 text-slate-600'
                   }`}>
-                    {item.s_sextant}
+                    {['I', 'II', 'III', 'IV', 'V', 'VI'][item.s_sextant - 1]}
                   </span>
                 </div>
               )}
