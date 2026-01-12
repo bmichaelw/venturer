@@ -10,6 +10,7 @@ import ItemCard from '../components/dump/ItemCard';
 import ItemDetailPanel from '../components/dump/ItemDetailPanel';
 import FilterBar from '../components/dump/FilterBar';
 import KanbanCard from '../components/kanban/KanbanCard';
+import AIRambleInput from '../components/ai/AIRambleInput';
 
 const STATUSES = [
   { id: 'not_started', label: 'Not Started', color: 'bg-slate-100' },
@@ -162,6 +163,9 @@ export default function DumpPage() {
         <p className="text-[#4B5563] mt-1">We'll help you sort it later.</p>
       </div>
 
+      {/* AI Ramble Input */}
+      <AIRambleInput ventures={ventures} />
+
       {/* Quick Add */}
       <form onSubmit={handleQuickAdd} className="mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
@@ -169,7 +173,7 @@ export default function DumpPage() {
             <Input
               value={quickAddValue}
               onChange={(e) => setQuickAddValue(e.target.value)}
-              placeholder="What's on your mind?"
+              placeholder="Quick add (or use AI Brain Dump above for detailed capture)"
               className="flex-1 text-base border-0 bg-stone-50 focus-visible:ring-1 focus-visible:ring-[#14B8A6]"
             />
             <Button
