@@ -54,6 +54,30 @@ export default function DumpPage() {
     },
   });
 
+  const { data: comments = [] } = useQuery({
+    queryKey: ['comments'],
+    queryFn: () => base44.entities.Comment.list(),
+  });
+
+  const { data: ventures = [] } = useQuery({
+    queryKey: ['ventures'],
+    queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
+  });
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects', filters.venture_id],
+    queryFn: async () => {
+      if (!filters.venture_id) return [];
+      return base44.entities.Project.filter({ venture_id: filters.venture_id }, 'name');
+    },
+    enabled: !!filters.venture_id,
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   const items = React.useMemo(() => {
     let filtered = [...allItems];
 
@@ -147,30 +171,6 @@ export default function DumpPage() {
 
     return filtered;
   }, [allItems, filters, sortBy, searchQuery, comments]);
-
-  const { data: ventures = [] } = useQuery({
-    queryKey: ['ventures'],
-    queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
-  });
-
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects', filters.venture_id],
-    queryFn: async () => {
-      if (!filters.venture_id) return [];
-      return base44.entities.Project.filter({ venture_id: filters.venture_id }, 'name');
-    },
-    enabled: !!filters.venture_id,
-  });
-
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
-  });
-
-  const { data: comments = [] } = useQuery({
-    queryKey: ['comments'],
-    queryFn: () => base44.entities.Comment.list(),
-  });
 
   // Create item mutation
   const createItemMutation = useMutation({
