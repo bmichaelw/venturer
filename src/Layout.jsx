@@ -11,6 +11,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Dump', page: 'Dump', icon: LayoutGrid },
     { name: 'Calendar', page: 'Calendar', icon: Calendar },
     { name: 'Ventures', page: 'Ventures', icon: Briefcase },
+    { name: 'Teams', page: 'Teams', icon: User },
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
     { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
     { name: 'Profile', page: 'Profile', icon: User }

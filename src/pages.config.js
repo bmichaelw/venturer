@@ -5,6 +5,8 @@ import Stats from './pages/Stats';
 import Profile from './pages/Profile';
 import VentureDetail from './pages/VentureDetail';
 import StepKey from './pages/StepKey';
+import Teams from './pages/Teams';
+import TeamDashboard from './pages/TeamDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +18,8 @@ export const PAGES = {
     "Profile": Profile,
     "VentureDetail": VentureDetail,
     "StepKey": StepKey,
+    "Teams": Teams,
+    "TeamDashboard": TeamDashboard,
 }
 
 export const pagesConfig = {
