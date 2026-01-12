@@ -4,12 +4,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Filter, Grid3x3 } from 'lucide-react';
+import { Plus, Filter, Grid3x3, Bookmark } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ItemCard from '../components/dump/ItemCard';
 import ItemDetailPanel from '../components/dump/ItemDetailPanel';
-import FilterBar from '../components/dump/FilterBar';
 import KanbanCard from '../components/kanban/KanbanCard';
+import GlobalSearchBar from '../components/search/GlobalSearchBar';
+import AdvancedFilters from '../components/search/AdvancedFilters';
+import SavedFiltersModal from '../components/search/SavedFiltersModal';
 
 const STATUSES = [
   { id: 'not_started', label: 'Not Started', color: 'bg-slate-100' },
@@ -21,18 +23,25 @@ const STATUSES = [
 export default function DumpPage() {
   const [quickAddValue, setQuickAddValue] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
+  const [viewMode, setViewMode] = useState('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showSavedFilters, setShowSavedFilters] = useState(false);
   const [filters, setFilters] = useState({
     venture_id: null,
     project_id: null,
     type: null,
-    s_sextant: [],
-    t_time: [],
-    e_effort: [],
-    p_priority: [],
+    status: null,
+    assigned_to: null,
+    created_after: null,
+    due_before: null,
+    completed_after: null,
+    s_sextant: null,
+    t_time: null,
+    e_effort: null,
+    p_priority: null,
   });
   const [sortBy, setSortBy] = useState('-created_date');
-  const [showFilters, setShowFilters] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -45,9 +54,22 @@ export default function DumpPage() {
     },
   });
 
-  // Filter and sort items on client side
   const items = React.useMemo(() => {
     let filtered = [...allItems];
+
+    // Search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(item => {
+        const titleMatch = item.title?.toLowerCase().includes(query);
+        const descMatch = item.description?.toLowerCase().includes(query);
+        const assigneeMatch = item.assigned_to?.toLowerCase().includes(query);
+        const commentMatch = comments
+          .filter(c => c.item_id === item.id)
+          .some(c => c.content?.toLowerCase().includes(query));
+        return titleMatch || descMatch || assigneeMatch || commentMatch;
+      });
+    }
 
     // Apply filters
     if (filters.venture_id) {
@@ -59,17 +81,44 @@ export default function DumpPage() {
     if (filters.type) {
       filtered = filtered.filter(item => item.type === filters.type);
     }
-    if (filters.s_sextant?.length > 0) {
-      filtered = filtered.filter(item => filters.s_sextant.includes(item.s_sextant));
+    if (filters.status) {
+      filtered = filtered.filter(item => item.status === filters.status);
     }
-    if (filters.t_time?.length > 0) {
-      filtered = filtered.filter(item => filters.t_time.includes(item.t_time));
+    if (filters.assigned_to) {
+      if (filters.assigned_to === 'unassigned') {
+        filtered = filtered.filter(item => !item.assigned_to);
+      } else {
+        filtered = filtered.filter(item => item.assigned_to === filters.assigned_to);
+      }
     }
-    if (filters.e_effort?.length > 0) {
-      filtered = filtered.filter(item => filters.e_effort.includes(item.e_effort));
+    if (filters.created_after) {
+      filtered = filtered.filter(item => 
+        new Date(item.created_date) >= new Date(filters.created_after)
+      );
     }
-    if (filters.p_priority?.length > 0) {
-      filtered = filtered.filter(item => filters.p_priority.includes(item.p_priority));
+    if (filters.due_before) {
+      filtered = filtered.filter(item => 
+        item.due_date && new Date(item.due_date) <= new Date(filters.due_before)
+      );
+    }
+    if (filters.completed_after) {
+      filtered = filtered.filter(item =>
+        item.status === 'completed' &&
+        item.updated_date &&
+        new Date(item.updated_date) >= new Date(filters.completed_after)
+      );
+    }
+    if (filters.s_sextant) {
+      filtered = filtered.filter(item => item.s_sextant === filters.s_sextant);
+    }
+    if (filters.t_time) {
+      filtered = filtered.filter(item => item.t_time === filters.t_time);
+    }
+    if (filters.e_effort) {
+      filtered = filtered.filter(item => item.e_effort === filters.e_effort);
+    }
+    if (filters.p_priority) {
+      filtered = filtered.filter(item => item.p_priority === filters.p_priority);
     }
 
     // Apply sorting
@@ -97,15 +146,13 @@ export default function DumpPage() {
     });
 
     return filtered;
-  }, [allItems, filters, sortBy]);
+  }, [allItems, filters, sortBy, searchQuery, comments]);
 
-  // Fetch ventures for filters
   const { data: ventures = [] } = useQuery({
     queryKey: ['ventures'],
     queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
   });
 
-  // Fetch projects for filters
   const { data: projects = [] } = useQuery({
     queryKey: ['projects', filters.venture_id],
     queryFn: async () => {
@@ -113,6 +160,16 @@ export default function DumpPage() {
       return base44.entities.Project.filter({ venture_id: filters.venture_id }, 'name');
     },
     enabled: !!filters.venture_id,
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: comments = [] } = useQuery({
+    queryKey: ['comments'],
+    queryFn: () => base44.entities.Comment.list(),
   });
 
   // Create item mutation
@@ -185,23 +242,57 @@ export default function DumpPage() {
         </div>
       </form>
 
-      {/* Filter Toggle & Sort */}
+      {/* Search & Filters */}
+      <div className="mb-6">
+        <GlobalSearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
+          onToggleFilters={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          showFilters={showAdvancedFilters}
+        />
+      </div>
+
+      {showAdvancedFilters && (
+        <AdvancedFilters
+          filters={filters}
+          onChange={setFilters}
+          onClear={() => setFilters({
+            venture_id: null,
+            project_id: null,
+            type: null,
+            status: null,
+            assigned_to: null,
+            created_after: null,
+            due_before: null,
+            completed_after: null,
+            s_sextant: null,
+            t_time: null,
+            e_effort: null,
+            p_priority: null,
+          })}
+          onSave={() => setShowSavedFilters(true)}
+          ventures={ventures}
+          projects={projects}
+          users={allUsers}
+        />
+      )}
+
+      {/* View Controls */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="text-slate-600"
+            onClick={() => setShowSavedFilters(true)}
           >
-            <Filter className="w-4 h-4 mr-2" />
-            Filters
+            <Bookmark className="w-4 h-4 mr-2" />
+            Saved Filters
           </Button>
           <Button
             variant={viewMode === 'kanban' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
-            className="text-slate-600"
           >
             <Grid3x3 className="w-4 h-4 mr-2" />
             {viewMode === 'kanban' ? 'List' : 'Kanban'}
@@ -224,20 +315,10 @@ export default function DumpPage() {
             </Select>
           )}
         </div>
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-slate-500 dark:text-gray-400">
           {items.length} {items.length === 1 ? 'item' : 'items'}
         </span>
       </div>
-
-      {/* Filters */}
-      {showFilters && (
-        <FilterBar
-          filters={filters}
-          setFilters={setFilters}
-          ventures={ventures}
-          projects={projects}
-        />
-      )}
 
       {/* View Mode */}
       {viewMode === 'list' ? (
@@ -317,6 +398,14 @@ export default function DumpPage() {
           ventures={ventures}
         />
       )}
+
+      {/* Saved Filters Modal */}
+      <SavedFiltersModal
+        isOpen={showSavedFilters}
+        onClose={() => setShowSavedFilters(false)}
+        currentFilters={filters}
+        onApplyFilter={(savedFilters) => setFilters(savedFilters)}
+      />
     </div>
   );
 }
