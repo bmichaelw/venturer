@@ -19,7 +19,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-100">
+    <div className="min-h-screen bg-stone-50">
       <style>{`
         :root {
           --color-primary: #101827;
@@ -29,27 +29,29 @@ export default function Layout({ children, currentPageName }) {
           --color-fog: #E5E7EB;
         }
         * {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
         }
       `}</style>
       
       {/* Top Navigation */}
-      <nav className="bg-[#101827] border-b border-gray-800 sticky top-0 z-50">
+      <nav className="bg-[#101827] border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <Link to={createPageUrl('Dump')} className="flex items-center gap-3 group">
-              <div className="w-8 h-8 bg-[#14B8A6] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">V</span>
+            <Link to={createPageUrl('Dump')} className="flex items-center gap-2.5 group">
+              <div className="w-7 h-7 bg-[#14B8A6] rounded-lg flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">V</span>
               </div>
               <div>
-                <span className="text-xl font-semibold tracking-tight text-white">Venturer</span>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider -mt-1">Multi-Venture OS</p>
+                <span className="text-base font-medium tracking-tight text-white">Venturer</span>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest -mt-0.5" style={{letterSpacing: '0.08em'}}>Multi-Venture OS</p>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-0.5">
               <NotificationBell />
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -58,14 +60,14 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.page}
                     to={createPageUrl(item.page)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all text-sm font-medium ${
                       isActive
-                        ? 'bg-[#14B8A6] text-white'
-                        : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                        ? 'bg-[#14B8A6]/20 text-[#14B8A6] border-b-2 border-[#14B8A6]'
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{item.name}</span>
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
@@ -87,7 +89,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-800 bg-[#101827]">
+          <div className="md:hidden border-t border-gray-800/50 bg-[#101827]">
             <div className="py-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -97,14 +99,14 @@ export default function Layout({ children, currentPageName }) {
                     key={item.page}
                     to={createPageUrl(item.page)}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-6 py-3 transition-colors ${
+                    className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
                       isActive
-                        ? 'bg-[#14B8A6] text-white'
-                        : 'text-gray-300 hover:bg-gray-800'
+                        ? 'bg-[#14B8A6]/20 text-[#14B8A6] border-l-2 border-[#14B8A6]'
+                        : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-sm font-medium">{item.name}</span>
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
