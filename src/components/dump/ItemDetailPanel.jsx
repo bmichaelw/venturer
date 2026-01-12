@@ -8,10 +8,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Trash2 } from 'lucide-react';
+import CommentSection from '../collaboration/CommentSection';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
   const queryClient = useQueryClient();
+
+  // Fetch all users for assignment
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   // Fetch projects when venture changes
   const { data: projects = [] } = useQuery({
@@ -25,9 +37,25 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Item.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const updated = await base44.entities.Item.update(id, data);
+      
+      // Create notification if task was assigned
+      if (data.assigned_to && data.assigned_to !== item.assigned_to) {
+        await base44.entities.Notification.create({
+          user_email: data.assigned_to,
+          type: 'assignment',
+          item_id: id,
+          message: `${currentUser?.full_name || currentUser?.email} assigned you to: ${item.title}`,
+          related_user: currentUser?.email,
+        });
+      }
+      
+      return updated;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       onClose();
     },
   });
@@ -196,6 +224,29 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                   </Select>
                 </div>
               </div>
+
+              {/* Assign To */}
+              <div className="space-y-2">
+                <Label htmlFor="assigned_to">Assign To</Label>
+                <Select
+                  value={formData.assigned_to || 'none'}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, assigned_to: value === 'none' ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Unassigned" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {allUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.email}>
+                        {user.full_name || user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </>
           )}
 
@@ -317,11 +368,16 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                   </div>
                 </RadioGroup>
               </div>
-            </div>
-          </div>
-        </div>
+              </div>
+              </div>
 
-        {/* Footer */}
+              {/* Comments Section */}
+              <div className="border-t border-stone-200 pt-6">
+              <CommentSection itemId={item.id} />
+              </div>
+              </div>
+
+              {/* Footer */}
         <div className="border-t border-stone-200 px-6 py-4 flex items-center justify-between">
           <Button
             variant="ghost"

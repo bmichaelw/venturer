@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X } from 'lucide-react';
+import NotificationBell from './components/collaboration/NotificationBell';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center gap-1">
+              <NotificationBell />
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentPageName === item.page;
