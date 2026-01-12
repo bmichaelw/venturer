@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Settings, BarChart3 } from 'lucide-react';
+import { Users, Settings, BarChart3, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 
-export default function TeamCard({ team, userRole, onEdit, teamMembers }) {
+export default function TeamCard({ team, userRole, onEdit, onTemplates, teamMembers }) {
   const canManage = userRole === 'lead';
 
   return (

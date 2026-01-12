@@ -6,6 +6,7 @@ import { Users, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import CapacityPlanner from '../components/teams/CapacityPlanner';
 
 export default function TeamDashboardPage() {
   const [searchParams] = useSearchParams();
@@ -152,9 +153,19 @@ export default function TeamDashboardPage() {
         </div>
       </div>
 
+      {/* Capacity Planning */}
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Team Capacity Planning</h2>
+        <CapacityPlanner 
+          teamMembers={teamMembers}
+          teamItems={teamItems}
+          users={users}
+        />
+      </div>
+
       {/* Member Workload */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Team Member Workload</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Team Member Details</h2>
         <div className="space-y-4">
           {Object.entries(memberStats).map(([email, stats]) => (
             <div key={email} className="border border-stone-200 rounded-lg p-4">

@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, FileText } from 'lucide-react';
 import TeamCard from '../components/teams/TeamCard';
 import TeamModal from '../components/teams/TeamModal';
+import ProjectTemplateModal from '../components/teams/ProjectTemplateModal';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
 export default function TeamsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState(null);
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState(null);
 
   const { data: teams = [], isLoading } = useQuery({
     queryKey: ['teams'],
@@ -52,13 +55,15 @@ export default function TeamsPage() {
           <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Teams</h1>
           <p className="text-slate-600">Collaborate with your team on ventures and projects</p>
         </div>
-        <Button
-          onClick={() => setModalOpen(true)}
-          className="bg-slate-900 hover:bg-slate-800"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Team
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="bg-slate-900 hover:bg-slate-800"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Team
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -81,6 +86,10 @@ export default function TeamsPage() {
               team={team}
               userRole={getTeamRole(team.id)}
               onEdit={handleEdit}
+              onTemplates={(teamId) => {
+                setSelectedTeamId(teamId);
+                setTemplateModalOpen(true);
+              }}
               teamMembers={teamMembers.filter(m => m.team_id === team.id)}
             />
           ))}
@@ -91,6 +100,16 @@ export default function TeamsPage() {
         <TeamModal
           team={editingTeam}
           onClose={handleClose}
+        />
+      )}
+
+      {templateModalOpen && (
+        <ProjectTemplateModal
+          teamId={selectedTeamId}
+          onClose={() => {
+            setTemplateModalOpen(false);
+            setSelectedTeamId(null);
+          }}
         />
       )}
     </div>
