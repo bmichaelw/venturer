@@ -126,8 +126,8 @@ export default function CalendarPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Calendar</h1>
-        <p className="text-sm sm:text-base text-slate-600">View and manage tasks across all ventures</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-[#323232] mb-2 tracking-tight" style={{fontFamily: 'Acherus Grotesque'}}>Calendar</h1>
+        <p className="text-sm sm:text-base text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>View and manage tasks across all ventures</p>
       </div>
 
       {/* Controls */}

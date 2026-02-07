@@ -85,8 +85,8 @@ export default function StatsPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Analytics & Reports</h1>
-        <p className="text-sm sm:text-base text-slate-600">Track progress, analyze patterns, and measure productivity</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-[#323232] mb-2 tracking-tight" style={{fontFamily: 'Acherus Grotesque'}}>Analytics & Reports</h1>
+        <p className="text-sm sm:text-base text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Track progress, analyze patterns, and measure productivity</p>
       </div>
 
       {/* Filters */}

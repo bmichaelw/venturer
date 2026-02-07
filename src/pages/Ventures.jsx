@@ -62,12 +62,12 @@ export default function VenturesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Ventures</h1>
-          <p className="text-sm sm:text-base text-slate-600">Manage your businesses and projects</p>
+          <h1 className="text-2xl sm:text-4xl font-bold text-[#323232] mb-2 tracking-tight" style={{fontFamily: 'Acherus Grotesque'}}>Ventures</h1>
+          <p className="text-sm sm:text-base text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Manage your businesses and projects</p>
         </div>
         <Button
           onClick={handleCreateNew}
-          className="bg-slate-900 hover:bg-slate-800 text-white w-full sm:w-auto"
+          className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6] w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           New Venture
@@ -76,15 +76,15 @@ export default function VenturesPage() {
 
       {/* Ventures Grid */}
       {isLoading ? (
-        <div className="text-center py-12 text-slate-500">Loading ventures...</div>
+        <div className="text-center py-12 text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Loading ventures...</div>
       ) : ventures.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Briefcase className="w-8 h-8 text-slate-400" />
+          <div className="w-16 h-16 bg-[#dbb4b4] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="w-8 h-8 text-[#805c5c]" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No ventures yet</h3>
-          <p className="text-slate-600 mb-6">Create your first venture to get started</p>
-          <Button onClick={handleCreateNew} className="bg-slate-900 hover:bg-slate-800 text-white">
+          <h3 className="text-lg font-semibold text-[#323232] mb-2" style={{fontFamily: 'Acherus Grotesque'}}>No ventures yet</h3>
+          <p className="text-[#805c5c] mb-6" style={{fontFamily: 'Montserrat'}}>Create your first venture to get started</p>
+          <Button onClick={handleCreateNew} className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]">
             <Plus className="w-4 h-4 mr-2" />
             Create Your First Venture
           </Button>

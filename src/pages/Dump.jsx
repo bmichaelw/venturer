@@ -215,26 +215,26 @@ export default function DumpPage() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">DUMP</h1>
-        <p className="text-xl sm:text-2xl font-semibold text-[#101827]">Get everything out of your head first.</p>
-        <p className="text-sm sm:text-base text-[#4B5563] mt-1">We'll help you sort it later.</p>
+        <h1 className="text-xs font-semibold text-[#805c5c] uppercase tracking-widest mb-2" style={{fontFamily: 'Acherus Grotesque'}}>DUMP</h1>
+        <p className="text-xl sm:text-2xl font-bold text-[#323232]" style={{fontFamily: 'Acherus Grotesque'}}>Get everything out of your head first.</p>
+        <p className="text-sm sm:text-base text-[#323232] mt-1" style={{fontFamily: 'Montserrat'}}>We'll help you sort it later.</p>
       </div>
 
       {/* Quick Add */}
       <form onSubmit={handleQuickAdd} className="mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-black/[0.08] dark:border-gray-700 p-5 transition-all hover:shadow-md">
+        <div className="bg-white rounded-xl shadow-sm border border-[#dbb4b4] p-5 transition-all hover:shadow-md">
           <div className="flex gap-3">
             <Input
               value={quickAddValue}
               onChange={(e) => setQuickAddValue(e.target.value)}
               placeholder="What's on your mind?"
-              className="flex-1 text-[15px] border-0 bg-transparent dark:text-white focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-              style={{ boxShadow: 'none' }}
+              className="flex-1 text-[15px] border-0 bg-transparent text-[#323232] focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-[#805c5c]"
+              style={{ boxShadow: 'none', fontFamily: 'Montserrat' }}
             />
             <Button
               type="submit"
               disabled={!quickAddValue.trim() || createItemMutation.isPending}
-              className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 h-11 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6] px-5 h-11 rounded-lg font-medium text-sm transition-all hover:shadow-md"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               Add
@@ -318,7 +318,7 @@ export default function DumpPage() {
             </Select>
           )}
         </div>
-        <span className="text-sm text-slate-500 dark:text-gray-400 text-center sm:text-right">
+        <span className="text-sm text-[#805c5c] text-center sm:text-right" style={{fontFamily: 'Montserrat'}}>
           {items.length} {items.length === 1 ? 'item' : 'items'}
         </span>
       </div>
@@ -327,11 +327,11 @@ export default function DumpPage() {
       {viewMode === 'list' ? (
         <div className="space-y-3">
           {isLoading ? (
-            <div className="text-center py-12 text-[#4B5563]">Loading...</div>
+            <div className="text-center py-12 text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Loading...</div>
           ) : items.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-xl border border-[#E5E7EB] p-8">
-              <p className="text-[#101827] text-lg font-medium mb-2">Got too many things in your head?</p>
-              <p className="text-[#4B5563]">Start dropping them here.</p>
+            <div className="text-center py-16 bg-white rounded-xl border border-[#dbb4b4] p-8">
+              <p className="text-[#323232] text-lg font-medium mb-2" style={{fontFamily: 'Acherus Grotesque'}}>Got too many things in your head?</p>
+              <p className="text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Start dropping them here.</p>
             </div>
           ) : (
             items.map((item) => (

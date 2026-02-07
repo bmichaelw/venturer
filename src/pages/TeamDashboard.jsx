@@ -139,8 +139,8 @@ export default function TeamDashboardPage() {
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">{team.name} Dashboard</h1>
-          <p className="text-sm sm:text-base text-slate-600">Team performance and workload overview</p>
+          <h1 className="text-2xl sm:text-4xl font-bold text-[#323232] mb-2 tracking-tight" style={{fontFamily: 'Acherus Grotesque'}}>{team.name} Dashboard</h1>
+          <p className="text-sm sm:text-base text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Team performance and workload overview</p>
         </div>
         <Link to={`/TeamEdit?id=${teamId}`} className="w-full sm:w-auto">
           <Button variant="outline" className="w-full">
