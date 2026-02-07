@@ -1,5 +1,5 @@
 import React from 'react';
-import { createPageUrl } from '../../utils';
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { FolderOpen, CheckSquare, Edit } from 'lucide-react';
@@ -47,7 +47,7 @@ export default function VentureCard({ venture, itemCount, projectCount, onEdit }
       </div>
 
       {/* Action */}
-      <Link to={createPageUrl('VentureDetail', `id=${venture.id}`)}>
+      <Link to={`/VentureDetail?id=${venture.id}`}>
         <Button variant="outline" className="w-full group-hover:bg-slate-900 group-hover:text-white transition-colors">
           View Projects
         </Button>
