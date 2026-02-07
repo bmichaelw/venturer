@@ -5,12 +5,19 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Edit, Folder } from 'lucide-react';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
 
 export default function VentureDetailPage() {
   const [searchParams] = useSearchParams();
   const ventureId = searchParams.get('id');
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
+  const queryClient = useQueryClient();
 
   const { data: venture } = useQuery({
     queryKey: ['venture', ventureId],
