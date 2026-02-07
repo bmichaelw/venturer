@@ -24,11 +24,6 @@ export default function TeamCard({ team, userRole, onEdit, onTemplates, teamMemb
             )}
           </div>
         </div>
-        {canManage && (
-          <Button variant="ghost" size="icon" onClick={() => onEdit(team)}>
-            <Settings className="w-4 h-4" />
-          </Button>
-        )}
       </div>
 
       {team.description && (
