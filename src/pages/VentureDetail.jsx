@@ -119,15 +119,20 @@ export default function VentureDetailPage() {
         </div>
       </div>
 
-      {/* Add Item Section */}
-      <div className="flex gap-3 mb-6">
-        <Button onClick={() => setShowAddItemModal(true)} className="flex-1">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Note/Idea/Task
-        </Button>
-        <Link to="/Dump">
-          <Button variant="outline">View All Tasks</Button>
-        </Link>
+      {/* Quick Add */}
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-900">Quick Add</h2>
+          <div className="flex gap-3">
+            <Button onClick={() => setShowAddItemModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Note/Idea/Task
+            </Button>
+            <Link to="/Dump">
+              <Button variant="outline">View All Tasks</Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Projects */}
@@ -182,13 +187,6 @@ export default function VentureDetailPage() {
           </div>
         )}
       </div>
-
-      {/* Add Item Modal */}
-      <AddItemModal 
-        isOpen={showAddItemModal} 
-        onClose={() => setShowAddItemModal(false)} 
-        ventureId={ventureId}
-      />
 
       {/* Add Project Modal */}
       <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
