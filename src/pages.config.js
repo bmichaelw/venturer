@@ -53,6 +53,7 @@ import AdminUserDetail from './pages/AdminUserDetail';
 import AdminUsers from './pages/AdminUsers';
 import Calendar from './pages/Calendar';
 import Dump from './pages/Dump';
+import ItemDetail from './pages/ItemDetail';
 import Kanban from './pages/Kanban';
 import Profile from './pages/Profile';
 import ProjectDetail from './pages/ProjectDetail';
@@ -63,7 +64,7 @@ import TeamDashboard from './pages/TeamDashboard';
 import Teams from './pages/Teams';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
-import ItemDetail from './pages/ItemDetail';
+import TeamEdit from './pages/TeamEdit';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "AdminUsers": AdminUsers,
     "Calendar": Calendar,
     "Dump": Dump,
+    "ItemDetail": ItemDetail,
     "Kanban": Kanban,
     "Profile": Profile,
     "ProjectDetail": ProjectDetail,
@@ -84,7 +86,7 @@ export const PAGES = {
     "Teams": Teams,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
-    "ItemDetail": ItemDetail,
+    "TeamEdit": TeamEdit,
 }
 
 export const pagesConfig = {

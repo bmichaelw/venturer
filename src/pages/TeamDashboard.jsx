@@ -1,16 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
-import { Users, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Users, TrendingUp, AlertCircle, CheckCircle2, Settings, Calendar, Filter, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CapacityPlanner from '../components/teams/CapacityPlanner';
+import { format, parseISO } from 'date-fns';
 
 export default function TeamDashboardPage() {
   const [searchParams] = useSearchParams();
   const teamId = searchParams.get('team');
+  const [filterVenture, setFilterVenture] = useState('all');
+  const [filterProject, setFilterProject] = useState('all');
 
   const { data: team } = useQuery({
     queryKey: ['team', teamId],
@@ -38,13 +43,32 @@ export default function TeamDashboardPage() {
     queryFn: () => base44.entities.Item.list(),
   });
 
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects', teamId],
+    queryFn: async () => {
+      if (ventures.length === 0) return [];
+      const ventureIds = ventures.map(v => v.id);
+      const allProjects = await base44.entities.Project.list();
+      return allProjects.filter(p => ventureIds.includes(p.venture_id));
+    },
+    enabled: ventures.length > 0,
+  });
+
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
   });
 
   const ventureIds = ventures.map(v => v.id);
-  const teamItems = items.filter(item => ventureIds.includes(item.venture_id));
+  let teamItems = items.filter(item => ventureIds.includes(item.venture_id));
+
+  // Apply filters
+  if (filterVenture !== 'all') {
+    teamItems = teamItems.filter(item => item.venture_id === filterVenture);
+  }
+  if (filterProject !== 'all') {
+    teamItems = teamItems.filter(item => item.project_id === filterProject);
+  }
 
   const memberStats = useMemo(() => {
     const stats = {};
@@ -103,11 +127,27 @@ export default function TeamDashboardPage() {
     return email[0].toUpperCase();
   };
 
+  // Upcoming deadlines
+  const upcomingDeadlines = useMemo(() => {
+    const tasks = teamItems.filter(item => item.type === 'task' && item.due_date && item.status !== 'completed');
+    return tasks
+      .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+      .slice(0, 5);
+  }, [teamItems]);
+
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">{team.name} Dashboard</h1>
-        <p className="text-slate-600">Team performance and workload overview</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">{team.name} Dashboard</h1>
+          <p className="text-slate-600">Team performance and workload overview</p>
+        </div>
+        <Link to={`/TeamEdit?id=${teamId}`}>
+          <Button variant="outline">
+            <Settings className="w-4 h-4 mr-2" />
+            Edit Team
+          </Button>
+        </Link>
       </div>
 
       {/* Team Metrics */}
@@ -150,6 +190,106 @@ export default function TeamDashboardPage() {
           </div>
           <h3 className="text-2xl font-bold text-slate-900 mb-1">{teamMetrics.overdue}</h3>
           <p className="text-sm text-slate-600">Overdue Tasks</p>
+        </div>
+      </div>
+
+      {/* Filters & Upcoming Deadlines Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Task Filters */}
+        <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Filter className="w-5 h-5" />
+            Filter Team Tasks
+          </h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Venture</label>
+              <Select value={filterVenture} onValueChange={setFilterVenture}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Ventures" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ventures</SelectItem>
+                  {ventures.map((venture) => (
+                    <SelectItem key={venture.id} value={venture.id}>
+                      {venture.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Project</label>
+              <Select value={filterProject} onValueChange={setFilterProject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Projects" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Projects</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(filterVenture !== 'all' || filterProject !== 'all') && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  setFilterVenture('all');
+                  setFilterProject('all');
+                }}
+                className="w-full"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Upcoming Deadlines */}
+        <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Upcoming Deadlines
+          </h2>
+          {upcomingDeadlines.length === 0 ? (
+            <p className="text-sm text-slate-500">No upcoming deadlines</p>
+          ) : (
+            <div className="space-y-3">
+              {upcomingDeadlines.map((task) => {
+                const isOverdue = new Date(task.due_date) < new Date();
+                const venture = ventures.find(v => v.id === task.venture_id);
+                return (
+                  <Link key={task.id} to={`/ItemDetail?id=${task.id}`}>
+                    <div className="p-3 rounded-lg border border-stone-200 hover:bg-stone-50 transition-colors cursor-pointer">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-slate-900 mb-1">{task.title}</p>
+                          {venture && (
+                            <div className="flex items-center gap-1 mb-1">
+                              <div 
+                                className="w-2 h-2 rounded"
+                                style={{ backgroundColor: venture.color }}
+                              />
+                              <span className="text-xs text-slate-600">{venture.name}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className={`text-xs font-medium whitespace-nowrap ${isOverdue ? 'text-red-600' : 'text-slate-600'}`}>
+                          {format(parseISO(task.due_date), 'MMM d')}
+                          {isOverdue && <span className="ml-1">⚠️</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

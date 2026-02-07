@@ -40,14 +40,23 @@ export default function TeamCard({ team, userRole, onEdit, onTemplates, teamMemb
           <Users className="w-4 h-4" />
           <span>{teamMembers.length} members</span>
         </div>
-        {canManage && (
-          <Link to={createPageUrl('TeamDashboard') + '?team=' + team.id}>
-            <Button variant="outline" size="sm">
-              <BarChart3 className="w-4 h-4 mr-1" />
-              Dashboard
-            </Button>
-          </Link>
-        )}
+        <div className="flex gap-2">
+          {canManage && (
+            <>
+              <Link to={createPageUrl('TeamEdit') + '?id=' + team.id}>
+                <Button variant="ghost" size="sm">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to={createPageUrl('TeamDashboard') + '?team=' + team.id}>
+                <Button variant="outline" size="sm">
+                  <BarChart3 className="w-4 h-4 mr-1" />
+                  Dashboard
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
