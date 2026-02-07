@@ -56,7 +56,7 @@ export default function AdvancedFilters({
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Venture</Label>
           <Select
             value={filters.venture_id || 'all'}
-            onValueChange={(value) => onChange({ ...filters, venture_id: value === 'all' ? null : value })}
+            onValueChange={(value) => onChange({ ...filters, venture_id: value === 'all' ? null : value, project_id: null })}
           >
             <SelectTrigger className="h-9">
               <SelectValue placeholder="All ventures" />
