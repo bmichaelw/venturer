@@ -216,8 +216,8 @@ export default function DumpPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">DUMP</h1>
-        <p className="text-2xl font-semibold text-[#101827]">Get everything out of your head first.</p>
-        <p className="text-[#4B5563] mt-1">We'll help you sort it later.</p>
+        <p className="text-xl sm:text-2xl font-semibold text-[#101827]">Get everything out of your head first.</p>
+        <p className="text-sm sm:text-base text-[#4B5563] mt-1">We'll help you sort it later.</p>
       </div>
 
       {/* Quick Add */}
@@ -280,27 +280,29 @@ export default function DumpPage() {
       )}
 
       {/* View Controls */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowSavedFilters(true)}
+            className="flex-1 sm:flex-initial"
           >
-            <Bookmark className="w-4 h-4 mr-2" />
-            Saved Filters
+            <Bookmark className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Saved Filters</span>
           </Button>
           <Button
             variant={viewMode === 'kanban' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
+            className="flex-1 sm:flex-initial"
           >
-            <Grid3x3 className="w-4 h-4 mr-2" />
-            {viewMode === 'kanban' ? 'List' : 'Kanban'}
+            <Grid3x3 className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">{viewMode === 'kanban' ? 'List' : 'Kanban'}</span>
           </Button>
           {viewMode === 'list' && (
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -316,7 +318,7 @@ export default function DumpPage() {
             </Select>
           )}
         </div>
-        <span className="text-sm text-slate-500 dark:text-gray-400">
+        <span className="text-sm text-slate-500 dark:text-gray-400 text-center sm:text-right">
           {items.length} {items.length === 1 ? 'item' : 'items'}
         </span>
       </div>
@@ -345,7 +347,7 @@ export default function DumpPage() {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATUSES.map((status) => {
               const statusItems = kanbanItems.filter(item => item.status === status.id);
               return (
