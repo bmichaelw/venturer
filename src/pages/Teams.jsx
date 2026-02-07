@@ -52,13 +52,13 @@ export default function TeamsPage() {
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">TEAMS</h1>
-          <p className="text-xl sm:text-2xl font-semibold text-[#101827]">Clarity across every venture you touch.</p>
+          <h1 className="text-xs text-[#805c5c] uppercase tracking-widest mb-2" style={{fontFamily: 'Acherus Grotesque, sans-serif'}}>TEAMS</h1>
+          <p className="text-xl sm:text-2xl text-[#323232]" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 700}}>Clarity across every venture you touch.</p>
         </div>
         <div className="flex gap-2">
           <Button
             onClick={() => setModalOpen(true)}
-            className="bg-[#14B8A6] hover:bg-[#0d9488] w-full sm:w-auto"
+            className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6] w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Team
@@ -67,13 +67,13 @@ export default function TeamsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-slate-500">Loading teams...</div>
+        <div className="text-center py-12 text-[#805c5c]" style={{fontFamily: 'Montserrat, sans-serif'}}>Loading teams...</div>
       ) : teams.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-stone-200/50 p-12 text-center">
-          <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">No teams yet</h3>
-          <p className="text-slate-600 mb-6">Create your first team to start collaborating</p>
-          <Button onClick={() => setModalOpen(true)} className="bg-slate-900 hover:bg-slate-800">
+        <div className="bg-white rounded-2xl border border-[#dbb4b4] p-12 text-center">
+          <Users className="w-16 h-16 text-[#dbb4b4] mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-[#323232] mb-2" style={{fontFamily: 'Acherus Grotesque, sans-serif'}}>No teams yet</h3>
+          <p className="text-[#805c5c] mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>Create your first team to start collaborating</p>
+          <Button onClick={() => setModalOpen(true)} className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]">
             <Plus className="w-4 h-4 mr-2" />
             Create Team
           </Button>
