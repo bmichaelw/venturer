@@ -85,40 +85,42 @@ export default function StatsPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Analytics & Reports</h1>
-        <p className="text-slate-600">Track progress, analyze patterns, and measure productivity</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Analytics & Reports</h1>
+        <p className="text-sm sm:text-base text-slate-600">Track progress, analyze patterns, and measure productivity</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-stone-200/50 p-5 mb-6">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="bg-white rounded-xl border border-stone-200/50 p-4 sm:p-5 mb-6">
+        <div className="flex flex-col gap-3">
           <span className="text-sm font-medium text-slate-700">Filters:</span>
 
           {/* Quick Date Ranges */}
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setQuickRange('week')}>This Week</Button>
-            <Button variant="outline" size="sm" onClick={() => setQuickRange('month')}>This Month</Button>
-            <Button variant="outline" size="sm" onClick={() => setQuickRange('3months')}>3 Months</Button>
-            <Button variant="outline" size="sm" onClick={() => setQuickRange('year')}>This Year</Button>
-            <Button variant="outline" size="sm" onClick={() => setQuickRange('all')}>All Time</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setQuickRange('week')} className="text-xs sm:text-sm px-2 sm:px-3">Week</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickRange('month')} className="text-xs sm:text-sm px-2 sm:px-3">Month</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickRange('3months')} className="text-xs sm:text-sm px-2 sm:px-3">3M</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickRange('year')} className="text-xs sm:text-sm px-2 sm:px-3">Year</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuickRange('all')} className="text-xs sm:text-sm px-2 sm:px-3">All</Button>
           </div>
 
           {/* Custom Date Range */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto justify-start">
                 <CalendarIcon className="w-4 h-4 mr-2" />
-                {dateRange.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, 'MMM d')} - {format(dateRange.to, 'MMM d, yyyy')}
-                    </>
+                <span className="text-xs sm:text-sm">
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, 'MMM d')} - {format(dateRange.to, 'MMM d, yyyy')}
+                      </>
+                    ) : (
+                      format(dateRange.from, 'MMM d, yyyy')
+                    )
                   ) : (
-                    format(dateRange.from, 'MMM d, yyyy')
-                  )
-                ) : (
-                  'Custom Range'
-                )}
+                    'Custom Range'
+                  )}
+                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -126,14 +128,14 @@ export default function StatsPage() {
                 mode="range"
                 selected={{ from: dateRange.from, to: dateRange.to }}
                 onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
-                numberOfMonths={2}
+                numberOfMonths={1}
               />
             </PopoverContent>
           </Popover>
 
           {/* Venture Filter */}
           <Select value={selectedVenture} onValueChange={setSelectedVenture}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Ventures" />
             </SelectTrigger>
             <SelectContent>
@@ -147,7 +149,7 @@ export default function StatsPage() {
           {/* Project Filter */}
           {selectedVenture !== 'all' && (
             <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
