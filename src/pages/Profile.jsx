@@ -98,8 +98,8 @@ export default function ProfilePage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xs font-semibold text-[#4B5563] uppercase tracking-widest mb-2">PROFILE</h1>
-        <p className="text-2xl font-semibold text-[#101827]">Manage your skills for AI-powered task delegation</p>
+        <h1 className="text-xs text-[#805c5c] uppercase tracking-widest mb-2" style={{fontFamily: 'Acherus Grotesque, sans-serif'}}>PROFILE</h1>
+        <p className="text-2xl text-[#323232]" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 700}}>Manage your skills for AI-powered task delegation</p>
       </div>
 
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 space-y-6">
@@ -161,7 +161,7 @@ export default function ProfilePage() {
             <Button
               onClick={addSkill}
               disabled={!newSkill.trim()}
-              className="bg-[#14B8A6] hover:bg-[#0d9488]"
+              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]"
             >
               <Plus className="w-4 h-4 mr-1" />
               Add
@@ -208,7 +208,7 @@ export default function ProfilePage() {
             <Button
               onClick={addExpertise}
               disabled={!newExpertise.trim()}
-              className="bg-[#14B8A6] hover:bg-[#0d9488]"
+              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]"
             >
               <Plus className="w-4 h-4 mr-1" />
               Add
