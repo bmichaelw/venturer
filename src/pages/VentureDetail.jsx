@@ -124,15 +124,10 @@ export default function VentureDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-900">Quick Add</h2>
-          <div className="flex gap-3">
-            <Button onClick={() => setShowAddItemModal(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Note/Idea/Task
-            </Button>
-            <Link to="/Dump">
-              <Button variant="outline">View All Tasks</Button>
-            </Link>
-          </div>
+          <Button onClick={() => setShowAddItemModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Note/Idea/Task
+          </Button>
         </div>
       </div>
 
