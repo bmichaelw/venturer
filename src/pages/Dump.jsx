@@ -333,12 +333,13 @@ export default function DumpPage() {
             </div>
           ) : (
             items.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                ventures={ventures}
-                onClick={() => setSelectedItem(item)}
-              />
+              <Link key={item.id} to={`/ItemDetail?id=${item.id}`}>
+                <ItemCard
+                  item={item}
+                  ventures={ventures}
+                  projects={projects}
+                />
+              </Link>
             ))
           )}
         </div>
@@ -373,10 +374,9 @@ export default function DumpPage() {
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 className={`transition-all ${snapshot.isDragging ? 'opacity-50' : ''}`}
-                                onClick={() => setSelectedItem(item)}
-                              >
+                                >
                                 <KanbanCard item={item} ventures={ventures} />
-                              </div>
+                                </div>
                             )}
                           </Draggable>
                         ))}
