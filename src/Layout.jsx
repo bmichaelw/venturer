@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
 import FloatingAIButton from './components/ai/FloatingAIButton';
+import WelcomeScreen from './components/WelcomeScreen';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !sessionStorage.getItem('welcomeShown');
+  });
+
+  const handleWelcomeComplete = () => {
+    sessionStorage.setItem('welcomeShown', 'true');
+    setShowWelcome(false);
+  };
   
   const navItems = [
     { name: 'Dump', page: 'Dump', icon: LayoutGrid },
@@ -19,7 +28,9 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fffbf6] dark:bg-[#223947] transition-colors">
+    <>
+      {showWelcome && <WelcomeScreen onComplete={handleWelcomeComplete} />}
+      <div className="min-h-screen bg-[#fffbf6] dark:bg-[#223947] transition-colors">
         <style>{`
           :root {
             --color-background: #fffbf6;
@@ -131,5 +142,6 @@ export default function Layout({ children, currentPageName }) {
           {/* Floating AI Button */}
           <FloatingAIButton />
           </div>
+          </>
           );
           }
