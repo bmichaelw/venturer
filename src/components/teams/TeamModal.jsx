@@ -19,6 +19,7 @@ export default function TeamModal({ team, onClose }) {
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('member');
   const [selectedVentures, setSelectedVentures] = useState([]);
+  const [isInviteMode, setIsInviteMode] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -48,15 +49,29 @@ export default function TeamModal({ team, onClose }) {
         role: 'lead',
       });
 
-      // Add other members
-      if (members.length > 0) {
+      // Separate existing users from invites
+      const existingMembers = members.filter(m => !m.isInvite);
+      const invitedMembers = members.filter(m => m.isInvite);
+
+      // Add existing members
+      if (existingMembers.length > 0) {
         await base44.entities.TeamMember.bulkCreate(
-          members.map(m => ({
+          existingMembers.map(m => ({
             team_id: newTeam.id,
             user_email: m.email,
             role: m.role,
           }))
         );
+      }
+
+      // Invite new members
+      if (invitedMembers.length > 0) {
+        await Promise.all(
+          invitedMembers.map(m =>
+            base44.users.inviteUser(m.email, m.role === 'lead' ? 'admin' : 'user')
+          )
+        );
+        // Note: They'll need to be added to TeamMember after they accept the invitation
       }
 
       // Associate selected ventures with this team
@@ -97,12 +112,33 @@ export default function TeamModal({ team, onClose }) {
 
   const addMember = () => {
     if (!newMemberEmail) return;
-    const user = users.find(u => u.email === newMemberEmail);
-    if (!user) return;
     
-    setMembers([...members, { email: newMemberEmail, role: newMemberRole, name: user.full_name }]);
+    if (isInviteMode) {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newMemberEmail)) return;
+      
+      setMembers([...members, { 
+        email: newMemberEmail, 
+        role: newMemberRole, 
+        name: newMemberEmail,
+        isInvite: true 
+      }]);
+    } else {
+      const user = users.find(u => u.email === newMemberEmail);
+      if (!user) return;
+      
+      setMembers([...members, { 
+        email: newMemberEmail, 
+        role: newMemberRole, 
+        name: user.full_name,
+        isInvite: false 
+      }]);
+    }
+    
     setNewMemberEmail('');
     setNewMemberRole('member');
+    setIsInviteMode(false);
   };
 
   const removeMember = (email) => {
@@ -181,21 +217,47 @@ export default function TeamModal({ team, onClose }) {
 
           {!team && (
             <div className="space-y-3 border-t border-stone-200 pt-6">
-              <Label>Team Members</Label>
+              <div className="flex items-center justify-between">
+                <Label>Team Members</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsInviteMode(!isInviteMode)}
+                  className="text-xs"
+                >
+                  {isInviteMode ? 'Select Existing' : 'Invite New'}
+                </Button>
+              </div>
+              <p className="text-xs text-slate-500">
+                {isInviteMode 
+                  ? 'Enter email to invite someone new' 
+                  : 'Select from existing users or invite new members'}
+              </p>
               
               <div className="flex gap-2">
-                <Select value={newMemberEmail} onValueChange={setNewMemberEmail}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.filter(u => u.email !== currentUser?.email).map((user) => (
-                      <SelectItem key={user.email} value={user.email}>
-                        {user.full_name || user.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {isInviteMode ? (
+                  <Input
+                    placeholder="email@example.com"
+                    value={newMemberEmail}
+                    onChange={(e) => setNewMemberEmail(e.target.value)}
+                    type="email"
+                    className="flex-1"
+                  />
+                ) : (
+                  <Select value={newMemberEmail} onValueChange={setNewMemberEmail}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select user" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users.filter(u => u.email !== currentUser?.email && !members.some(m => m.email === u.email)).map((user) => (
+                        <SelectItem key={user.email} value={user.email}>
+                          {user.full_name || user.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
                 <Select value={newMemberRole} onValueChange={setNewMemberRole}>
                   <SelectTrigger className="w-32">
@@ -224,6 +286,11 @@ export default function TeamModal({ team, onClose }) {
                         <Badge variant="outline" className="text-xs">
                           {member.role}
                         </Badge>
+                        {member.isInvite && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            Will be invited
+                          </Badge>
+                        )}
                       </div>
                       <Button
                         type="button"
@@ -237,6 +304,10 @@ export default function TeamModal({ team, onClose }) {
                   ))}
                 </div>
               )}
+              
+              <p className="text-xs text-slate-500 italic">
+                You can add more members later from the team dashboard
+              </p>
             </div>
           )}
 
