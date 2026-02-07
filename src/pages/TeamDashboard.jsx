@@ -137,13 +137,13 @@ export default function TeamDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">{team.name} Dashboard</h1>
-          <p className="text-slate-600">Team performance and workload overview</p>
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">{team.name} Dashboard</h1>
+          <p className="text-sm sm:text-base text-slate-600">Team performance and workload overview</p>
         </div>
-        <Link to={`/TeamEdit?id=${teamId}`}>
-          <Button variant="outline">
+        <Link to={`/TeamEdit?id=${teamId}`} className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full">
             <Settings className="w-4 h-4 mr-2" />
             Edit Team
           </Button>
@@ -334,22 +334,22 @@ export default function TeamDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-4 mb-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
                 <div>
-                  <div className="text-sm text-slate-600">Total</div>
-                  <div className="text-lg font-semibold text-slate-900">{stats.totalTasks}</div>
+                  <div className="text-xs sm:text-sm text-slate-600">Total</div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900">{stats.totalTasks}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-600">Completed</div>
-                  <div className="text-lg font-semibold text-emerald-600">{stats.completed}</div>
+                  <div className="text-xs sm:text-sm text-slate-600">Completed</div>
+                  <div className="text-base sm:text-lg font-semibold text-emerald-600">{stats.completed}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-600">In Progress</div>
-                  <div className="text-lg font-semibold text-amber-600">{stats.inProgress}</div>
+                  <div className="text-xs sm:text-sm text-slate-600">In Progress</div>
+                  <div className="text-base sm:text-lg font-semibold text-amber-600">{stats.inProgress}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-600">Overdue</div>
-                  <div className="text-lg font-semibold text-red-600">{stats.overdue}</div>
+                  <div className="text-xs sm:text-sm text-slate-600">Overdue</div>
+                  <div className="text-base sm:text-lg font-semibold text-red-600">{stats.overdue}</div>
                 </div>
               </div>
 
