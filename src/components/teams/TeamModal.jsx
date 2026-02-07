@@ -157,8 +157,8 @@ export default function TeamModal({ team, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
         <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-900">
             {team ? 'Edit Team' : 'Create Team'}
@@ -238,7 +238,7 @@ export default function TeamModal({ team, onClose }) {
                   : 'Select from existing users or invite new members'}
               </p>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 {isInviteMode ? (
                   <Input
                     placeholder="email@example.com"
@@ -262,20 +262,22 @@ export default function TeamModal({ team, onClose }) {
                   </Select>
                 )}
 
-                <Select value={newMemberRole} onValueChange={setNewMemberRole}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="lead">Lead</SelectItem>
-                    <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={newMemberRole} onValueChange={setNewMemberRole}>
+                    <SelectTrigger className="w-full sm:w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                <Button type="button" onClick={addMember} size="icon">
-                  <Plus className="w-4 h-4" />
-                </Button>
+                  <Button type="button" onClick={addMember} size="icon" className="shrink-0">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
               {members.length > 0 && (

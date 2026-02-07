@@ -55,7 +55,7 @@ export default function Layout({ children, currentPageName }) {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1">
               <NotificationBell />
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -78,22 +78,25 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-[#2C4A52]/10 dark:hover:bg-[#8B6F6F]/20 transition-colors"
-            >
+            <div className="flex items-center gap-2 lg:hidden">
+              <NotificationBell />
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-[#2C4A52]/10 dark:hover:bg-[#8B6F6F]/20 transition-colors"
+              >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5 text-[#333333] dark:text-[#F5F1E8]" />
               ) : (
                 <Menu className="w-5 h-5 text-[#333333] dark:text-[#F5F1E8]" />
-              )}
-            </button>
-          </div>
+                )}
+                </button>
+                </div>
+                </div>
           </div>
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[#2C4A52]/10 dark:border-white/10 bg-white/80 dark:bg-[#2C4A52]/80">
+          <div className="lg:hidden border-t border-[#2C4A52]/10 dark:border-white/10 bg-white/95 dark:bg-[#2C4A52]/95 backdrop-blur-sm">
             <div className="py-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -120,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
           </nav>
 
           {/* Main Content */}
-          <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             {children}
           </main>
 
