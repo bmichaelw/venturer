@@ -63,6 +63,7 @@ import TeamDashboard from './pages/TeamDashboard';
 import Teams from './pages/Teams';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
+import ItemDetail from './pages/ItemDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +84,7 @@ export const PAGES = {
     "Teams": Teams,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
+    "ItemDetail": ItemDetail,
 }
 
 export const pagesConfig = {

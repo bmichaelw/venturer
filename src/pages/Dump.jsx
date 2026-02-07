@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Filter, Grid3x3, Bookmark } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ItemCard from '../components/dump/ItemCard';
-import ItemDetailPanel from '../components/dump/ItemDetailPanel';
+
 import KanbanCard from '../components/kanban/KanbanCard';
 import GlobalSearchBar from '../components/search/GlobalSearchBar';
 import AdvancedFilters from '../components/search/AdvancedFilters';
@@ -22,7 +23,7 @@ const STATUSES = [
 
 export default function DumpPage() {
   const [quickAddValue, setQuickAddValue] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
+
   const [viewMode, setViewMode] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -388,15 +389,6 @@ export default function DumpPage() {
             })}
           </div>
         </DragDropContext>
-      )}
-
-      {/* Item Detail Panel */}
-      {selectedItem && (
-        <ItemDetailPanel
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-          ventures={ventures}
-        />
       )}
 
       {/* Saved Filters Modal */}
