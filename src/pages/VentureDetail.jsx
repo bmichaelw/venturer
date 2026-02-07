@@ -45,6 +45,11 @@ export default function VentureDetailPage() {
     enabled: !!ventureId,
   });
 
+  const { data: ventures = [] } = useQuery({
+    queryKey: ['ventures'],
+    queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
+  });
+
   const createProjectMutation = useMutation({
     mutationFn: (projectData) => base44.entities.Project.create(projectData),
     onSuccess: () => {
@@ -284,6 +289,7 @@ export default function VentureDetailPage() {
         <ItemDetailPanel 
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
+          ventures={ventures}
         />
       )}
     </div>
