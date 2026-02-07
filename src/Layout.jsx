@@ -4,8 +4,6 @@ import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Se
 import NotificationBell from './components/collaboration/NotificationBell';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 
-const createPageUrl = (pageName) => `#/${pageName}`;
-
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -42,7 +40,7 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-12">
             {/* Logo */}
-            <Link to={createPageUrl('Dump')} className="flex items-center gap-2.5 group">
+            <Link to="/Dump" className="flex items-center gap-2.5 group">
               <div className="w-7 h-7 bg-[#3B82F6] rounded-lg flex items-center justify-center">
                 <span className="text-white font-semibold text-sm">V</span>
               </div>
@@ -61,7 +59,7 @@ export default function Layout({ children, currentPageName }) {
                 return (
                   <Link
                     key={item.page}
-                    to={createPageUrl(item.page)}
+                    to={`/${item.page}`}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-[13px] font-medium ${
                       isActive
                         ? 'text-[#3B82F6] bg-[#3B82F6]/10'
@@ -99,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
                 return (
                   <Link
                     key={item.page}
-                    to={createPageUrl(item.page)}
+                    to={`/${item.page}`}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
                       isActive
