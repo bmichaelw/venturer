@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+@import url('https://fonts.cdnfonts.com/css/acherus-grotesque');
 
 @tailwind base;
 @tailwind components;
@@ -6,58 +7,59 @@
 
 @layer base {
   :root {
-    --background: 40 33% 94%;
+    --background: 32 100% 98%;
     --foreground: 0 0% 20%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 20%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 20%;
-    --primary: 195 33% 24%;
-    --primary-foreground: 40 33% 94%;
-    --secondary: 15 17% 50%;
-    --secondary-foreground: 40 33% 94%;
-    --muted: 40 20% 88%;
+    --primary: 200 35% 21%;
+    --primary-foreground: 32 100% 98%;
+    --secondary: 0 24% 44%;
+    --secondary-foreground: 32 100% 98%;
+    --muted: 15 43% 81%;
     --muted-foreground: 0 0% 40%;
-    --accent: 195 33% 24%;
-    --accent-foreground: 40 33% 94%;
+    --accent: 200 35% 21%;
+    --accent-foreground: 32 100% 98%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 40 33% 94%;
-    --border: 40 20% 85%;
-    --input: 40 20% 85%;
-    --ring: 195 33% 24%;
+    --destructive-foreground: 32 100% 98%;
+    --border: 15 43% 81%;
+    --input: 15 43% 81%;
+    --ring: 200 35% 21%;
     --radius: 0.5rem;
-    --chart-1: 195 33% 24%;
-    --chart-2: 15 17% 50%;
-    --chart-3: 197 37% 24%;
+    --chart-1: 200 35% 21%;
+    --chart-2: 0 24% 44%;
+    --chart-3: 200 35% 25%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     
-    --color-blonde: #F5F1E8;
-    --color-teal: #2C4A52;
-    --color-mauve: #8B6F6F;
-    --color-charcoal: #333333;
+    --color-background: #fffbf6;
+    --color-primary: #223947;
+    --color-text: #323232;
+    --color-secondary: #805c5c;
+    --color-tertiary: #dbb4b4;
   }
 
   .dark {
-    --background: 195 33% 24%;
-    --foreground: 40 33% 94%;
-    --card: 195 33% 24%;
-    --card-foreground: 40 33% 94%;
-    --popover: 195 33% 24%;
-    --popover-foreground: 40 33% 94%;
-    --primary: 40 33% 94%;
-    --primary-foreground: 195 33% 24%;
-    --secondary: 15 17% 50%;
-    --secondary-foreground: 40 33% 94%;
-    --muted: 195 20% 30%;
-    --muted-foreground: 40 20% 70%;
-    --accent: 15 17% 50%;
-    --accent-foreground: 40 33% 94%;
+    --background: 200 35% 21%;
+    --foreground: 32 100% 98%;
+    --card: 200 35% 21%;
+    --card-foreground: 32 100% 98%;
+    --popover: 200 35% 21%;
+    --popover-foreground: 32 100% 98%;
+    --primary: 32 100% 98%;
+    --primary-foreground: 200 35% 21%;
+    --secondary: 0 24% 44%;
+    --secondary-foreground: 32 100% 98%;
+    --muted: 200 20% 30%;
+    --muted-foreground: 32 20% 70%;
+    --accent: 0 24% 44%;
+    --accent-foreground: 32 100% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 40 33% 94%;
-    --border: 195 20% 35%;
-    --input: 195 20% 35%;
-    --ring: 40 33% 94%;
+    --destructive-foreground: 32 100% 98%;
+    --border: 200 20% 35%;
+    --input: 200 20% 35%;
+    --ring: 32 100% 98%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -72,15 +74,20 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    background-color: #fffbf6;
+    color: #323232;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Archivo', sans-serif;
+    font-family: 'Acherus Grotesque', sans-serif;
     font-weight: 700;
-    color: var(--color-charcoal);
+    color: #323232;
   }
-  .subtitle {
-    font-family: 'Archivo', sans-serif;
+  .subtitle, .heading, .subheading {
+    font-family: 'Acherus Grotesque', sans-serif;
     font-weight: 400;
+  }
+  p, span, div {
+    font-family: 'Montserrat', sans-serif;
   }
 }
