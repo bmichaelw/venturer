@@ -56,7 +56,7 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>Add New Item</DialogTitle>
         </DialogHeader>
@@ -106,7 +106,7 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Sextant (S)</Label>
                   <Select value={formData.s_sextant} onValueChange={(value) => setFormData({ ...formData, s_sextant: value })}>

@@ -79,19 +79,19 @@ export default function VentureDetailPage() {
         Back to Ventures
       </Link>
 
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-8 mb-6">
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-start gap-4">
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-8 mb-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div 
-              className="w-16 h-16 rounded-xl flex items-center justify-center"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shrink-0"
               style={{ backgroundColor: venture.color }}
             >
-              <span className="text-2xl text-white font-bold">
+              <span className="text-xl sm:text-2xl text-white font-bold">
                 {venture.name[0].toUpperCase()}
               </span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">{venture.name}</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-slate-900 mb-2">{venture.name}</h1>
               {venture.description && (
                 <p className="text-slate-600">{venture.description}</p>
               )}
@@ -99,20 +99,20 @@ export default function VentureDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-slate-900">{projects.length}</div>
-            <div className="text-sm text-slate-600">Projects</div>
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
+          <div className="text-center p-3 sm:p-4 bg-stone-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900">{projects.length}</div>
+            <div className="text-xs sm:text-sm text-slate-600">Projects</div>
           </div>
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-slate-900">{items.length}</div>
-            <div className="text-sm text-slate-600">Total Items</div>
+          <div className="text-center p-3 sm:p-4 bg-stone-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900">{items.length}</div>
+            <div className="text-xs sm:text-sm text-slate-600">Total Items</div>
           </div>
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-slate-900">
+          <div className="text-center p-3 sm:p-4 bg-stone-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900">
               {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
             </div>
-            <div className="text-sm text-slate-600">Completion</div>
+            <div className="text-xs sm:text-sm text-slate-600">Completion</div>
           </div>
         </div>
 
@@ -123,10 +123,10 @@ export default function VentureDetailPage() {
       </div>
 
       {/* Quick Add */}
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Quick Add</h2>
-          <Button onClick={() => setShowAddItemModal(true)}>
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900">Quick Add</h2>
+          <Button onClick={() => setShowAddItemModal(true)} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Note/Idea/Task
           </Button>

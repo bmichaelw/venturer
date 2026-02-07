@@ -60,14 +60,14 @@ export default function VenturesPage() {
   return (
     <div className="max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Ventures</h1>
-          <p className="text-slate-600">Manage your businesses and projects</p>
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Ventures</h1>
+          <p className="text-sm sm:text-base text-slate-600">Manage your businesses and projects</p>
         </div>
         <Button
           onClick={handleCreateNew}
-          className="bg-slate-900 hover:bg-slate-800 text-white"
+          className="bg-slate-900 hover:bg-slate-800 text-white w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           New Venture

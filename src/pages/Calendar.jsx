@@ -126,51 +126,57 @@ export default function CalendarPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Calendar</h1>
-        <p className="text-slate-600">View and manage tasks across all ventures</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">Calendar</h1>
+        <p className="text-sm sm:text-base text-slate-600">View and manage tasks across all ventures</p>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={goToToday}>
-            Today
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate(1)}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-          <span className="text-lg font-semibold text-slate-900 ml-2">{getHeaderText()}</span>
-        </div>
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={goToToday}>
+              Today
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate(1)}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant={view === 'day' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setView('day')}
-            className={view === 'day' ? 'bg-slate-900' : ''}
-          >
-            Day
-          </Button>
-          <Button
-            variant={view === 'week' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setView('week')}
-            className={view === 'week' ? 'bg-slate-900' : ''}
-          >
-            Week
-          </Button>
-          <Button
-            variant={view === 'month' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setView('month')}
-            className={view === 'month' ? 'bg-slate-900' : ''}
-          >
-            Month
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant={view === 'day' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setView('day')}
+              className={`${view === 'day' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
+            >
+              <span className="hidden sm:inline">Day</span>
+              <span className="sm:hidden">D</span>
+            </Button>
+            <Button
+              variant={view === 'week' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setView('week')}
+              className={`${view === 'week' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
+            >
+              <span className="hidden sm:inline">Week</span>
+              <span className="sm:hidden">W</span>
+            </Button>
+            <Button
+              variant={view === 'month' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setView('month')}
+              className={`${view === 'month' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
+            >
+              <span className="hidden sm:inline">Month</span>
+              <span className="sm:hidden">M</span>
+            </Button>
+          </div>
         </div>
+        
+        <span className="text-base sm:text-lg font-semibold text-slate-900">{getHeaderText()}</span>
       </div>
 
       {/* Filters */}
@@ -185,8 +191,9 @@ export default function CalendarPage() {
         {view === 'month' ? (
           <div className="grid grid-cols-7 gap-px bg-stone-200">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="bg-stone-50 px-3 py-2 text-xs font-semibold text-slate-600 text-center">
-                {day}
+              <div key={day} className="bg-stone-50 px-1 sm:px-3 py-2 text-[10px] sm:text-xs font-semibold text-slate-600 text-center">
+                <span className="hidden sm:inline">{day}</span>
+                <span className="sm:hidden">{day[0]}</span>
               </div>
             ))}
             {dateRange.map(date => {
@@ -197,13 +204,13 @@ export default function CalendarPage() {
               return (
                 <div
                   key={dateKey}
-                  className={`bg-white min-h-[120px] p-2 ${isToday ? 'bg-amber-50' : ''}`}
+                  className={`bg-white min-h-[80px] sm:min-h-[120px] p-1 sm:p-2 ${isToday ? 'bg-amber-50' : ''}`}
                 >
-                  <div className={`text-sm font-semibold mb-2 ${isToday ? 'text-amber-600' : 'text-slate-700'}`}>
+                  <div className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${isToday ? 'text-amber-600' : 'text-slate-700'}`}>
                     {format(date, 'd')}
                   </div>
                   <div className="space-y-1">
-                    {tasks.slice(0, 3).map(task => (
+                    {tasks.slice(0, 2).map(task => (
                       <CalendarTaskCard
                         key={task.id}
                         task={task}
@@ -212,8 +219,8 @@ export default function CalendarPage() {
                         onClick={() => setSelectedItem(task)}
                       />
                     ))}
-                    {tasks.length > 3 && (
-                      <div className="text-xs text-slate-500">+{tasks.length - 3} more</div>
+                    {tasks.length > 2 && (
+                      <div className="text-[10px] sm:text-xs text-slate-500">+{tasks.length - 2} more</div>
                     )}
                   </div>
                 </div>
