@@ -33,6 +33,26 @@ export default function VentureDetailPage() {
     enabled: !!ventureId,
   });
 
+  const createProjectMutation = useMutation({
+    mutationFn: (projectData) => base44.entities.Project.create(projectData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', ventureId] });
+      setShowProjectModal(false);
+      setProjectName('');
+      setProjectDescription('');
+    },
+  });
+
+  const handleCreateProject = (e) => {
+    e.preventDefault();
+    if (!projectName.trim()) return;
+    createProjectMutation.mutate({
+      venture_id: ventureId,
+      name: projectName,
+      description: projectDescription,
+    });
+  };
+
   if (!venture) {
     return <div className="text-center py-12">Loading venture...</div>;
   }
@@ -94,6 +114,10 @@ export default function VentureDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-900">Projects</h2>
+          <Button onClick={() => setShowProjectModal(true)} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Project
+          </Button>
         </div>
 
         {projects.length === 0 ? (
@@ -138,6 +162,45 @@ export default function VentureDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Add Project Modal */}
+      <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Project</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleCreateProject} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="project-name">Project Name</Label>
+              <Input
+                id="project-name"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Enter project name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="project-description">Description (optional)</Label>
+              <Textarea
+                id="project-description"
+                value={projectDescription}
+                onChange={(e) => setProjectDescription(e.target.value)}
+                placeholder="Enter project description"
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowProjectModal(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createProjectMutation.isPending}>
+                {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
