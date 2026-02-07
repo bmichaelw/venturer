@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CheckCircle2, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, CheckCircle2, Clock, Plus } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import DocumentList from '../components/documents/DocumentList';
+import AddItemModal from '../components/dump/AddItemModal';
 import { format, parseISO } from 'date-fns';
 
 export default function ProjectDetailPage() {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -93,7 +96,18 @@ export default function ProjectDetailPage() {
 
       {/* Tasks */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Tasks</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowAddItemModal(true)} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Note/Idea/Task
+            </Button>
+            <Link to="/Dump">
+              <Button variant="outline" size="sm">View All Tasks</Button>
+            </Link>
+          </div>
+        </div>
 
         {tasks.length === 0 ? (
           <div className="text-center py-8 text-slate-500">
@@ -136,6 +150,14 @@ export default function ProjectDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Add Item Modal */}
+      <AddItemModal 
+        isOpen={showAddItemModal} 
+        onClose={() => setShowAddItemModal(false)} 
+        ventureId={project.venture_id}
+        projectId={projectId}
+      />
     </div>
   );
 }

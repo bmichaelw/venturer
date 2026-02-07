@@ -10,11 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
+import AddItemModal from '../components/dump/AddItemModal';
 
 export default function VentureDetailPage() {
   const [searchParams] = useSearchParams();
   const ventureId = searchParams.get('id');
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const queryClient = useQueryClient();
@@ -117,32 +119,15 @@ export default function VentureDetailPage() {
         </div>
       </div>
 
-      {/* Quick Add Task */}
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-900">Quick Add Task</h2>
-        </div>
-        <div className="flex gap-3">
-          <Input
-            placeholder="Add a task to this venture..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.target.value.trim()) {
-                base44.entities.Item.create({
-                  title: e.target.value,
-                  type: 'task',
-                  venture_id: ventureId
-                }).then(() => {
-                  queryClient.invalidateQueries({ queryKey: ['items', ventureId] });
-                  e.target.value = '';
-                });
-              }
-            }}
-            className="flex-1"
-          />
-          <Link to="/Dump">
-            <Button variant="outline">View All Tasks</Button>
-          </Link>
-        </div>
+      {/* Add Item Section */}
+      <div className="flex gap-3 mb-6">
+        <Button onClick={() => setShowAddItemModal(true)} className="flex-1">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Note/Idea/Task
+        </Button>
+        <Link to="/Dump">
+          <Button variant="outline">View All Tasks</Button>
+        </Link>
       </div>
 
       {/* Projects */}
@@ -197,6 +182,13 @@ export default function VentureDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Add Item Modal */}
+      <AddItemModal 
+        isOpen={showAddItemModal} 
+        onClose={() => setShowAddItemModal(false)} 
+        ventureId={ventureId}
+      />
 
       {/* Add Project Modal */}
       <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
