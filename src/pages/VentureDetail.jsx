@@ -117,6 +117,34 @@ export default function VentureDetailPage() {
         </div>
       </div>
 
+      {/* Quick Add Task */}
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-900">Quick Add Task</h2>
+        </div>
+        <div className="flex gap-3">
+          <Input
+            placeholder="Add a task to this venture..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.target.value.trim()) {
+                base44.entities.Item.create({
+                  title: e.target.value,
+                  type: 'task',
+                  venture_id: ventureId
+                }).then(() => {
+                  queryClient.invalidateQueries({ queryKey: ['items', ventureId] });
+                  e.target.value = '';
+                });
+              }
+            }}
+            className="flex-1"
+          />
+          <Link to="/Dump">
+            <Button variant="outline">View All Tasks</Button>
+          </Link>
+        </div>
+      </div>
+
       {/* Projects */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-4">
