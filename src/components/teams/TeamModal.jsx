@@ -94,9 +94,12 @@ export default function TeamModal({ team, onClose }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.Team.update(team.id, data),
+    mutationFn: async (data) => {
+      await base44.entities.Team.update(team.id, data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
       onClose();
     },
   });
