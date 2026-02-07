@@ -98,13 +98,13 @@ export default function ProjectDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowAddItemModal(true)} size="sm">
+          <div className="flex gap-3">
+            <Button onClick={() => setShowAddItemModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Note/Idea/Task
             </Button>
             <Link to="/Dump">
-              <Button variant="outline" size="sm">View All Tasks</Button>
+              <Button variant="outline">View All Tasks</Button>
             </Link>
           </div>
         </div>
@@ -153,8 +153,8 @@ export default function ProjectDetailPage() {
 
       {/* Add Item Modal */}
       <AddItemModal 
-        isOpen={showAddItemModal} 
-        onClose={() => setShowAddItemModal(false)} 
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
         ventureId={project.venture_id}
         projectId={projectId}
       />
