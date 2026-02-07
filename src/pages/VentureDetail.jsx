@@ -5,7 +5,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Edit, Folder } from 'lucide-react';
-import { createPageUrl } from '../utils';
+
 import DocumentList from '../components/documents/DocumentList';
 
 export default function VentureDetailPage() {
@@ -42,7 +42,7 @@ export default function VentureDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <Link to={createPageUrl('Ventures')} className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-6">
+      <Link to="/Ventures" className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Ventures
       </Link>
@@ -110,7 +110,7 @@ export default function VentureDetailPage() {
               return (
                 <Link
                   key={project.id}
-                  to={createPageUrl('ProjectDetail') + '?id=' + project.id}
+                  to={`/ProjectDetail?id=${project.id}`}
                   className="block border border-stone-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-start justify-between">
