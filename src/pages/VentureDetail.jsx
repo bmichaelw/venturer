@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
+import ItemDetailPanel from '../components/dump/ItemDetailPanel';
 import { format, parseISO } from 'date-fns';
 
 export default function VentureDetailPage() {
@@ -18,6 +19,7 @@ export default function VentureDetailPage() {
   const ventureId = searchParams.get('id');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const queryClient = useQueryClient();
@@ -144,7 +146,8 @@ export default function VentureDetailPage() {
             {tasks.map(task => (
               <div
                 key={task.id}
-                className="border border-stone-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+                onClick={() => setSelectedItem(task)}
+                className="border border-stone-200 rounded-lg p-4 hover:border-slate-300 transition-colors cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -275,6 +278,14 @@ export default function VentureDetailPage() {
         onClose={() => setShowAddItemModal(false)}
         ventureId={ventureId}
       />
+
+      {/* Item Detail Panel */}
+      {selectedItem && (
+        <ItemDetailPanel 
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
   );
 }
