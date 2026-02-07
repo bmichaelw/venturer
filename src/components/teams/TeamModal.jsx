@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -17,6 +18,7 @@ export default function TeamModal({ team, onClose }) {
   const [members, setMembers] = useState([]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('member');
+  const [selectedVentures, setSelectedVentures] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -28,6 +30,11 @@ export default function TeamModal({ team, onClose }) {
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: ventures = [] } = useQuery({
+    queryKey: ['ventures'],
+    queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
   });
 
   const createMutation = useMutation({
@@ -52,11 +59,21 @@ export default function TeamModal({ team, onClose }) {
         );
       }
 
+      // Associate selected ventures with this team
+      if (selectedVentures.length > 0) {
+        await Promise.all(
+          selectedVentures.map(ventureId =>
+            base44.entities.Venture.update(ventureId, { team_id: newTeam.id })
+          )
+        );
+      }
+
       return newTeam;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams'] });
       queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['ventures'] });
       onClose();
     },
   });
@@ -92,6 +109,14 @@ export default function TeamModal({ team, onClose }) {
     setMembers(members.filter(m => m.email !== email));
   };
 
+  const toggleVenture = (ventureId) => {
+    setSelectedVentures(prev =>
+      prev.includes(ventureId)
+        ? prev.filter(id => id !== ventureId)
+        : [...prev, ventureId]
+    );
+  };
+
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -124,6 +149,35 @@ export default function TeamModal({ team, onClose }) {
               rows={3}
             />
           </div>
+
+          {!team && ventures.length > 0 && (
+            <div className="space-y-3 border-t border-stone-200 pt-6">
+              <Label>Ventures</Label>
+              <p className="text-xs text-slate-500">Select which venture(s) this team will work on</p>
+              
+              <div className="space-y-2 max-h-48 overflow-y-auto border border-stone-200 rounded-lg p-3">
+                {ventures.map((venture) => (
+                  <div key={venture.id} className="flex items-center gap-3">
+                    <Checkbox
+                      id={`venture-${venture.id}`}
+                      checked={selectedVentures.includes(venture.id)}
+                      onCheckedChange={() => toggleVenture(venture.id)}
+                    />
+                    <label
+                      htmlFor={`venture-${venture.id}`}
+                      className="flex items-center gap-2 cursor-pointer flex-1"
+                    >
+                      <div
+                        className="w-3 h-3 rounded"
+                        style={{ backgroundColor: venture.color }}
+                      />
+                      <span className="text-sm text-slate-900">{venture.name}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {!team && (
             <div className="space-y-3 border-t border-stone-200 pt-6">
