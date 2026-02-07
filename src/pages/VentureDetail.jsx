@@ -226,6 +226,13 @@ export default function VentureDetailPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Add Item Modal */}
+      <AddItemModal 
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        ventureId={ventureId}
+      />
     </div>
   );
 }
