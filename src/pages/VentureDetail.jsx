@@ -174,7 +174,7 @@ export default function VentureDetailPage() {
                     {task.status.replace('_', ' ')}
                   </Badge>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
