@@ -4,13 +4,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Edit, Folder } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
+import { format, parseISO } from 'date-fns';
 
 export default function VentureDetailPage() {
   const [searchParams] = useSearchParams();
@@ -133,6 +134,52 @@ export default function VentureDetailPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Tasks */}
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Tasks</h2>
+
+        {tasks.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            No tasks in this venture yet
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {tasks.map(task => (
+              <div
+                key={task.id}
+                className="border border-stone-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3 flex-1">
+                    {task.status === 'completed' ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5" />
+                    ) : (
+                      <Clock className="w-5 h-5 text-slate-400 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <h3 className={`font-medium ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
+                        {task.title}
+                      </h3>
+                      {task.description && (
+                        <p className="text-sm text-slate-600 mt-1">{task.description}</p>
+                      )}
+                      {task.due_date && (
+                        <p className="text-xs text-slate-500 mt-2">
+                          Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Badge variant={task.status === 'completed' ? 'default' : 'outline'}>
+                    {task.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Projects */}
