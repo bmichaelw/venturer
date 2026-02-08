@@ -40,6 +40,19 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
     enabled: !!formData.venture_id,
   });
 
+  // Fetch milestones and workstreams for the project
+  const { data: milestones = [] } = useQuery({
+    queryKey: ['milestones', formData.project_id],
+    queryFn: () => base44.entities.Milestone.filter({ project_id: formData.project_id }),
+    enabled: !!formData.project_id,
+  });
+
+  const { data: workstreams = [] } = useQuery({
+    queryKey: ['workstreams', formData.project_id],
+    queryFn: () => base44.entities.Workstream.filter({ project_id: formData.project_id }),
+    enabled: !!formData.project_id,
+  });
+
   // Fetch tasks from same project for blocking
   const { data: projectTasks = [] } = useQuery({
     queryKey: ['projectTasks', formData.project_id],
@@ -244,6 +257,55 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Milestone & Workstream */}
+          {formData.project_id && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="milestone">Milestone (Optional)</Label>
+                <Select
+                  value={formData.milestone_id || 'none'}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, milestone_id: value === 'none' ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select milestone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No milestone</SelectItem>
+                    {milestones.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="workstream">Workstream (Optional)</Label>
+                <Select
+                  value={formData.workstream_id || 'none'}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, workstream_id: value === 'none' ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select workstream" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No workstream</SelectItem>
+                    {workstreams.map((w) => (
+                      <SelectItem key={w.id} value={w.id}>
+                        {w.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
 

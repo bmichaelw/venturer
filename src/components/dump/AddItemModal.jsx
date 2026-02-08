@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ReminderPicker from '../reminders/ReminderPicker';
 
 export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) {
@@ -22,7 +22,21 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
     due_date: '',
     reminder_datetime: null,
     venture_id: ventureId || '',
-    project_id: projectId || ''
+    project_id: projectId || '',
+    milestone_id: '',
+    workstream_id: ''
+  });
+
+  const { data: milestones = [] } = useQuery({
+    queryKey: ['milestones', formData.project_id],
+    queryFn: () => base44.entities.Milestone.filter({ project_id: formData.project_id }),
+    enabled: !!formData.project_id,
+  });
+
+  const { data: workstreams = [] } = useQuery({
+    queryKey: ['workstreams', formData.project_id],
+    queryFn: () => base44.entities.Workstream.filter({ project_id: formData.project_id }),
+    enabled: !!formData.project_id,
   });
 
   const handleSubmit = async () => {
@@ -36,6 +50,8 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
       p_priority: formData.p_priority ? parseInt(formData.p_priority) : undefined,
       venture_id: formData.venture_id || undefined,
       project_id: formData.project_id || undefined,
+      milestone_id: formData.milestone_id || undefined,
+      workstream_id: formData.workstream_id || undefined,
     };
 
     await base44.entities.Item.create(dataToSubmit);
@@ -52,7 +68,9 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
       due_date: '',
       reminder_datetime: null,
       venture_id: ventureId || '',
-      project_id: projectId || ''
+      project_id: projectId || '',
+      milestone_id: '',
+      workstream_id: ''
     });
     onClose();
   };
@@ -113,6 +131,38 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
                 value={formData.reminder_datetime}
                 onChange={(value) => setFormData({ ...formData, reminder_datetime: value })}
               />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Milestone (Optional)</Label>
+                  <Select value={formData.milestone_id} onValueChange={(value) => setFormData({ ...formData, milestone_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select milestone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>None</SelectItem>
+                      {milestones.map(m => (
+                        <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Workstream (Optional)</Label>
+                  <Select value={formData.workstream_id} onValueChange={(value) => setFormData({ ...formData, workstream_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select workstream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>None</SelectItem>
+                      {workstreams.map(w => (
+                        <SelectItem key={w.id} value={w.id}>{w.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

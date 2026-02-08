@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon, Sparkles, Trash2, Target, Layers } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createPageUrl } from '../utils';
 import DocumentList from '../components/documents/DocumentList';
@@ -12,6 +12,10 @@ import AddItemModal from '../components/dump/AddItemModal';
 import ProjectGanttChart from '../components/projects/ProjectGanttChart';
 import ProjectMetricsWidget from '../components/projects/ProjectMetricsWidget';
 import ProjectTaskFilters from '../components/projects/ProjectTaskFilters';
+import MilestoneCard from '../components/milestones/MilestoneCard';
+import MilestoneModal from '../components/milestones/MilestoneModal';
+import WorkstreamCard from '../components/workstreams/WorkstreamCard';
+import WorkstreamModal from '../components/workstreams/WorkstreamModal';
 import { format, parseISO } from 'date-fns';
 
 export default function ProjectDetailPage() {
@@ -20,6 +24,10 @@ export default function ProjectDetailPage() {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [filters, setFilters] = useState({});
   const [viewMode, setViewMode] = useState('list');
+  const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+  const [showWorkstreamModal, setShowWorkstreamModal] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState(null);
+  const [editingWorkstream, setEditingWorkstream] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -65,6 +73,23 @@ export default function ProjectDetailPage() {
     enabled: !!projectId,
   });
 
+  const { data: milestones = [] } = useQuery({
+    queryKey: ['milestones', projectId],
+    queryFn: () => base44.entities.Milestone.filter({ project_id: projectId }, 'order'),
+    enabled: !!projectId,
+  });
+
+  const { data: workstreams = [] } = useQuery({
+    queryKey: ['workstreams', projectId],
+    queryFn: () => base44.entities.Workstream.filter({ project_id: projectId }, 'order'),
+    enabled: !!projectId,
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   const tasks = items.filter(i => i.type === 'task');
   
   // Get unique assignees for filter dropdown
@@ -91,6 +116,60 @@ export default function ProjectDetailPage() {
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+
+  const saveMilestoneMutation = useMutation({
+    mutationFn: async (data) => {
+      if (editingMilestone) {
+        return base44.entities.Milestone.update(editingMilestone.id, data);
+      }
+      return base44.entities.Milestone.create({ ...data, project_id: projectId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
+      setShowMilestoneModal(false);
+      setEditingMilestone(null);
+    },
+  });
+
+  const deleteMilestoneMutation = useMutation({
+    mutationFn: async (milestoneId) => {
+      await base44.entities.Milestone.delete(milestoneId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
+    },
+  });
+
+  const saveWorkstreamMutation = useMutation({
+    mutationFn: async (data) => {
+      if (editingWorkstream) {
+        return base44.entities.Workstream.update(editingWorkstream.id, data);
+      }
+      return base44.entities.Workstream.create({ ...data, project_id: projectId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workstreams'] });
+      setShowWorkstreamModal(false);
+      setEditingWorkstream(null);
+    },
+  });
+
+  const deleteWorkstreamMutation = useMutation({
+    mutationFn: async (workstreamId) => {
+      await base44.entities.Workstream.delete(workstreamId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workstreams'] });
+    },
+  });
+
+  const getItemCountForMilestone = (milestoneId) => {
+    return items.filter(i => i.milestone_id === milestoneId).length;
+  };
+
+  const getItemCountForWorkstream = (workstreamId) => {
+    return items.filter(i => i.workstream_id === workstreamId).length;
+  };
 
   if (!project) {
     return <div className="text-center py-12">Loading project...</div>;
@@ -152,6 +231,83 @@ export default function ProjectDetailPage() {
         {/* Documents Section */}
         <div className="border-t border-stone-200 pt-6">
           <DocumentList entityType="project" entityId={projectId} />
+        </div>
+      </div>
+
+      {/* Milestones & Workstreams */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Milestones */}
+        <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              Milestones
+            </h2>
+            <Button size="sm" onClick={() => setShowMilestoneModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {milestones.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">No milestones yet</p>
+            ) : (
+              milestones.map(milestone => (
+                <MilestoneCard
+                  key={milestone.id}
+                  milestone={milestone}
+                  itemCount={getItemCountForMilestone(milestone.id)}
+                  onEdit={() => {
+                    setEditingMilestone(milestone);
+                    setShowMilestoneModal(true);
+                  }}
+                  onDelete={() => {
+                    if (confirm('Delete this milestone?')) {
+                      deleteMilestoneMutation.mutate(milestone.id);
+                    }
+                  }}
+                  onClick={() => {}}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Workstreams */}
+        <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="w-5 h-5" />
+              Workstreams
+            </h2>
+            <Button size="sm" onClick={() => setShowWorkstreamModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {workstreams.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">No workstreams yet</p>
+            ) : (
+              workstreams.map(workstream => (
+                <WorkstreamCard
+                  key={workstream.id}
+                  workstream={workstream}
+                  itemCount={getItemCountForWorkstream(workstream.id)}
+                  onEdit={() => {
+                    setEditingWorkstream(workstream);
+                    setShowWorkstreamModal(true);
+                  }}
+                  onDelete={() => {
+                    if (confirm('Delete this workstream?')) {
+                      deleteWorkstreamMutation.mutate(workstream.id);
+                    }
+                  }}
+                  onClick={() => {}}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
 
@@ -262,6 +418,29 @@ export default function ProjectDetailPage() {
         onClose={() => setShowAddItemModal(false)}
         ventureId={project.venture_id}
         projectId={projectId}
+      />
+
+      {/* Milestone Modal */}
+      <MilestoneModal
+        open={showMilestoneModal}
+        onClose={() => {
+          setShowMilestoneModal(false);
+          setEditingMilestone(null);
+        }}
+        onSave={(data) => saveMilestoneMutation.mutate(data)}
+        milestone={editingMilestone}
+      />
+
+      {/* Workstream Modal */}
+      <WorkstreamModal
+        open={showWorkstreamModal}
+        onClose={() => {
+          setShowWorkstreamModal(false);
+          setEditingWorkstream(null);
+        }}
+        onSave={(data) => saveWorkstreamMutation.mutate(data)}
+        workstream={editingWorkstream}
+        users={allUsers}
       />
     </div>
   );
