@@ -24,6 +24,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Templates', page: 'Templates', icon: BookOpen },
     { name: 'Build Project', page: 'ProjectBuilder', icon: Briefcase },
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
+    { name: 'Reports', page: 'Reports', icon: BarChart3 },
     { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
     { name: 'Profile', page: 'Profile', icon: User },
     { name: 'Settings', page: 'Settings', icon: Settings }
