@@ -155,6 +155,14 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     saveMutation.mutate(formData);
   };
 
+  const handleSaveAsNewVersion = () => {
+    if (!changeLog) {
+      toast.error('Please describe the changes');
+      return;
+    }
+    saveAsNewVersionMutation.mutate({ data: formData, changeLog });
+  };
+
   const handleSaveAsVersion = () => {
     const notes = prompt('Enter version notes:');
     if (notes !== null) {
@@ -182,7 +190,27 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{template ? 'Edit' : 'Create'} Project Template</DialogTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>{template ? 'Edit' : 'Create'} Project Template</DialogTitle>
+              {template && (
+                <p className="text-sm text-slate-500 mt-1">
+                  Version {formData.version} {versions.length > 1 && `• ${versions.length} versions`}
+                </p>
+              )}
+            </div>
+            {template && versions.length > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowVersionDialog(true)}
+              >
+                <History className="w-4 h-4 mr-2" />
+                Version History
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
