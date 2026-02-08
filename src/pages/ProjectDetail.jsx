@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createPageUrl } from '../utils';
 import DocumentList from '../components/documents/DocumentList';
@@ -115,7 +115,13 @@ export default function ProjectDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
+            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId}>
+              <Button variant="outline" size="sm">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Expand Project
+              </Button>
+            </Link>
             <Button onClick={() => setShowAddItemModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Task
