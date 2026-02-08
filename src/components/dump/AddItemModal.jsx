@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
+import ReminderPicker from '../reminders/ReminderPicker';
 
 export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) {
   const queryClient = useQueryClient();
@@ -19,6 +20,7 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
     e_effort: '',
     p_priority: '',
     due_date: '',
+    reminder_datetime: null,
     venture_id: ventureId || '',
     project_id: projectId || ''
   });
@@ -48,6 +50,7 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
       e_effort: '',
       p_priority: '',
       due_date: '',
+      reminder_datetime: null,
       venture_id: ventureId || '',
       project_id: projectId || ''
     });
@@ -105,6 +108,11 @@ export default function AddItemModal({ isOpen, onClose, ventureId, projectId }) 
                   onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
                 />
               </div>
+
+              <ReminderPicker
+                value={formData.reminder_datetime}
+                onChange={(value) => setFormData({ ...formData, reminder_datetime: value })}
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

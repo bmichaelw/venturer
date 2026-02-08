@@ -11,6 +11,7 @@ import { X, Trash2, Plus, XCircle } from 'lucide-react';
 import CommentSection from '../collaboration/CommentSection';
 import DocumentList from '../documents/DocumentList';
 import EnhancedTaskSuggestions from '../ai/EnhancedTaskSuggestions';
+import ReminderPicker from '../reminders/ReminderPicker';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
@@ -290,6 +291,12 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                   </Select>
                 </div>
               </div>
+
+              {/* Reminder */}
+              <ReminderPicker
+                value={formData.reminder_datetime}
+                onChange={(value) => setFormData({ ...formData, reminder_datetime: value })}
+              />
 
               {/* Assign To */}
               <div className="space-y-2">
