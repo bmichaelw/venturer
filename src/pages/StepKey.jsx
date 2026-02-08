@@ -4,23 +4,23 @@ import { Badge } from '@/components/ui/badge';
 export default function StepKeyPage() {
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">STEP Method</h1>
-        <p className="text-slate-600">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2 tracking-tight">STEP Method</h1>
+        <p className="text-sm sm:text-base text-slate-600">
           A prioritization framework for managing tasks across multiple ventures
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Sextant */}
-        <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+        <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-base sm:text-lg">S</span>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Sextant</h2>
-              <p className="text-sm text-slate-600">Urgency & Importance (Covey Quadrants + Late)</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Sextant</h2>
+              <p className="text-xs sm:text-sm text-slate-600">Urgency & Importance (Covey Quadrants + Late)</p>
             </div>
           </div>
 
@@ -78,7 +78,7 @@ export default function StepKeyPage() {
         {/* Time, Effort, Priority */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Time */}
-          <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+          <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">T</span>
@@ -102,7 +102,7 @@ export default function StepKeyPage() {
           </div>
 
           {/* Effort */}
-          <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+          <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">E</span>
@@ -126,7 +126,7 @@ export default function StepKeyPage() {
           </div>
 
           {/* Priority */}
-          <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+          <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">P</span>
@@ -151,7 +151,7 @@ export default function StepKeyPage() {
         </div>
 
         {/* Usage Tips */}
-        <div className="bg-amber-50 rounded-2xl border border-amber-200/50 p-6">
+        <div className="bg-amber-50 rounded-2xl border border-amber-200/50 p-4 sm:p-6">
           <h3 className="text-lg font-bold text-slate-900 mb-3">💡 Quick Wins Strategy</h3>
           <p className="text-slate-700 mb-3">
             To find your quick wins, filter by:

@@ -99,10 +99,10 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-xs text-[#805c5c] uppercase tracking-widest mb-2" style={{fontFamily: 'Acherus Grotesque, sans-serif'}}>PROFILE</h1>
-        <p className="text-2xl text-[#323232]" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 700}}>Manage your skills for AI-powered task delegation</p>
+        <p className="text-xl sm:text-2xl text-[#323232]" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 700}}>Manage your skills for AI-powered task delegation</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 space-y-6">
+      <div className="bg-white rounded-xl border border-[#E5E7EB] p-4 sm:p-6 space-y-6">
         {/* User Info */}
         <div className="pb-6 border-b border-[#E5E7EB]">
           <h2 className="text-lg font-semibold text-[#101827] mb-4">Account Information</h2>
@@ -161,10 +161,10 @@ export default function ProfilePage() {
             <Button
               onClick={addSkill}
               disabled={!newSkill.trim()}
-              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]"
+              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6] shrink-0"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Add
+              <Plus className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Add</span>
             </Button>
           </div>
         </div>
@@ -208,10 +208,10 @@ export default function ProfilePage() {
             <Button
               onClick={addExpertise}
               disabled={!newExpertise.trim()}
-              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6]"
+              className="bg-[#223947] hover:bg-[#223947]/90 text-[#fffbf6] shrink-0"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Add
+              <Plus className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Add</span>
             </Button>
           </div>
         </div>

@@ -242,22 +242,22 @@ export default function TemplatesPage() {
 
       {/* BROWSE VIEW */}
       {view === "browse" && (
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 20px" }} className="fade-up">
-          <div style={{ marginBottom: 32 }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px" }} className="fade-up">
+          <div style={{ marginBottom: 24 }}>
             <h1 style={{
               fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800,
-              fontSize: 28, color: "#223947", marginBottom: 4,
+              fontSize: 24, color: "#223947", marginBottom: 4,
             }}>
               Project Templates
             </h1>
-            <p style={{ fontSize: 14, color: "#805c5c", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "#805c5c", lineHeight: 1.5 }}>
               Jump-start your next project with a proven structure. Every task comes pre-loaded with STEP values.
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
             <div style={{
-              flex: 1, minWidth: 240, display: "flex", alignItems: "center", gap: 8,
+              flex: 1, minWidth: "100%", display: "flex", alignItems: "center", gap: 8,
               background: "white", border: "1px solid rgba(34,57,71,0.1)",
               borderRadius: 10, padding: "0 14px", height: 42,
             }}>
@@ -271,32 +271,33 @@ export default function TemplatesPage() {
                 }}
               />
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, width: "100%" }}>
               <button
                 onClick={handleCreateNewTemplate}
                 style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "0 18px", height: 42, borderRadius: 10,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  padding: "0 16px", height: 42, borderRadius: 10, flex: 1,
                   border: "none", background: "#223947", color: "#fffbf6",
                   fontSize: 13, fontWeight: 700, cursor: "pointer",
                   transition: "all 0.15s ease",
                 }}
               >
                 <Plus className="w-3.5 h-3.5" />
-                New Template
+                <span style={{ display: "none" }}>New Template</span>
+                <span>New</span>
               </button>
               <button
                 onClick={() => setShowSaveModal(true)}
                 style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "0 18px", height: 42, borderRadius: 10,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  padding: "0 16px", height: 42, borderRadius: 10, flex: 1,
                   border: "1px solid rgba(34,57,71,0.15)", background: "white",
                   fontSize: 13, fontWeight: 600, color: "#223947", cursor: "pointer",
                   transition: "all 0.15s ease",
                 }}
               >
                 <Save className="w-3.5 h-3.5" />
-                Save Project as Template
+                <span>Save</span>
               </button>
             </div>
           </div>
@@ -322,8 +323,8 @@ export default function TemplatesPage() {
 
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
-            gap: 16,
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 12,
           }}>
             {filtered.map((t, i) => {
               const TemplateIcon = t.icon;
@@ -393,7 +394,7 @@ export default function TemplatesPage() {
 
       {/* PREVIEW VIEW */}
       {view === "preview" && selectedTemplate && (
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px" }} className="fade-up">
           <button
             onClick={() => setView("browse")}
             style={{
