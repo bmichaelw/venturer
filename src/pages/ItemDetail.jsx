@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Edit, CheckCircle2, Clock, AlertCircle, Save, ChevronRight, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Edit, CheckCircle2, Clock, AlertCircle, Save, ChevronRight, HelpCircle, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import DocumentList from '../components/documents/DocumentList';
 import CommentSection from '../components/collaboration/CommentSection';
@@ -20,6 +21,7 @@ export default function ItemDetailPage() {
   const [nextStep, setNextStep] = useState('');
   const [isEditingNextStep, setIsEditingNextStep] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: item } = useQuery({
     queryKey: ['item', itemId],
@@ -92,6 +94,14 @@ export default function ItemDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['item', itemId] });
       setIsEditingNextStep(false);
+    },
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: () => base44.entities.Item.delete(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      navigate('/Dump');
     },
   });
 
@@ -202,6 +212,19 @@ export default function ItemDetailPage() {
             <Button onClick={() => setShowEditModal(true)} className="flex-1 sm:flex-initial">
               <Edit className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Edit</span>
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (confirm(`Delete "${item.title}"?`)) {
+                  deleteItemMutation.mutate();
+                }
+              }}
+              disabled={deleteItemMutation.isPending}
+              className="flex-1 sm:flex-initial"
+            >
+              <Trash2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Delete</span>
             </Button>
           </div>
         </div>

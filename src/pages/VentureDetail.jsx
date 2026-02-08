@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock, Sparkles, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,22 @@ export default function VentureDetailPage() {
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (projectId) => {
+      // Delete all items in this project
+      await base44.entities.Item.filter({ project_id: projectId }).then(items =>
+        Promise.all(items.map(item => base44.entities.Item.delete(item.id)))
+      );
+      // Delete the project
+      await base44.entities.Project.delete(projectId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', ventureId] });
+      queryClient.invalidateQueries({ queryKey: ['items', ventureId] });
+    },
+  });
 
   const { data: venture } = useQuery({
     queryKey: ['venture', ventureId],
@@ -308,31 +325,47 @@ export default function VentureDetailPage() {
               const completed = projectTasks.filter(t => t.status === 'completed').length;
 
               return (
-                <Link
-                  key={project.id}
-                  to={`/ProjectDetail?id=${project.id}`}
-                  className="block border border-stone-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <Folder className="w-5 h-5 text-slate-500" />
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{project.name}</h3>
-                        {project.description && (
-                          <p className="text-sm text-slate-600 mt-1">{project.description}</p>
-                        )}
+                <div key={project.id} className="border border-stone-200 rounded-lg hover:border-slate-300 hover:shadow-sm transition-all">
+                  <Link
+                    to={`/ProjectDetail?id=${project.id}`}
+                    className="block p-4"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <Folder className="w-5 h-5 text-slate-500" />
+                        <div>
+                          <h3 className="font-semibold text-slate-900">{project.name}</h3>
+                          {project.description && (
+                            <p className="text-sm text-slate-600 mt-1">{project.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right flex items-start gap-2">
+                        <div>
+                          <Badge variant={project.status === 'completed' ? 'default' : 'outline'}>
+                            {project.status}
+                          </Badge>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {completed}/{projectTasks.length} tasks
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (confirm(`Delete project "${project.name}"? This will also delete all its tasks.`)) {
+                              deleteProjectMutation.mutate(project.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <Badge variant={project.status === 'completed' ? 'default' : 'outline'}>
-                        {project.status}
-                      </Badge>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {completed}/{projectTasks.length} tasks
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               );
             })}
           </div>

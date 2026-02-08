@@ -1,10 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { FolderOpen, CheckSquare, Edit } from 'lucide-react';
 
 export default function VentureCard({ venture, itemCount, projectCount, onEdit }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all items in this venture
+      await base44.entities.Item.filter({ venture_id: venture.id }).then(items => 
+        Promise.all(items.map(item => base44.entities.Item.delete(item.id)))
+      );
+      // Delete all projects in this venture
+      await base44.entities.Project.filter({ venture_id: venture.id }).then(projects =>
+        Promise.all(projects.map(project => base44.entities.Project.delete(project.id)))
+      );
+      // Delete the venture
+      await base44.entities.Venture.delete(venture.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ventures'] });
+      queryClient.invalidateQueries({ queryKey: ['venture-item-counts'] });
+      queryClient.invalidateQueries({ queryKey: ['venture-project-counts'] });
+      toast.success('Venture deleted');
+      setShowDeleteConfirm(false);
+    },
+    onError: () => {
+      toast.error('Failed to delete venture');
+    },
+  });
   return (
     <div className="bg-white rounded-2xl border border-stone-200/50 p-6 hover:shadow-lg transition-all group">
       {/* Color Bar */}
