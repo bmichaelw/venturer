@@ -15,37 +15,35 @@ export default function AIRambleInput({ ventures, onComplete }) {
   const processMutation = useMutation({
     mutationFn: async (text) => {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are helping parse a user's rambling thoughts about tasks, ideas, and notes into structured items.
+        prompt: `You are an expert at parsing unstructured text into structured tasks, notes, and ideas.
 
-User's rambling:
+User's message:
 "${text}"
 
 Available ventures: ${ventures.map(v => `${v.name} (id: ${v.id})`).join(', ')}
 
-Parse this into an array of items. For each item:
-1. Extract a clear title (max 100 chars)
-2. Extract any description/details
-3. Determine if it's a task, idea, or note
-4. If it mentions a venture/project, extract that
-5. If it's a task, extract: due date, priority (1-3), urgency indicators
-6. Extract STEP values if mentioned (Sextant 1-6, Time 1-3, Effort 1-3, Priority 1-3)
+INSTRUCTIONS:
+1. Parse this text and identify EVERY distinct task, note, or idea mentioned
+2. Break down compound statements into multiple items (e.g., "I need to call John and email Sarah" = 2 tasks)
+3. For each item, extract:
+   - A clear, actionable title (max 100 chars)
+   - Description with any additional context
+   - Type: "task" (actionable item), "idea" (concept/suggestion), or "note" (information/reminder)
+   - Venture/project if mentioned
+   - For tasks only: due date, status indicators, urgency/importance
+   - STEP values if mentioned (Sextant 1-6: urgency+importance, Time 1-3: duration, Effort 1-3: complexity, Priority 1-3)
 
-Return ONLY valid JSON array with this schema:
-{
-  "items": [
-    {
-      "title": "string",
-      "description": "string or null",
-      "type": "task" | "idea" | "note",
-      "venture_name": "string or null",
-      "due_date": "YYYY-MM-DD or null",
-      "p_priority": 1-3 or null,
-      "s_sextant": 1-6 or null,
-      "t_time": 1-3 or null,
-      "e_effort": 1-3 or null
-    }
-  ]
-}`,
+CONTEXT UNDERSTANDING:
+- "by Friday", "this week", "tomorrow" = extract due dates
+- "urgent", "ASAP", "critical" = high priority/sextant 1 or 5
+- "when I have time", "someday" = low priority/sextant 2 or 4
+- "quick", "5 minutes" = time 1, effort 1
+- "big project", "takes a while" = time 3, effort 3
+- "call", "email", "meeting" = tasks
+- "what if we", "maybe we could" = ideas
+- "remember that", "note to self" = notes
+
+Return as many items as you can identify. Better to create multiple small items than miss something.`,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -97,7 +95,18 @@ Return ONLY valid JSON array with this schema:
       );
 
       queryClient.invalidateQueries({ queryKey: ['items'] });
-      toast.success(`Created ${items.length} items from your ramble`);
+      
+      const taskCount = items.filter(i => i.type === 'task').length;
+      const ideaCount = items.filter(i => i.type === 'idea').length;
+      const noteCount = items.filter(i => i.type === 'note').length;
+      
+      const summary = [
+        taskCount > 0 && `${taskCount} task${taskCount > 1 ? 's' : ''}`,
+        ideaCount > 0 && `${ideaCount} idea${ideaCount > 1 ? 's' : ''}`,
+        noteCount > 0 && `${noteCount} note${noteCount > 1 ? 's' : ''}`
+      ].filter(Boolean).join(', ');
+      
+      toast.success(`Created ${summary} from your message`);
       setRambleText('');
       if (onComplete) onComplete();
     },
@@ -170,14 +179,14 @@ Return ONLY valid JSON array with this schema:
   return (
     <div className="space-y-4">
       <p className="text-sm text-[#4B5563] mb-4">
-        Speak or type freely about tasks, ideas, and notes. AI will structure them for you.
+        Dump everything on your mind. AI will break it down into organized tasks, ideas, and notes.
       </p>
 
       <Textarea
         value={rambleText}
         onChange={(e) => setRambleText(e.target.value)}
-        placeholder="Example: 'Need to call the client about the marketing campaign by Friday, also had an idea for a new product feature - what if we added dark mode? Oh and remind me to review the Q1 budget...'"
-        className="min-h-[120px] mb-4 bg-white border-[#E5E7EB] focus-visible:ring-[#14B8A6]"
+        placeholder="Example: 'Need to call John about the proposal by Friday and email Sarah the report. Had an idea - what if we automated the weekly updates? Also remind me to review Q1 budget and schedule the team meeting. The website needs a refresh, maybe add dark mode. Don't forget to follow up with marketing about the campaign launch...'"
+        className="min-h-[160px] mb-4 bg-white border-[#E5E7EB] focus-visible:ring-[#14B8A6]"
         disabled={processMutation.isPending}
       />
 
