@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Clock, Plus } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createPageUrl } from '../utils';
 import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
+import ProjectGanttChart from '../components/projects/ProjectGanttChart';
+import ProjectMetricsWidget from '../components/projects/ProjectMetricsWidget';
+import ProjectTaskFilters from '../components/projects/ProjectTaskFilters';
 import { format, parseISO } from 'date-fns';
 
 export default function ProjectDetailPage() {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [viewMode, setViewMode] = useState('list');
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -44,6 +50,29 @@ export default function ProjectDetailPage() {
   }
 
   const tasks = items.filter(i => i.type === 'task');
+  
+  // Get unique assignees for filter dropdown
+  const assignees = useMemo(() => {
+    return [...new Set(tasks.filter(t => t.assigned_to).map(t => t.assigned_to))];
+  }, [tasks]);
+
+  // Apply filters
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      if (filters.status && task.status !== filters.status) return false;
+      if (filters.assignee) {
+        if (filters.assignee === 'unassigned' && task.assigned_to) return false;
+        if (filters.assignee !== 'unassigned' && task.assigned_to !== filters.assignee) return false;
+      }
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+        return task.title?.toLowerCase().includes(search) || 
+               task.description?.toLowerCase().includes(search);
+      }
+      return true;
+    });
+  }, [tasks, filters]);
+
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
 
@@ -73,20 +102,8 @@ export default function ProjectDetailPage() {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-slate-900">{tasks.length}</div>
-            <div className="text-sm text-slate-600">Total Tasks</div>
-          </div>
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-emerald-600">{completedTasks}</div>
-            <div className="text-sm text-slate-600">Completed</div>
-          </div>
-          <div className="text-center p-4 bg-stone-50 rounded-lg">
-            <div className="text-2xl font-bold text-amber-600">{inProgressTasks}</div>
-            <div className="text-sm text-slate-600">In Progress</div>
-          </div>
-        </div>
+        {/* Metrics Widgets */}
+        <ProjectMetricsWidget tasks={tasks} project={project} />
 
         {/* Documents Section */}
         <div className="border-t border-stone-200 pt-6">
@@ -96,12 +113,12 @@ export default function ProjectDetailPage() {
 
       {/* Tasks */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
           <div className="flex gap-3">
             <Button onClick={() => setShowAddItemModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Note/Idea/Task
+              Add Task
             </Button>
             <Link to="/Dump">
               <Button variant="outline">View All Tasks</Button>
@@ -109,46 +126,88 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {tasks.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            No tasks in this project yet
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {tasks.map(task => (
-              <div
-                key={task.id}
-                className="border border-stone-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    {task.status === 'completed' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5" />
-                    ) : (
-                      <Clock className="w-5 h-5 text-slate-400 mt-0.5" />
-                    )}
-                    <div className="flex-1">
-                      <h3 className={`font-medium ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
-                        {task.title}
-                      </h3>
-                      {task.description && (
-                        <p className="text-sm text-slate-600 mt-1">{task.description}</p>
-                      )}
-                      {task.due_date && (
-                        <p className="text-xs text-slate-500 mt-2">
-                          Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
-                        </p>
-                      )}
+        <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="list">
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              List View
+            </TabsTrigger>
+            <TabsTrigger value="timeline">
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              Timeline
+            </TabsTrigger>
+            <TabsTrigger value="metrics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Metrics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-4">
+            {/* Filters */}
+            <ProjectTaskFilters 
+              filters={filters}
+              onFiltersChange={setFilters}
+              assignees={assignees}
+            />
+
+            {/* Task List */}
+            {filteredTasks.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                {tasks.length === 0 ? 'No tasks in this project yet' : 'No tasks match your filters'}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredTasks.map(task => (
+                  <div
+                    key={task.id}
+                    className="border border-stone-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        {task.status === 'completed' ? (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5" />
+                        ) : (
+                          <Clock className="w-5 h-5 text-slate-400 mt-0.5" />
+                        )}
+                        <div className="flex-1">
+                          <h3 className={`font-medium ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
+                            {task.title}
+                          </h3>
+                          {task.description && (
+                            <p className="text-sm text-slate-600 mt-1">{task.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2">
+                            {task.due_date && (
+                              <p className="text-xs text-slate-500">
+                                Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
+                              </p>
+                            )}
+                            {task.assigned_to && (
+                              <Badge variant="outline" className="text-xs">
+                                {task.assigned_to}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant={task.status === 'completed' ? 'default' : 'outline'}>
+                        {task.status.replace('_', ' ')}
+                      </Badge>
                     </div>
                   </div>
-                  <Badge variant={task.status === 'completed' ? 'default' : 'outline'}>
-                    {task.status.replace('_', ' ')}
-                  </Badge>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
+          </TabsContent>
+
+          <TabsContent value="timeline">
+            <ProjectGanttChart tasks={tasks} startDate={project.created_date} />
+          </TabsContent>
+
+          <TabsContent value="metrics">
+            <ProjectMetricsWidget tasks={tasks} project={project} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Add Item Modal */}
