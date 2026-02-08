@@ -5,7 +5,13 @@ import { toast } from 'sonner';
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FolderOpen, CheckSquare, Edit } from 'lucide-react';
+import { FolderOpen, CheckSquare, Edit, Trash2, MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function VentureCard({ venture, itemCount, projectCount, onEdit }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -35,8 +41,10 @@ export default function VentureCard({ venture, itemCount, projectCount, onEdit }
       toast.error('Failed to delete venture');
     },
   });
+  
   return (
-    <div className="bg-white rounded-2xl border border-stone-200/50 p-6 hover:shadow-lg transition-all group">
+    <>
+    <Link to={`/VentureDetail?id=${venture.id}`} className="block bg-white rounded-2xl border border-stone-200/50 p-6 hover:shadow-lg transition-all group">
       {/* Color Bar */}
       <div
         className="w-12 h-1.5 rounded-full mb-4"
@@ -51,17 +59,26 @@ export default function VentureCard({ venture, itemCount, projectCount, onEdit }
             <p className="text-sm text-slate-600 line-clamp-2">{venture.description}</p>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit(venture);
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Edit className="w-4 h-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={(e) => { e.preventDefault(); onEdit(venture); }}>
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={(e) => { e.preventDefault(); setShowDeleteConfirm(true); }}
+              className="text-red-600"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Stats */}
@@ -77,11 +94,34 @@ export default function VentureCard({ venture, itemCount, projectCount, onEdit }
       </div>
 
       {/* Action */}
-      <Link to={`/VentureDetail?id=${venture.id}`}>
-        <Button variant="outline" className="w-full group-hover:bg-slate-900 group-hover:text-white transition-colors">
-          View Projects
-        </Button>
-      </Link>
-    </div>
+      <Button variant="outline" className="w-full group-hover:bg-slate-900 group-hover:text-white transition-colors">
+        View Projects
+      </Button>
+    </Link>
+
+    {/* Delete Confirmation Dialog */}
+    {showDeleteConfirm && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDeleteConfirm(false)}>
+        <div className="bg-white rounded-lg p-6 max-w-md m-4" onClick={(e) => e.stopPropagation()}>
+          <h3 className="text-lg font-semibold mb-2">Delete Venture?</h3>
+          <p className="text-sm text-slate-600 mb-4">
+            This will permanently delete "{venture.name}" and all {projectCount} projects and {itemCount} items within it. This action cannot be undone.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

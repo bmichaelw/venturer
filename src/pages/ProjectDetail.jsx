@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, Plus, BarChart3, Calendar as CalendarIcon, Sparkles, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createPageUrl } from '../utils';
 import DocumentList from '../components/documents/DocumentList';
@@ -20,6 +20,26 @@ export default function ProjectDetailPage() {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [filters, setFilters] = useState({});
   const [viewMode, setViewMode] = useState('list');
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all items in this project
+      const items = await base44.entities.Item.filter({ project_id: projectId });
+      await Promise.all(items.map(item => base44.entities.Item.delete(item.id)));
+      // Delete the project
+      await base44.entities.Project.delete(projectId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      if (venture) {
+        navigate(`/VentureDetail?id=${venture.id}`);
+      } else {
+        navigate('/Ventures');
+      }
+    },
+  });
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -103,13 +123,26 @@ export default function ProjectDetailPage() {
                 {project.status}
               </Badge>
             </div>
-            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId}>
-              <Button variant="outline" size="sm">
-                <Sparkles className="w-4 h-4 mr-2" />
-                <span className="hidden xs:inline">Expand Project</span>
-                <span className="xs:hidden">Expand</span>
+            <div className="flex gap-2">
+              <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId}>
+                <Button variant="outline" size="sm">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Expand</span>
+                </Button>
+              </Link>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Delete project "${project.name}"? This will also delete all its tasks.`)) {
+                    deleteProjectMutation.mutate();
+                  }
+                }}
+                disabled={deleteProjectMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4" />
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
 
