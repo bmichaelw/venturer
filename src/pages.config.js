@@ -66,6 +66,7 @@ import Teams from './pages/Teams';
 import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
+import ProjectBuilder from './pages/ProjectBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "Templates": Templates,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
+    "ProjectBuilder": ProjectBuilder,
 }
 
 export const pagesConfig = {
