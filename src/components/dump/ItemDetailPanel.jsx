@@ -7,13 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, Plus, XCircle } from 'lucide-react';
 import CommentSection from '../collaboration/CommentSection';
 import DocumentList from '../documents/DocumentList';
 import EnhancedTaskSuggestions from '../ai/EnhancedTaskSuggestions';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
+  const [showNewBlocker, setShowNewBlocker] = useState(false);
+  const [newBlockerTitle, setNewBlockerTitle] = useState('');
   const queryClient = useQueryClient();
 
   // Fetch all users for assignment
@@ -35,6 +37,28 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
       return base44.entities.Project.filter({ venture_id: formData.venture_id }, 'name');
     },
     enabled: !!formData.venture_id,
+  });
+
+  // Fetch tasks from same project for blocking
+  const { data: projectTasks = [] } = useQuery({
+    queryKey: ['projectTasks', formData.project_id],
+    queryFn: async () => {
+      if (!formData.project_id) return [];
+      const tasks = await base44.entities.Item.filter({ project_id: formData.project_id, type: 'task' });
+      return tasks.filter(t => t.id !== item.id);
+    },
+    enabled: !!formData.project_id && formData.type === 'task',
+  });
+
+  // Fetch blocker item details
+  const { data: blockerItem } = useQuery({
+    queryKey: ['blockerItem', formData.blocked_by],
+    queryFn: async () => {
+      if (!formData.blocked_by) return null;
+      const items = await base44.entities.Item.filter({ id: formData.blocked_by });
+      return items[0] || null;
+    },
+    enabled: !!formData.blocked_by,
   });
 
   // Update mutation
@@ -84,6 +108,36 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
     if (confirm('Are you sure you want to delete this item?')) {
       deleteMutation.mutate(item.id);
     }
+  };
+
+  const createBlockerMutation = useMutation({
+    mutationFn: async (title) => {
+      const newItem = await base44.entities.Item.create({
+        title,
+        type: 'task',
+        venture_id: formData.venture_id,
+        project_id: formData.project_id,
+        status: 'not_started',
+      });
+      return newItem;
+    },
+    onSuccess: (newItem) => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['projectTasks'] });
+      setFormData({ ...formData, blocked_by: newItem.id });
+      setShowNewBlocker(false);
+      setNewBlockerTitle('');
+    },
+  });
+
+  const handleCreateBlocker = () => {
+    if (newBlockerTitle.trim()) {
+      createBlockerMutation.mutate(newBlockerTitle.trim());
+    }
+  };
+
+  const handleRemoveBlocker = () => {
+    setFormData({ ...formData, blocked_by: null });
   };
 
   // Clear project_id when venture changes
@@ -257,6 +311,87 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Blocked By */}
+              <div className="space-y-2">
+                <Label>Blocked By</Label>
+                {formData.blocked_by && blockerItem ? (
+                  <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <span className="flex-1 text-sm">{blockerItem.title}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleRemoveBlocker}
+                      className="h-6 w-6 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : showNewBlocker ? (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Enter blocker task title"
+                      value={newBlockerTitle}
+                      onChange={(e) => setNewBlockerTitle(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleCreateBlocker()}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleCreateBlocker}
+                        disabled={!newBlockerTitle.trim() || createBlockerMutation.isPending}
+                      >
+                        Create Blocker
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setShowNewBlocker(false);
+                          setNewBlockerTitle('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Select
+                      value={formData.blocked_by || 'none'}
+                      onValueChange={(value) => {
+                        if (value === 'new') {
+                          setShowNewBlocker(true);
+                        } else {
+                          setFormData({ ...formData, blocked_by: value === 'none' ? null : value });
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select blocker" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No blocker</SelectItem>
+                        {formData.project_id && projectTasks.length > 0 && (
+                          <>
+                            {projectTasks.map((task) => (
+                              <SelectItem key={task.id} value={task.id}>
+                                {task.title}
+                              </SelectItem>
+                            ))}
+                          </>
+                        )}
+                        <SelectItem value="new">
+                          <div className="flex items-center gap-2">
+                            <Plus className="w-3 h-3" />
+                            Create new blocker
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </>
           )}
