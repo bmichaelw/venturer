@@ -11,17 +11,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
-import TemplateSelector from '../components/teams/TemplateSelector';
-import { format, parseISO } from 'date-fns';
+import TemplateSelector from '../components/templates/TemplateSelector';
+import { format, parseISO, addDays } from 'date-fns';
 
 export default function VentureDetailPage() {
   const [searchParams] = useSearchParams();
   const ventureId = searchParams.get('id');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
-  const [useTemplate, setUseTemplate] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: venture } = useQuery({
@@ -45,25 +46,63 @@ export default function VentureDetailPage() {
     enabled: !!ventureId,
   });
 
-  const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
 
-  // Find user's team (if any)
-  const { data: teamMemberships = [] } = useQuery({
-    queryKey: ['teamMemberships', currentUser?.email],
-    queryFn: () => base44.entities.TeamMember.filter({ user_email: currentUser.email }),
-    enabled: !!currentUser?.email,
-  });
-
-  const userTeamId = teamMemberships[0]?.team_id;
 
   const createProjectMutation = useMutation({
-    mutationFn: (projectData) => base44.entities.Project.create(projectData),
+    mutationFn: async (projectData) => {
+      const project = await base44.entities.Project.create(projectData);
+      
+      // If using template, create tasks and milestones
+      if (selectedTemplate) {
+        const today = new Date();
+        
+        // Create tasks from template
+        if (selectedTemplate.tasks?.length > 0) {
+          const taskPromises = selectedTemplate.tasks.map((task) => {
+            const dueDate = task.days_offset ? addDays(today, task.days_offset) : null;
+            return base44.entities.Item.create({
+              venture_id: ventureId,
+              project_id: project.id,
+              type: 'task',
+              title: task.title,
+              description: task.description || '',
+              status: task.status || 'not_started',
+              due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+              estimated_time_minutes: task.estimated_time_minutes,
+              s_sextant: task.s_sextant,
+              t_time: task.t_time,
+              e_effort: task.e_effort,
+              p_priority: task.p_priority,
+            });
+          });
+          await Promise.all(taskPromises);
+        }
+        
+        // Create milestone notes from template
+        if (selectedTemplate.milestones?.length > 0) {
+          const milestonePromises = selectedTemplate.milestones.map((milestone) => {
+            const milestoneDate = milestone.days_offset ? addDays(today, milestone.days_offset) : null;
+            return base44.entities.Item.create({
+              venture_id: ventureId,
+              project_id: project.id,
+              type: 'note',
+              title: `📍 ${milestone.title}`,
+              description: milestone.description || '',
+              due_date: milestoneDate ? format(milestoneDate, 'yyyy-MM-dd') : null,
+            });
+          });
+          await Promise.all(milestonePromises);
+        }
+      }
+      
+      return project;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', ventureId] });
+      queryClient.invalidateQueries({ queryKey: ['items', ventureId] });
       setShowProjectModal(false);
+      setShowTemplateSelector(false);
+      setSelectedTemplate(null);
       setProjectName('');
       setProjectDescription('');
     },
@@ -76,7 +115,20 @@ export default function VentureDetailPage() {
       venture_id: ventureId,
       name: projectName,
       description: projectDescription,
+      status: selectedTemplate?.default_status || 'active',
     });
+  };
+
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplate(template);
+    setProjectName(template.name);
+    setProjectDescription(template.description || '');
+    setShowTemplateSelector(false);
+  };
+
+  const handleOpenProjectModal = () => {
+    setShowTemplateSelector(true);
+    setShowProjectModal(true);
   };
 
   if (!venture) {
@@ -198,7 +250,7 @@ export default function VentureDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-900">Projects</h2>
-          <Button onClick={() => setShowProjectModal(true)} size="sm">
+          <Button onClick={handleOpenProjectModal} size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Project
           </Button>
@@ -248,75 +300,80 @@ export default function VentureDetailPage() {
       </div>
 
       {/* Add Project Modal */}
-      <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={showProjectModal} onOpenChange={(open) => {
+        setShowProjectModal(open);
+        if (!open) {
+          setShowTemplateSelector(false);
+          setSelectedTemplate(null);
+          setProjectName('');
+          setProjectDescription('');
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Project</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="project-name">Project Name</Label>
-              <Input
-                id="project-name"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                placeholder="Enter project name"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="project-description">Description (optional)</Label>
-              <Textarea
-                id="project-description"
-                value={projectDescription}
-                onChange={(e) => setProjectDescription(e.target.value)}
-                placeholder="Enter project description"
-                rows={3}
-              />
-            </div>
-
-            {/* Template toggle */}
-            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
-              <input
-                type="checkbox"
-                id="use-template"
-                checked={useTemplate}
-                onChange={(e) => setUseTemplate(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <Label htmlFor="use-template" className="cursor-pointer">
-                Use a project template to bootstrap tasks
-              </Label>
-            </div>
-
-            {/* Template Selector */}
-            {useTemplate && userTeamId && (
-              <TemplateSelector
-                teamId={userTeamId}
-                ventureId={ventureId}
-                projectName={projectName}
-                projectDescription={projectDescription}
-                onComplete={() => {
-                  setShowProjectModal(false);
-                  setProjectName('');
-                  setProjectDescription('');
-                  setUseTemplate(false);
-                }}
-              />
-            )}
-
-            {/* Standard create without template */}
-            {!useTemplate && (
-              <div className="flex justify-end gap-2 pt-2">
+          
+          {showTemplateSelector ? (
+            <TemplateSelector
+              onSelect={handleTemplateSelect}
+              onSkip={() => setShowTemplateSelector(false)}
+            />
+          ) : (
+            <form onSubmit={handleCreateProject} className="space-y-4">
+              {selectedTemplate && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-900">
+                    Using template: <strong>{selectedTemplate.name}</strong>
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    This will create {selectedTemplate.tasks?.length || 0} tasks and {selectedTemplate.milestones?.length || 0} milestones
+                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedTemplate(null);
+                      setShowTemplateSelector(true);
+                    }}
+                    className="mt-2 h-7 text-xs"
+                  >
+                    Choose Different Template
+                  </Button>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="project-name">Project Name</Label>
+                <Input
+                  id="project-name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="Enter project name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="project-description">Description (optional)</Label>
+                <Textarea
+                  id="project-description"
+                  value={projectDescription}
+                  onChange={(e) => setProjectDescription(e.target.value)}
+                  placeholder="Enter project description"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setShowProjectModal(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleCreateProject} disabled={createProjectMutation.isPending || !projectName}>
+                <Button type="submit" disabled={createProjectMutation.isPending}>
                   {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
                 </Button>
               </div>
-            )}
-          </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
