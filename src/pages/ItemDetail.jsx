@@ -152,22 +152,22 @@ export default function ItemDetailPage() {
       {/* Top Bar - Identity & Actions */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6 mb-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
-          <Link to="/Dump" className="hover:text-slate-900 transition-colors">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-slate-600 mb-4 overflow-x-auto">
+          <Link to="/Dump" className="hover:text-slate-900 transition-colors whitespace-nowrap">
             Dump
           </Link>
           {venture && (
             <>
-              <ChevronRight className="w-4 h-4" />
-              <Link to={`/VentureDetail?id=${venture.id}`} className="hover:text-slate-900 transition-colors">
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <Link to={`/VentureDetail?id=${venture.id}`} className="hover:text-slate-900 transition-colors whitespace-nowrap">
                 {venture.name}
               </Link>
             </>
           )}
           {project && (
             <>
-              <ChevronRight className="w-4 h-4" />
-              <Link to={`/ProjectDetail?id=${project.id}`} className="hover:text-slate-900 transition-colors">
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <Link to={`/ProjectDetail?id=${project.id}`} className="hover:text-slate-900 transition-colors whitespace-nowrap">
                 {project.name}
               </Link>
             </>
@@ -175,9 +175,9 @@ export default function ItemDetailPage() {
         </div>
 
         {/* Title & Actions */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-900 mb-3">{item.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">{item.title}</h1>
             <div className="flex items-center gap-2 flex-wrap">
               <Badge className={config.color}>{config.label}</Badge>
               {item.type === 'task' && item.status && (
@@ -187,20 +187,21 @@ export default function ItemDetailPage() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {item.type === 'task' && item.status !== 'completed' && (
               <Button 
                 variant="outline" 
                 onClick={() => markCompleteMutation.mutate()}
                 disabled={markCompleteMutation.isPending}
+                className="flex-1 sm:flex-initial"
               >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Mark Complete
+                <CheckCircle2 className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Mark Complete</span>
               </Button>
             )}
-            <Button onClick={() => setShowEditModal(true)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
+            <Button onClick={() => setShowEditModal(true)} className="flex-1 sm:flex-initial">
+              <Edit className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Edit</span>
             </Button>
           </div>
         </div>

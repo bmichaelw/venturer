@@ -132,12 +132,12 @@ export default function CalendarPage() {
 
       {/* Controls */}
       <div className="flex flex-col gap-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={goToToday}>
+            <Button variant="outline" size="sm" onClick={goToToday} className="px-2 sm:px-4">
               Today
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate(1)}>
@@ -152,8 +152,9 @@ export default function CalendarPage() {
               onClick={() => setView('day')}
               className={`${view === 'day' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
             >
-              <span className="hidden sm:inline">Day</span>
-              <span className="sm:hidden">D</span>
+              <span className="hidden xs:inline sm:hidden">Day</span>
+              <span className="xs:hidden sm:inline">Day</span>
+              <span className="xs:hidden">D</span>
             </Button>
             <Button
               variant={view === 'week' ? 'default' : 'outline'}
@@ -161,8 +162,9 @@ export default function CalendarPage() {
               onClick={() => setView('week')}
               className={`${view === 'week' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
             >
-              <span className="hidden sm:inline">Week</span>
-              <span className="sm:hidden">W</span>
+              <span className="hidden xs:inline sm:hidden">Week</span>
+              <span className="xs:hidden sm:inline">Week</span>
+              <span className="xs:hidden">W</span>
             </Button>
             <Button
               variant={view === 'month' ? 'default' : 'outline'}
@@ -170,13 +172,14 @@ export default function CalendarPage() {
               onClick={() => setView('month')}
               className={`${view === 'month' ? 'bg-slate-900' : ''} px-2 sm:px-3`}
             >
-              <span className="hidden sm:inline">Month</span>
-              <span className="sm:hidden">M</span>
+              <span className="hidden xs:inline sm:hidden">Month</span>
+              <span className="xs:hidden sm:inline">Month</span>
+              <span className="xs:hidden">M</span>
             </Button>
           </div>
         </div>
         
-        <span className="text-base sm:text-lg font-semibold text-slate-900">{getHeaderText()}</span>
+        <span className="text-sm sm:text-base lg:text-lg font-semibold text-slate-900">{getHeaderText()}</span>
       </div>
 
       {/* Filters */}
@@ -228,20 +231,20 @@ export default function CalendarPage() {
             })}
           </div>
         ) : (
-          <div className={`grid ${view === 'week' ? 'grid-cols-7' : 'grid-cols-1'} gap-px bg-stone-200`}>
+          <div className={`grid ${view === 'week' ? 'grid-cols-2 sm:grid-cols-7' : 'grid-cols-1'} gap-px bg-stone-200`}>
             {dateRange.map(date => {
               const dateKey = format(date, 'yyyy-MM-dd');
               const tasks = tasksByDate[dateKey] || [];
               const isToday = isSameDay(date, new Date());
 
               return (
-                <div key={dateKey} className={`bg-white p-4 ${isToday ? 'bg-amber-50' : ''}`}>
-                  <div className={`text-sm font-semibold mb-3 ${isToday ? 'text-amber-600' : 'text-slate-700'}`}>
+                <div key={dateKey} className={`bg-white p-2 sm:p-4 ${isToday ? 'bg-amber-50' : ''}`}>
+                  <div className={`text-xs sm:text-sm font-semibold mb-2 sm:mb-3 ${isToday ? 'text-amber-600' : 'text-slate-700'}`}>
                     {format(date, view === 'week' ? 'EEE d' : 'EEEE, MMMM d')}
                   </div>
                   <div className="space-y-2">
                     {tasks.length === 0 ? (
-                      <p className="text-sm text-slate-400 italic">No tasks</p>
+                      <p className="text-xs sm:text-sm text-slate-400 italic">No tasks</p>
                     ) : (
                       tasks.map(task => (
                         <CalendarTaskCard

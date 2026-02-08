@@ -113,38 +113,41 @@ export default function ProjectDetailPage() {
 
       {/* Tasks */}
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
-          <div className="flex gap-2">
-            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId}>
-              <Button variant="outline" size="sm">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Expand Project
+          <div className="flex gap-2 flex-wrap">
+            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId} className="flex-1 sm:flex-initial">
+              <Button variant="outline" size="sm" className="w-full">
+                <Sparkles className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Expand</span>
               </Button>
             </Link>
-            <Button onClick={() => setShowAddItemModal(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Task
+            <Button onClick={() => setShowAddItemModal(true)} className="flex-1 sm:flex-initial">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Task</span>
             </Button>
-            <Link to="/Dump">
-              <Button variant="outline">View All Tasks</Button>
+            <Link to="/Dump" className="flex-1 sm:flex-initial">
+              <Button variant="outline" className="w-full">
+                <span className="hidden sm:inline">View All</span>
+                <span className="sm:hidden">All</span>
+              </Button>
             </Link>
           </div>
         </div>
 
         <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="list">
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              List View
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="list" className="text-xs sm:text-sm">
+              <CheckCircle2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">List View</span>
             </TabsTrigger>
-            <TabsTrigger value="timeline">
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              Timeline
+            <TabsTrigger value="timeline" className="text-xs sm:text-sm">
+              <CalendarIcon className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Timeline</span>
             </TabsTrigger>
-            <TabsTrigger value="metrics">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Metrics
+            <TabsTrigger value="metrics" className="text-xs sm:text-sm">
+              <BarChart3 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Metrics</span>
             </TabsTrigger>
           </TabsList>
 

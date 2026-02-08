@@ -279,19 +279,19 @@ export default function VentureDetailPage() {
       </div>
 
       {/* Projects */}
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-bold text-slate-900">Projects</h2>
           <div className="flex gap-2">
-            <Link to={createPageUrl('ProjectBuilder') + '?ventureId=' + ventureId}>
-              <Button size="sm" variant="outline" className="gap-2">
+            <Link to={createPageUrl('ProjectBuilder') + '?ventureId=' + ventureId} className="flex-1 sm:flex-initial">
+              <Button size="sm" variant="outline" className="gap-2 w-full">
                 <Sparkles className="w-4 h-4" />
-                Build Project
+                <span className="hidden sm:inline">Build</span>
               </Button>
             </Link>
-            <Button onClick={handleOpenProjectModal} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Quick Add
+            <Button onClick={handleOpenProjectModal} size="sm" className="flex-1 sm:flex-initial">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Quick Add</span>
             </Button>
           </div>
         </div>
