@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { X, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { X, Plus, Trash2, ChevronDown, ChevronUp, Link2, History } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function TemplateEditorModal({ template, isOpen, onClose }) {
@@ -19,10 +20,31 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     color: '#223947',
     estimated_duration_days: 30,
     milestones: [],
+    version: 1,
+    version_notes: '',
   });
   
   const [expandedMilestone, setExpandedMilestone] = useState(null);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const queryClient = useQueryClient();
+
+  // Fetch team members for assignee options
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list('full_name'),
+  });
+
+  // Fetch template versions
+  const { data: templateVersions = [] } = useQuery({
+    queryKey: ['templateVersions', template?.id],
+    queryFn: () => {
+      if (!template?.id) return [];
+      return base44.entities.ProjectTemplate.filter({
+        parent_template_id: template.id,
+      }, '-version');
+    },
+    enabled: !!template?.id,
+  });
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -33,7 +55,25 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projectTemplates'] });
+      queryClient.invalidateQueries({ queryKey: ['templateVersions'] });
       toast.success(template ? 'Template updated' : 'Template created');
+      onClose();
+    },
+  });
+
+  const createVersionMutation = useMutation({
+    mutationFn: (versionNotes) => {
+      return base44.entities.ProjectTemplate.create({
+        ...formData,
+        version: (template?.version || 0) + 1,
+        parent_template_id: template?.id,
+        version_notes: versionNotes,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projectTemplates'] });
+      queryClient.invalidateQueries({ queryKey: ['templateVersions'] });
+      toast.success('New version created');
       onClose();
     },
   });
@@ -76,9 +116,13 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     newMilestones[milestoneIndex].tasks = [
       ...(newMilestones[milestoneIndex].tasks || []),
       {
+        id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title: '',
         description: '',
         days_offset: 0,
+        default_assignee: '',
+        assignee_type: 'role',
+        dependencies: [],
         step: { s: 1, t: 1, e: 1, p: 1 },
       },
     ];
@@ -111,6 +155,29 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     saveMutation.mutate(formData);
   };
 
+  const handleSaveAsVersion = () => {
+    const notes = prompt('Enter version notes:');
+    if (notes !== null) {
+      createVersionMutation.mutate(notes);
+    }
+  };
+
+  // Get all tasks for dependency selection
+  const getAllTasks = () => {
+    const tasks = [];
+    (formData.milestones || []).forEach((milestone, mIdx) => {
+      (milestone.tasks || []).forEach((task, tIdx) => {
+        tasks.push({
+          ...task,
+          milestoneIndex: mIdx,
+          taskIndex: tIdx,
+          label: `${milestone.name || `M${mIdx + 1}`}: ${task.title || `Task ${tIdx + 1}`}`,
+        });
+      });
+    });
+    return tasks;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -119,6 +186,50 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Version Info */}
+          {template && (
+            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <History className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-blue-900">
+                  Version {template.version || 1}
+                </span>
+                {templateVersions.length > 0 && (
+                  <Badge variant="outline" className="text-xs">
+                    {templateVersions.length} older version{templateVersions.length !== 1 ? 's' : ''}
+                  </Badge>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setShowVersionHistory(!showVersionHistory)}
+              >
+                {showVersionHistory ? 'Hide' : 'View'} History
+              </Button>
+            </div>
+          )}
+
+          {showVersionHistory && templateVersions.length > 0 && (
+            <div className="space-y-2 p-3 bg-stone-50 rounded-lg border">
+              <Label className="text-xs font-semibold">Version History</Label>
+              {templateVersions.map((v) => (
+                <div key={v.id} className="flex items-start justify-between p-2 bg-white rounded border text-sm">
+                  <div>
+                    <div className="font-medium">Version {v.version}</div>
+                    {v.version_notes && (
+                      <div className="text-xs text-slate-600 mt-1">{v.version_notes}</div>
+                    )}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {new Date(v.created_date).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -296,8 +407,15 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
                       {/* Tasks */}
                       <div className="space-y-2">
                         <Label className="text-xs font-semibold">Tasks</Label>
-                        {(milestone.tasks || []).map((task, tIdx) => (
-                          <div key={tIdx} className="bg-white border rounded-lg p-3 space-y-2">
+                        {(milestone.tasks || []).map((task, tIdx) => {
+                          const allTasks = getAllTasks();
+                          const availableDeps = allTasks.filter(
+                            t => t.id !== task.id && 
+                            (t.milestoneIndex < mIdx || (t.milestoneIndex === mIdx && t.taskIndex < tIdx))
+                          );
+
+                          return (
+                          <div key={tIdx} className="bg-white border rounded-lg p-3 space-y-3">
                             <div className="flex items-start justify-between gap-2">
                               <Input
                                 value={task.title}
@@ -327,6 +445,114 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
                               rows={2}
                               className="text-sm"
                             />
+
+                            {/* Assignee Section */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Assignee Type</Label>
+                                <Select
+                                  value={task.assignee_type || 'role'}
+                                  onValueChange={(v) =>
+                                    handleUpdateTask(mIdx, tIdx, { assignee_type: v, default_assignee: '' })
+                                  }
+                                >
+                                  <SelectTrigger className="h-9">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="role">Role</SelectItem>
+                                    <SelectItem value="user">Specific User</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">
+                                  {task.assignee_type === 'user' ? 'User' : 'Role'}
+                                </Label>
+                                {task.assignee_type === 'user' ? (
+                                  <Select
+                                    value={task.default_assignee || ''}
+                                    onValueChange={(v) =>
+                                      handleUpdateTask(mIdx, tIdx, { default_assignee: v })
+                                    }
+                                  >
+                                    <SelectTrigger className="h-9">
+                                      <SelectValue placeholder="Select user" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {users.map((u) => (
+                                        <SelectItem key={u.email} value={u.email}>
+                                          {u.full_name || u.email}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <Input
+                                    value={task.default_assignee || ''}
+                                    onChange={(e) =>
+                                      handleUpdateTask(mIdx, tIdx, { default_assignee: e.target.value })
+                                    }
+                                    placeholder="e.g., Designer, Developer"
+                                    className="h-9"
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Dependencies Section */}
+                            {availableDeps.length > 0 && (
+                              <div className="space-y-1">
+                                <Label className="text-xs flex items-center gap-1">
+                                  <Link2 className="w-3 h-3" />
+                                  Dependencies (tasks that must be completed first)
+                                </Label>
+                                <Select
+                                  value=""
+                                  onValueChange={(taskId) => {
+                                    if (!task.dependencies?.includes(taskId)) {
+                                      handleUpdateTask(mIdx, tIdx, {
+                                        dependencies: [...(task.dependencies || []), taskId],
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-9">
+                                    <SelectValue placeholder="Add dependency..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availableDeps.map((depTask) => (
+                                      <SelectItem key={depTask.id} value={depTask.id}>
+                                        {depTask.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {task.dependencies?.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {task.dependencies.map((depId) => {
+                                      const depTask = allTasks.find(t => t.id === depId);
+                                      return (
+                                        <Badge key={depId} variant="outline" className="text-xs">
+                                          {depTask?.label || 'Unknown'}
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              handleUpdateTask(mIdx, tIdx, {
+                                                dependencies: task.dependencies.filter(id => id !== depId),
+                                              })
+                                            }
+                                            className="ml-1 hover:text-red-600"
+                                          >
+                                            <X className="w-3 h-3" />
+                                          </button>
+                                        </Badge>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
 
                             <div className="grid grid-cols-5 gap-2">
                               <div className="space-y-1">
@@ -405,7 +631,8 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
                               </div>
                             </div>
                           </div>
-                        ))}
+                        );
+                        })}
                         <Button
                           type="button"
                           onClick={() => handleAddTask(mIdx)}
@@ -426,20 +653,30 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
 
           {/* Actions */}
           <div className="flex justify-between items-center pt-4 border-t">
-            <div>
+            <div className="flex gap-2">
               {template && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    if (confirm('Are you sure you want to delete this template?')) {
-                      deleteMutation.mutate();
-                    }
-                  }}
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending ? 'Deleting...' : 'Delete Template'}
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSaveAsVersion}
+                    disabled={createVersionMutation.isPending}
+                  >
+                    {createVersionMutation.isPending ? 'Creating...' : 'Save as New Version'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this template?')) {
+                        deleteMutation.mutate();
+                      }
+                    }}
+                    disabled={deleteMutation.isPending}
+                  >
+                    {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                  </Button>
+                </>
               )}
             </div>
             <div className="flex gap-2">

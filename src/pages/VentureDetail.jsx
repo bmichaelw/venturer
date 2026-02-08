@@ -56,12 +56,14 @@ export default function VentureDetailPage() {
       if (selectedTemplate && selectedTemplate.milestones?.length > 0) {
         const today = new Date();
         const tasksToCreate = [];
+        const taskIdMap = {}; // Map template task IDs to created task IDs
         
+        // First pass: create all tasks
         selectedTemplate.milestones.forEach((milestone) => {
           if (milestone.tasks && milestone.tasks.length > 0) {
             milestone.tasks.forEach((task) => {
               const dueDate = task.days_offset ? addDays(today, task.days_offset) : null;
-              tasksToCreate.push({
+              const taskData = {
                 venture_id: ventureId,
                 project_id: project.id,
                 type: 'task',
@@ -73,13 +75,54 @@ export default function VentureDetailPage() {
                 t_time: task.step?.t,
                 e_effort: task.step?.e,
                 p_priority: task.step?.p,
-              });
+                assigned_to: task.assignee_type === 'user' ? task.default_assignee : null,
+              };
+              
+              // Add note about role if it's a role assignment
+              if (task.assignee_type === 'role' && task.default_assignee) {
+                taskData.description = `${taskData.description}\n\nRole: ${task.default_assignee}`;
+              }
+              
+              tasksToCreate.push({ templateId: task.id, taskData });
             });
           }
         });
         
         if (tasksToCreate.length > 0) {
-          await base44.entities.Item.bulkCreate(tasksToCreate);
+          const createdTasks = await base44.entities.Item.bulkCreate(
+            tasksToCreate.map(t => t.taskData)
+          );
+          
+          // Build task ID mapping
+          tasksToCreate.forEach((t, idx) => {
+            if (createdTasks[idx]) {
+              taskIdMap[t.templateId] = createdTasks[idx].id;
+            }
+          });
+          
+          // Second pass: update tasks with dependencies
+          const dependencyUpdates = [];
+          selectedTemplate.milestones.forEach((milestone) => {
+            if (milestone.tasks && milestone.tasks.length > 0) {
+              milestone.tasks.forEach((task) => {
+                if (task.dependencies && task.dependencies.length > 0) {
+                  const createdTaskId = taskIdMap[task.id];
+                  if (createdTaskId) {
+                    const blockerId = taskIdMap[task.dependencies[0]]; // Use first dependency as blocker
+                    if (blockerId) {
+                      dependencyUpdates.push(
+                        base44.entities.Item.update(createdTaskId, { blocked_by: blockerId })
+                      );
+                    }
+                  }
+                }
+              });
+            }
+          });
+          
+          if (dependencyUpdates.length > 0) {
+            await Promise.all(dependencyUpdates);
+          }
         }
       }
       
