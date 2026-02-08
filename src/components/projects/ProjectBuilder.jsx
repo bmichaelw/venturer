@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ArrowLeft, Plus, Trash2, Check, Sparkles, CheckCircle2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 
 const sextantOptions = [
@@ -60,9 +60,11 @@ const StepPill = ({ label, value, color }) => (
 export default function ProjectBuilder({ initialVentureId, onComplete }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const urlVentureId = searchParams.get('ventureId');
   const [step, setStep] = useState(0);
   const [projectName, setProjectName] = useState("");
-  const [ventureId, setVentureId] = useState(initialVentureId || "");
+  const [ventureId, setVentureId] = useState(initialVentureId || urlVentureId || "");
   const [startDate, setStartDate] = useState("");
   const [description, setDescription] = useState("");
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);

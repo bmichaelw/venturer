@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { createPageUrl } from '../utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -281,10 +282,18 @@ export default function VentureDetailPage() {
       <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-900">Projects</h2>
-          <Button onClick={handleOpenProjectModal} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Project
-          </Button>
+          <div className="flex gap-2">
+            <Link to={createPageUrl('ProjectBuilder') + '?ventureId=' + ventureId}>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Sparkles className="w-4 h-4" />
+                Build Project
+              </Button>
+            </Link>
+            <Button onClick={handleOpenProjectModal} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Quick Add
+            </Button>
+          </div>
         </div>
 
         {projects.length === 0 ? (
