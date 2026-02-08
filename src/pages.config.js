@@ -56,7 +56,9 @@ import Dump from './pages/Dump';
 import ItemDetail from './pages/ItemDetail';
 import Kanban from './pages/Kanban';
 import Profile from './pages/Profile';
+import ProjectBuilder from './pages/ProjectBuilder';
 import ProjectDetail from './pages/ProjectDetail';
+import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Stats from './pages/Stats';
 import StepKey from './pages/StepKey';
@@ -66,8 +68,6 @@ import Teams from './pages/Teams';
 import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
-import ProjectBuilder from './pages/ProjectBuilder';
-import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -81,7 +81,9 @@ export const PAGES = {
     "ItemDetail": ItemDetail,
     "Kanban": Kanban,
     "Profile": Profile,
+    "ProjectBuilder": ProjectBuilder,
     "ProjectDetail": ProjectDetail,
+    "Reports": Reports,
     "Settings": Settings,
     "Stats": Stats,
     "StepKey": StepKey,
@@ -91,8 +93,6 @@ export const PAGES = {
     "Templates": Templates,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
-    "ProjectBuilder": ProjectBuilder,
-    "Reports": Reports,
 }
 
 export const pagesConfig = {

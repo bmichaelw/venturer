@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Trash2, ChevronDown, ChevronUp, Link2, History } from 'lucide-react';
 import { toast } from 'sonner';
+import DynamicFieldsEditor from './DynamicFieldsEditor';
+import TemplateImportExport from './TemplateImportExport';
 
 export default function TemplateEditorModal({ template, isOpen, onClose }) {
   const [formData, setFormData] = useState(template || {
@@ -22,6 +24,8 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
     milestones: [],
     version: 1,
     version_notes: '',
+    dynamic_fields: [],
+    is_shared: false,
   });
   
   const [expandedMilestone, setExpandedMilestone] = useState(null);
@@ -195,20 +199,12 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
               <DialogTitle>{template ? 'Edit' : 'Create'} Project Template</DialogTitle>
               {template && (
                 <p className="text-sm text-slate-500 mt-1">
-                  Version {formData.version} {versions.length > 1 && `• ${versions.length} versions`}
+                  Version {formData.version}
                 </p>
               )}
             </div>
-            {template && versions.length > 1 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowVersionDialog(true)}
-              >
-                <History className="w-4 h-4 mr-2" />
-                Version History
-              </Button>
+            {template && (
+              <TemplateImportExport template={template} />
             )}
           </div>
         </DialogHeader>
@@ -349,6 +345,14 @@ export default function TemplateEditorModal({ template, isOpen, onClose }) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Dynamic Fields */}
+          <div className="border-t pt-4">
+            <DynamicFieldsEditor
+              fields={formData.dynamic_fields || []}
+              onChange={(fields) => setFormData({ ...formData, dynamic_fields: fields })}
+            />
           </div>
 
           {/* Milestones */}

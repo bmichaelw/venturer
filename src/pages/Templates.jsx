@@ -6,6 +6,7 @@ import { Globe, Rocket, Users, Calendar as CalendarIcon, Music, GraduationCap } 
 import { format, addDays } from 'date-fns';
 import { toast } from 'sonner';
 import TemplateEditorModal from '../components/templates/TemplateEditorModal';
+import DynamicFieldsForm from '../components/templates/DynamicFieldsForm';
 
 /* ───────── icon helpers ───────── */
 const Icon = ({ d, className = "w-4 h-4" }) => (
@@ -54,6 +55,7 @@ export default function TemplatesPage() {
   const [templateCategory, setTemplateCategory] = useState("Business");
   const [showEditorModal, setShowEditorModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [dynamicFieldValues, setDynamicFieldValues] = useState({});
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -195,12 +197,47 @@ export default function TemplatesPage() {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    // Validate dynamic fields
+    const requiredFields = (selectedTemplate.dynamic_fields || []).filter(f => f.required);
+    for (const field of requiredFields) {
+      if (!dynamicFieldValues[field.id]) {
+        toast.error(`Please fill in: ${field.label}`);
+        return;
+      }
+    }
+
+    // Replace placeholders in task titles/descriptions with dynamic field values
+    const processedTemplate = {
+      ...selectedTemplate,
+      milestones: selectedTemplate.milestones?.map(m => ({
+        ...m,
+        tasks: m.tasks?.map(t => ({
+          ...t,
+          title: replacePlaceholders(t.title, dynamicFieldValues),
+          description: replacePlaceholders(t.description, dynamicFieldValues),
+        })),
+      })),
+    };
+
     createProjectMutation.mutate({
-      template: selectedTemplate,
-      projectName,
+      template: processedTemplate,
+      projectName: replacePlaceholders(projectName, dynamicFieldValues),
       ventureId: selectedVenture,
       startDate,
     });
+  };
+
+  const replacePlaceholders = (text, values) => {
+    if (!text) return text;
+    let result = text;
+    Object.entries(values).forEach(([fieldId, value]) => {
+      const field = selectedTemplate.dynamic_fields?.find(f => f.id === fieldId);
+      if (field) {
+        result = result.replace(new RegExp(`{{${field.label}}}`, 'gi'), value);
+      }
+    });
+    return result;
   };
 
   const handleEditTemplate = (template) => {
@@ -672,6 +709,20 @@ export default function TemplatesPage() {
                   Task due dates will be calculated relative to this start date.
                 </p>
               </div>
+
+              {/* Dynamic Fields */}
+              {selectedTemplate.dynamic_fields?.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <DynamicFieldsForm
+                    fields={selectedTemplate.dynamic_fields}
+                    values={dynamicFieldValues}
+                    onChange={setDynamicFieldValues}
+                  />
+                  <p style={{ fontSize: 11, color: "#999", marginTop: 8 }}>
+                    Use {`{{Field Name}}`} in task titles/descriptions to insert these values
+                  </p>
+                </div>
+              )}
 
               <div style={{
                 background: "#fffbf6", borderRadius: 10, padding: 16,
