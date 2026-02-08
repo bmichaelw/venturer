@@ -45,10 +45,6 @@ export default function ProjectDetailPage() {
     enabled: !!projectId,
   });
 
-  if (!project) {
-    return <div className="text-center py-12">Loading project...</div>;
-  }
-
   const tasks = items.filter(i => i.type === 'task');
   
   // Get unique assignees for filter dropdown
@@ -75,6 +71,10 @@ export default function ProjectDetailPage() {
 
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+
+  if (!project) {
+    return <div className="text-center py-12">Loading project...</div>;
+  }
 
   return (
     <div className="max-w-5xl mx-auto">
