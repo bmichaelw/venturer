@@ -1,9 +1,21 @@
 import React from 'react';
-import { Lightbulb, FileText, CheckSquare } from 'lucide-react';
+import { Lightbulb, FileText, CheckSquare, ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 export default function ItemCard({ item, ventures, onClick }) {
+  // Fetch blocker item if exists
+  const { data: blockerItem } = useQuery({
+    queryKey: ['blockerItem', item.blocked_by],
+    queryFn: async () => {
+      if (!item.blocked_by) return null;
+      const items = await base44.entities.Item.filter({ id: item.blocked_by });
+      return items[0] || null;
+    },
+    enabled: !!item.blocked_by,
+  });
   const typeConfig = {
     idea: { icon: Lightbulb, color: 'bg-purple-100 text-purple-700', label: 'Idea' },
     note: { icon: FileText, color: 'bg-blue-100 text-blue-700', label: 'Note' },
@@ -72,6 +84,13 @@ export default function ItemCard({ item, ventures, onClick }) {
                 }`}
               >
                 {item.status.replace('_', ' ')}
+              </Badge>
+            )}
+
+            {item.blocked_by && blockerItem && (
+              <Badge variant="outline" className="text-[11px] font-medium border-red-300 text-red-600 bg-red-50">
+                <ShieldAlert className="w-3 h-3 mr-1" />
+                Blocked
               </Badge>
             )}
           </div>
