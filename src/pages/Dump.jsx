@@ -71,7 +71,6 @@ export default function DumpPage() {
       if (!filters.venture_id) return [];
       return base44.entities.Project.filter({ venture_id: filters.venture_id }, 'name');
     },
-    enabled: !!filters.venture_id,
   });
 
   const { data: allUsers = [] } = useQuery({
