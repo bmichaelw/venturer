@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings } from 'lucide-react';
+import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './components/ui/dropdown-menu';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 import WelcomeScreen from './components/WelcomeScreen';
 
@@ -16,18 +22,22 @@ export default function Layout({ children, currentPageName }) {
     setShowWelcome(false);
   };
   
-  const navItems = [
+  const mainNavItems = [
     { name: 'Dump', page: 'Dump', icon: LayoutGrid },
     { name: 'Calendar', page: 'Calendar', icon: Calendar },
     { name: 'Ventures', page: 'Ventures', icon: Briefcase },
     { name: 'Teams', page: 'Teams', icon: User },
+  ];
+
+  const resourcesItems = [
     { name: 'Templates', page: 'Templates', icon: BookOpen },
     { name: 'Build Project', page: 'ProjectBuilder', icon: Briefcase },
+    { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
+  ];
+
+  const analyticsItems = [
     { name: 'Stats', page: 'Stats', icon: BarChart3 },
     { name: 'Reports', page: 'Reports', icon: BarChart3 },
-    { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
-    { name: 'Profile', page: 'Profile', icon: User },
-    { name: 'Settings', page: 'Settings', icon: Settings }
   ];
 
   return (
@@ -75,8 +85,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center gap-1">
-              <NotificationBell />
-              {navItems.map((item) => {
+              {mainNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentPageName === item.page;
                 return (
@@ -94,6 +103,72 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 );
               })}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20 transition-all">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Resources</span>
+                  <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {resourcesItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <DropdownMenuItem key={item.page} asChild>
+                        <Link to={`/${item.page}`} className="flex items-center gap-2 cursor-pointer">
+                          <Icon className="w-4 h-4" />
+                          <span>{item.name}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20 transition-all">
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Analytics</span>
+                  <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {analyticsItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <DropdownMenuItem key={item.page} asChild>
+                        <Link to={`/${item.page}`} className="flex items-center gap-2 cursor-pointer">
+                          <Icon className="w-4 h-4" />
+                          <span>{item.name}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Link
+                to="/Profile"
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
+                  currentPageName === 'Profile'
+                    ? 'text-[#fffbf6] bg-[#223947]'
+                    : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                }`}
+              >
+                <User className="w-4 h-4" />
+              </Link>
+
+              <Link
+                to="/Settings"
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
+                  currentPageName === 'Settings'
+                    ? 'text-[#fffbf6] bg-[#223947]'
+                    : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+              </Link>
+
+              <NotificationBell />
             </div>
 
             {/* Mobile Menu Button */}
@@ -117,7 +192,7 @@ export default function Layout({ children, currentPageName }) {
           {mobileMenuOpen && (
           <div className="lg:hidden border-t border-[#223947]/10 dark:border-white/10 bg-white/95 dark:bg-[#223947]/95 backdrop-blur-sm">
             <div className="py-2">
-              {navItems.map((item) => {
+              {mainNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentPageName === item.page;
                 return (
@@ -128,7 +203,7 @@ export default function Layout({ children, currentPageName }) {
                     className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
                       isActive
                         ? 'bg-[#223947] text-[#fffbf6] border-l-2 border-[#805c5c]'
-                        : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20 hover:text-[#223947] dark:hover:text-[#fffbf6]'
+                        : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -136,6 +211,71 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 );
               })}
+              <div className="px-6 py-2 text-xs font-semibold text-[#805c5c] dark:text-[#fffbf6]/70 uppercase tracking-wider">Resources</div>
+              {resourcesItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPageName === item.page;
+                return (
+                  <Link
+                    key={item.page}
+                    to={`/${item.page}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
+                      isActive
+                        ? 'bg-[#223947] text-[#fffbf6] border-l-2 border-[#805c5c]'
+                        : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+              <div className="px-6 py-2 text-xs font-semibold text-[#805c5c] dark:text-[#fffbf6]/70 uppercase tracking-wider">Analytics</div>
+              {analyticsItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPageName === item.page;
+                return (
+                  <Link
+                    key={item.page}
+                    to={`/${item.page}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
+                      isActive
+                        ? 'bg-[#223947] text-[#fffbf6] border-l-2 border-[#805c5c]'
+                        : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+              <div className="border-t border-[#223947]/10 dark:border-white/10 my-2"></div>
+              <Link
+                to="/Profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
+                  currentPageName === 'Profile'
+                    ? 'bg-[#223947] text-[#fffbf6] border-l-2 border-[#805c5c]'
+                    : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span>Profile</span>
+              </Link>
+              <Link
+                to="/Settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium ${
+                  currentPageName === 'Settings'
+                    ? 'bg-[#223947] text-[#fffbf6] border-l-2 border-[#805c5c]'
+                    : 'text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>Settings</span>
+              </Link>
             </div>
           </div>
           )}
