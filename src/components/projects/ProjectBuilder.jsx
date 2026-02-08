@@ -62,6 +62,7 @@ export default function ProjectBuilder({ initialVentureId, onComplete }) {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const urlVentureId = searchParams.get('ventureId');
+  const urlProjectId = searchParams.get('projectId');
   const [step, setStep] = useState(0);
   const [projectName, setProjectName] = useState("");
   const [ventureId, setVentureId] = useState(initialVentureId || urlVentureId || "");
@@ -73,21 +74,93 @@ export default function ProjectBuilder({ initialVentureId, onComplete }) {
   ]);
   const [activeMilestone, setActiveMilestone] = useState(0);
   const [expandedReview, setExpandedReview] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const { data: ventures = [] } = useQuery({
     queryKey: ['ventures'],
     queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
   });
 
+  // Load existing project if editing
+  const { data: existingProject } = useQuery({
+    queryKey: ['project', urlProjectId],
+    queryFn: async () => {
+      const projects = await base44.entities.Project.filter({ id: urlProjectId });
+      return projects[0];
+    },
+    enabled: !!urlProjectId,
+  });
+
+  const { data: existingTasks = [] } = useQuery({
+    queryKey: ['items', urlProjectId],
+    queryFn: () => base44.entities.Item.filter({ project_id: urlProjectId, type: 'task' }),
+    enabled: !!urlProjectId,
+  });
+
+  // Populate form when editing
+  React.useEffect(() => {
+    if (existingProject && !isEditMode) {
+      setProjectName(existingProject.name);
+      setVentureId(existingProject.venture_id);
+      setDescription(existingProject.description || "");
+      setIsEditMode(true);
+
+      // Group tasks by milestone (if they have milestone in description)
+      const tasksByMilestone = {};
+      existingTasks.forEach(task => {
+        const milestoneMatch = task.description?.match(/Part of: (.+)/);
+        const milestoneName = milestoneMatch ? milestoneMatch[1] : "Tasks";
+        if (!tasksByMilestone[milestoneName]) {
+          tasksByMilestone[milestoneName] = [];
+        }
+        tasksByMilestone[milestoneName].push({
+          title: task.title,
+          step: {
+            s: task.s_sextant || 2,
+            t: task.t_time || 2,
+            e: task.e_effort || 2,
+            p: task.p_priority || 2,
+          }
+        });
+      });
+
+      const loadedMilestones = Object.keys(tasksByMilestone).map(name => ({
+        name,
+        tasks: tasksByMilestone[name]
+      }));
+
+      if (loadedMilestones.length > 0) {
+        setMilestones(loadedMilestones);
+      }
+    }
+  }, [existingProject, existingTasks, isEditMode]);
+
   const createProjectMutation = useMutation({
     mutationFn: async () => {
-      // Create project
-      const project = await base44.entities.Project.create({
-        venture_id: ventureId,
-        name: projectName,
-        description: description || undefined,
-        status: 'active',
-      });
+      let project;
+      
+      if (isEditMode && urlProjectId) {
+        // Update existing project
+        await base44.entities.Project.update(urlProjectId, {
+          name: projectName,
+          description: description || undefined,
+        });
+        project = { ...existingProject, name: projectName, description };
+        
+        // Delete existing tasks to recreate them
+        const deletePromises = existingTasks.map(task => 
+          base44.entities.Item.delete(task.id)
+        );
+        await Promise.all(deletePromises);
+      } else {
+        // Create new project
+        project = await base44.entities.Project.create({
+          venture_id: ventureId,
+          name: projectName,
+          description: description || undefined,
+          status: 'active',
+        });
+      }
 
       // Create tasks from milestones
       const tasksToCreate = [];
@@ -142,7 +215,7 @@ export default function ProjectBuilder({ initialVentureId, onComplete }) {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['items'] });
       queryClient.invalidateQueries({ queryKey: ['projectTemplates'] });
-      toast.success(`Project "${projectName}" created successfully!`);
+      toast.success(isEditMode ? `Project "${projectName}" updated!` : `Project "${projectName}" created!`);
       
       if (onComplete) {
         onComplete(project);
@@ -214,7 +287,7 @@ export default function ProjectBuilder({ initialVentureId, onComplete }) {
           <Sparkles className="w-7 h-7 text-[#fffbf6]" />
         </div>
         <h1 className="text-3xl font-bold text-[#223947] mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Build Your Project
+          {isEditMode ? 'Expand Your Project' : 'Build Your Project'}
         </h1>
         <p className="text-sm text-[#805c5c]">
           {step === 0 && "Let's start with the basics."}
@@ -566,7 +639,9 @@ export default function ProjectBuilder({ initialVentureId, onComplete }) {
             className="bg-gradient-to-r from-[#223947] to-[#805c5c]"
           >
             <CheckCircle2 className="w-5 h-5 mr-2" />
-            {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
+            {createProjectMutation.isPending 
+              ? (isEditMode ? 'Updating...' : 'Creating...') 
+              : (isEditMode ? 'Update Project' : 'Create Project')}
           </Button>
         )}
       </div>
