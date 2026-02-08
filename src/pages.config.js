@@ -61,10 +61,10 @@ import Settings from './pages/Settings';
 import Stats from './pages/Stats';
 import StepKey from './pages/StepKey';
 import TeamDashboard from './pages/TeamDashboard';
+import TeamEdit from './pages/TeamEdit';
 import Teams from './pages/Teams';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
-import TeamEdit from './pages/TeamEdit';
 import __Layout from './Layout.jsx';
 
 
@@ -83,10 +83,10 @@ export const PAGES = {
     "Stats": Stats,
     "StepKey": StepKey,
     "TeamDashboard": TeamDashboard,
+    "TeamEdit": TeamEdit,
     "Teams": Teams,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
-    "TeamEdit": TeamEdit,
 }
 
 export const pagesConfig = {

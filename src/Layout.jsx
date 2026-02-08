@@ -32,6 +32,8 @@ export default function Layout({ children, currentPageName }) {
       {showWelcome && <WelcomeScreen onComplete={handleWelcomeComplete} />}
       <div className="min-h-screen bg-[#fffbf6] dark:bg-[#223947] transition-colors">
         <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+          
           :root {
             --color-background: #fffbf6;
             --color-primary: #223947;
@@ -45,9 +47,9 @@ export default function Layout({ children, currentPageName }) {
             -moz-osx-font-smoothing: grayscale;
           }
           h1, h2, h3, h4, h5, h6 {
-            font-family: 'Acherus Grotesque', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
-            color: #323232;
+            color: #223947;
           }
         `}</style>
       
@@ -57,12 +59,14 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-12">
             {/* Logo */}
             <Link to="/Dump" className="flex items-center gap-2.5 group">
-              <div className="w-7 h-7 bg-[#223947] rounded-lg flex items-center justify-center">
-                <span className="text-[#fffbf6] font-bold text-sm">V</span>
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69654cb007cf784156379cfc/2cecd9bac_Venturer-logos2.png" 
+                alt="Venturer" 
+                className="w-7 h-7 rounded-lg object-cover"
+              />
               <div>
-                <span className="text-[15px] font-bold tracking-tight text-[#323232] dark:text-[#fffbf6]" style={{fontFamily: 'Acherus Grotesque'}}>Venturer</span>
-                <p className="text-[9px] text-[#805c5c] dark:text-[#fffbf6]/70 uppercase tracking-widest -mt-0.5 subtitle" style={{letterSpacing: '0.1em', fontFamily: 'Acherus Grotesque'}}>Multi-Venture OS</p>
+                <span className="text-[15px] font-bold tracking-tight text-[#323232] dark:text-[#fffbf6]" style={{fontFamily: 'Plus Jakarta Sans'}}>Venturer</span>
+                <p className="text-[9px] text-[#805c5c] dark:text-[#fffbf6]/70 uppercase tracking-widest -mt-0.5 subtitle" style={{letterSpacing: '0.1em', fontFamily: 'Plus Jakarta Sans'}}>Multi-Venture OS</p>
               </div>
             </Link>
 
