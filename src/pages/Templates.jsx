@@ -2,188 +2,305 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Edit, Trash2, Copy, Search } from 'lucide-react';
+import { Clock, CheckCircle2, Layers, Bookmark, Save, ArrowLeft, ChevronRight, Plus } from 'lucide-react';
 import TemplateEditor from '../components/templates/TemplateEditor';
+import TemplatePreview from '../components/templates/TemplatePreview';
+import SaveAsTemplateModal from '../components/templates/SaveAsTemplateModal';
+
+const categories = ["All", "marketing", "product", "operations", "sales", "other"];
+
+const categoryColors = {
+  marketing: "#b07a5b",
+  product: "#805c5c",
+  operations: "#5b8a72",
+  sales: "#b07a5b",
+  other: "#6b5b8a",
+};
 
 export default function TemplatesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [view, setView] = useState("browse");
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showEditor, setShowEditor] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const queryClient = useQueryClient();
-
-  const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: templates = [] } = useQuery({
     queryKey: ['projectTemplates'],
     queryFn: () => base44.entities.ProjectTemplate.list('-created_date'),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ProjectTemplate.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projectTemplates'] });
-    },
+  const filtered = templates.filter(t => {
+    const matchCat = activeCategory === "All" || t.category === activeCategory;
+    const matchSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCat && matchSearch;
   });
 
-  const duplicateMutation = useMutation({
-    mutationFn: async (template) => {
-      const { id, created_date, updated_date, created_by, ...templateData } = template;
-      return base44.entities.ProjectTemplate.create({
-        ...templateData,
-        name: `${template.name} (Copy)`,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projectTemplates'] });
-    },
-  });
-
-  const handleDelete = (template) => {
-    if (confirm(`Delete template "${template.name}"?`)) {
-      deleteMutation.mutate(template.id);
-    }
-  };
-
-  const handleDuplicate = (template) => {
-    duplicateMutation.mutate(template);
-  };
-
-  const handleEdit = (template) => {
-    setEditingTemplate(template);
-    setShowEditor(true);
-  };
-
-  const handleCreate = () => {
-    setEditingTemplate(null);
-    setShowEditor(true);
-  };
-
-  const filteredTemplates = templates.filter((t) =>
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const categoryColors = {
-    marketing: 'bg-purple-100 text-purple-700',
-    product: 'bg-blue-100 text-blue-700',
-    operations: 'bg-green-100 text-green-700',
-    sales: 'bg-orange-100 text-orange-700',
-    other: 'bg-gray-100 text-gray-700',
+  const openPreview = (t) => {
+    setSelectedTemplate(t);
+    setView("preview");
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#323232] mb-2">Project Templates</h1>
-        <p className="text-slate-600">Create reusable templates to quickly bootstrap new projects</p>
-      </div>
+    <div style={{ fontFamily: "'Montserrat', system-ui, sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
 
-      {/* Search and Create */}
-      <div className="bg-white rounded-xl border border-stone-200/50 p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search templates..."
-              className="pl-10"
-            />
+      <style>{`
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.4s ease both; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(34,57,71,0.1); }
+      `}</style>
+
+      {/* BROWSE VIEW */}
+      {view === "browse" && (
+        <div className="fade-up">
+          <div style={{ marginBottom: 32 }}>
+            <h1 style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800,
+              fontSize: 28,
+              color: "#223947",
+              marginBottom: 4,
+            }}>
+              Project Templates
+            </h1>
+            <p style={{ fontSize: 14, color: "#805c5c", lineHeight: 1.5 }}>
+              Jump-start your next project with a proven structure. Every task comes pre-loaded with STEP values.
+            </p>
           </div>
-          <Button onClick={handleCreate} className="bg-[#223947] hover:bg-[#223947]/90">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Template
-          </Button>
-        </div>
-      </div>
 
-      {/* Templates Grid */}
-      {filteredTemplates.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200/50 p-12 text-center">
-          <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No templates yet</h3>
-          <p className="text-slate-600 mb-4">Create your first project template to get started</p>
-          <Button onClick={handleCreate}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Template
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTemplates.map((template) => (
-            <div
-              key={template.id}
-              className="bg-white rounded-xl border border-stone-200/50 p-5 hover:shadow-md transition-all"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <Badge className={categoryColors[template.category] || categoryColors.other}>
-                  {template.category}
-                </Badge>
-                {template.is_public && (
-                  <Badge variant="outline" className="text-xs">Public</Badge>
-                )}
-              </div>
-
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">{template.name}</h3>
-              
-              {template.description && (
-                <p className="text-sm text-slate-600 mb-4 line-clamp-2">{template.description}</p>
-              )}
-
-              <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
-                <span>{template.tasks?.length || 0} tasks</span>
-                <span>{template.milestones?.length || 0} milestones</span>
-                {template.estimated_duration_days && (
-                  <span>{template.estimated_duration_days} days</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEdit(template)}
-                  className="flex-1"
-                >
-                  <Edit className="w-3 h-3 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleDuplicate(template)}
-                  className="px-2"
-                >
-                  <Copy className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleDelete(template)}
-                  className="px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
+          {/* Search + Save */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+            <div style={{
+              flex: 1,
+              minWidth: 240,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "white",
+              border: "1px solid rgba(34,57,71,0.1)",
+              borderRadius: 10,
+              padding: "0 14px",
+              height: 42,
+            }}>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#805c5c" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontSize: 13,
+                  color: "#323232",
+                  width: "100%",
+                }}
+              />
             </div>
-          ))}
+            <Button
+              onClick={() => setShowEditor(true)}
+              variant="outline"
+              className="h-[42px]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Template
+            </Button>
+            <Button
+              onClick={() => setShowSaveModal(true)}
+              variant="outline"
+              className="h-[42px]"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Project as Template
+            </Button>
+          </div>
+
+          {/* Categories */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 28, flexWrap: "wrap" }}>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  padding: "6px 16px",
+                  borderRadius: 20,
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: activeCategory === cat ? "#223947" : "white",
+                  color: activeCategory === cat ? "#fffbf6" : "#805c5c",
+                  boxShadow: activeCategory === cat ? "0 2px 8px rgba(34,57,71,0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
+                  textTransform: "capitalize",
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Template Grid */}
+          {filtered.length === 0 ? (
+            <div style={{
+              background: "white",
+              borderRadius: 14,
+              padding: 48,
+              textAlign: "center",
+              border: "1px solid rgba(34,57,71,0.08)",
+            }}>
+              <Bookmark className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#223947", marginBottom: 8 }}>
+                No templates yet
+              </h3>
+              <p style={{ fontSize: 14, color: "#805c5c", marginBottom: 20 }}>
+                Create your first project template to get started
+              </p>
+              <Button onClick={() => setShowEditor(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Template
+              </Button>
+            </div>
+          ) : (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
+              gap: 16,
+            }}>
+              {filtered.map((t, i) => {
+                const color = categoryColors[t.category] || "#223947";
+                return (
+                  <div
+                    key={t.id}
+                    className="card-hover fade-up"
+                    style={{
+                      background: "white",
+                      borderRadius: 14,
+                      padding: 24,
+                      border: "1px solid rgba(34,57,71,0.08)",
+                      cursor: "pointer",
+                      animationDelay: `${i * 0.06}s`,
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                    onClick={() => openPreview(t)}
+                  >
+                    <div style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 3,
+                      background: color,
+                    }} />
+
+                    <div style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
+                      marginBottom: 12,
+                    }}>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: `${color}12`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                        <Layers className="w-5 h-5" style={{ color }} />
+                      </div>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        padding: "3px 10px",
+                        borderRadius: 20,
+                        background: `${color}10`,
+                        color: color,
+                        textTransform: "capitalize",
+                      }}>
+                        {t.category}
+                      </span>
+                    </div>
+
+                    <h3 style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontWeight: 700,
+                      fontSize: 17,
+                      color: "#223947",
+                      marginBottom: 6,
+                    }}>
+                      {t.name}
+                    </h3>
+                    <p style={{
+                      fontSize: 12,
+                      color: "#805c5c",
+                      lineHeight: 1.5,
+                      marginBottom: 16,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}>
+                      {t.description}
+                    </p>
+
+                    <div style={{ display: "flex", gap: 16, fontSize: 11, color: "#999" }}>
+                      {t.estimated_duration_days && (
+                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <Clock className="w-3 h-3" /> {t.estimated_duration_days} days
+                        </span>
+                      )}
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <CheckCircle2 className="w-3 h-3" /> {t.tasks?.length || 0} tasks
+                      </span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <Layers className="w-3 h-3" /> {t.milestones?.length || 0}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+      )}
+
+      {/* PREVIEW VIEW */}
+      {view === "preview" && selectedTemplate && (
+        <TemplatePreview
+          template={selectedTemplate}
+          onBack={() => setView("browse")}
+          onEdit={() => {
+            setShowEditor(true);
+            setView("browse");
+          }}
+        />
       )}
 
       {/* Template Editor Modal */}
       {showEditor && (
         <TemplateEditor
-          template={editingTemplate}
+          template={selectedTemplate}
           onClose={() => {
             setShowEditor(false);
-            setEditingTemplate(null);
+            setSelectedTemplate(null);
           }}
         />
+      )}
+
+      {/* Save As Template Modal */}
+      {showSaveModal && (
+        <SaveAsTemplateModal onClose={() => setShowSaveModal(false)} />
       )}
     </div>
   );

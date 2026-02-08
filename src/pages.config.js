@@ -63,9 +63,9 @@ import StepKey from './pages/StepKey';
 import TeamDashboard from './pages/TeamDashboard';
 import TeamEdit from './pages/TeamEdit';
 import Teams from './pages/Teams';
+import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
-import Templates from './pages/Templates';
 import __Layout from './Layout.jsx';
 
 
@@ -86,9 +86,9 @@ export const PAGES = {
     "TeamDashboard": TeamDashboard,
     "TeamEdit": TeamEdit,
     "Teams": Teams,
+    "Templates": Templates,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
-    "Templates": Templates,
 }
 
 export const pagesConfig = {
