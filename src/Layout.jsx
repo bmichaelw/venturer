@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
+import ReminderManager from './components/reminders/ReminderManager';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -173,6 +174,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Mobile Menu Button */}
             <div className="flex items-center gap-2 lg:hidden">
+              <ReminderManager />
               <NotificationBell />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
