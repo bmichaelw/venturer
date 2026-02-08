@@ -30,21 +30,31 @@ export default function TemplateSelector({ teamId, ventureId, projectName, proje
       // If template selected, create subtasks
       if (templateId && templateId !== 'none') {
         const template = templates.find(t => t.id === templateId);
-        if (template && template.subtasks) {
+        if (template && template.subtasks && template.subtasks.length > 0) {
           const startDate = new Date();
+          let cumulativeDays = 0;
+          
           await base44.entities.Item.bulkCreate(
-            template.subtasks.map((subtask, idx) => ({
-              title: subtask.title,
-              description: subtask.description || '',
-              type: 'task',
-              project_id: project.id,
-              venture_id: ventureId,
-              status: 'not_started',
-              due_date: new Date(startDate.getTime() + (subtask.estimated_days || 5) * 24 * 60 * 60 * 1000)
+            template.subtasks.map((subtask) => {
+              const dueDate = new Date(startDate.getTime() + cumulativeDays * 24 * 60 * 60 * 1000)
                 .toISOString()
-                .split('T')[0],
-              t_time: subtask.estimated_days > 10 ? 3 : subtask.estimated_days > 5 ? 2 : 1,
-            }))
+                .split('T')[0];
+              cumulativeDays += subtask.estimated_days || 5;
+              
+              return {
+                title: subtask.title,
+                description: subtask.description || '',
+                type: 'task',
+                project_id: project.id,
+                venture_id: ventureId,
+                status: 'not_started',
+                due_date: dueDate,
+                t_time: subtask.t_time || (subtask.estimated_days > 10 ? 3 : subtask.estimated_days > 5 ? 2 : 1),
+                e_effort: subtask.e_effort || null,
+                p_priority: subtask.p_priority || null,
+                s_sextant: subtask.s_sextant || null,
+              };
+            })
           );
         }
       }
@@ -64,7 +74,7 @@ export default function TemplateSelector({ teamId, ventureId, projectName, proje
   };
 
   return (
-    <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+    <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
       <div>
         <Label className="text-sm font-semibold text-slate-900">
           Use Project Template (Optional)
@@ -94,11 +104,19 @@ export default function TemplateSelector({ teamId, ventureId, projectName, proje
           <p className="text-xs font-semibold text-slate-900">
             This template includes:
           </p>
-          <ul className="text-xs text-slate-600 space-y-1">
+          {templates.find(t => t.id === selectedTemplate)?.description && (
+            <p className="text-xs text-slate-600 italic">
+              {templates.find(t => t.id === selectedTemplate).description}
+            </p>
+          )}
+          <ul className="text-xs text-slate-600 space-y-1 max-h-32 overflow-y-auto">
             {templates
               .find(t => t.id === selectedTemplate)
               ?.subtasks?.map((task, idx) => (
-                <li key={idx}>• {task.title} ({task.estimated_days} days)</li>
+                <li key={idx} className="break-words">
+                  • {task.title} ({task.estimated_days} days)
+                  {task.assigned_role && ` - ${task.assigned_role}`}
+                </li>
               ))}
           </ul>
         </div>
@@ -107,7 +125,7 @@ export default function TemplateSelector({ teamId, ventureId, projectName, proje
       <Button
         onClick={handleCreate}
         disabled={createProjectMutation.isPending || !projectName}
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className="w-full bg-blue-600 hover:bg-blue-700 h-11 sm:h-9"
       >
         {createProjectMutation.isPending ? (
           <>

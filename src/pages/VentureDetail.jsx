@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
+import TemplateSelector from '../components/teams/TemplateSelector';
 import { format, parseISO } from 'date-fns';
 
 export default function VentureDetailPage() {
@@ -20,6 +21,7 @@ export default function VentureDetailPage() {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+  const [useTemplate, setUseTemplate] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: venture } = useQuery({
@@ -43,7 +45,19 @@ export default function VentureDetailPage() {
     enabled: !!ventureId,
   });
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
+  // Find user's team (if any)
+  const { data: teamMemberships = [] } = useQuery({
+    queryKey: ['teamMemberships', currentUser?.email],
+    queryFn: () => base44.entities.TeamMember.filter({ user_email: currentUser.email }),
+    enabled: !!currentUser?.email,
+  });
+
+  const userTeamId = teamMemberships[0]?.team_id;
 
   const createProjectMutation = useMutation({
     mutationFn: (projectData) => base44.entities.Project.create(projectData),
@@ -235,11 +249,11 @@ export default function VentureDetailPage() {
 
       {/* Add Project Modal */}
       <Dialog open={showProjectModal} onOpenChange={setShowProjectModal}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Project</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleCreateProject} className="space-y-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="project-name">Project Name</Label>
               <Input
@@ -260,15 +274,49 @@ export default function VentureDetailPage() {
                 rows={3}
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowProjectModal(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createProjectMutation.isPending}>
-                {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
-              </Button>
+
+            {/* Template toggle */}
+            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="use-template"
+                checked={useTemplate}
+                onChange={(e) => setUseTemplate(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <Label htmlFor="use-template" className="cursor-pointer">
+                Use a project template to bootstrap tasks
+              </Label>
             </div>
-          </form>
+
+            {/* Template Selector */}
+            {useTemplate && userTeamId && (
+              <TemplateSelector
+                teamId={userTeamId}
+                ventureId={ventureId}
+                projectName={projectName}
+                projectDescription={projectDescription}
+                onComplete={() => {
+                  setShowProjectModal(false);
+                  setProjectName('');
+                  setProjectDescription('');
+                  setUseTemplate(false);
+                }}
+              />
+            )}
+
+            {/* Standard create without template */}
+            {!useTemplate && (
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={() => setShowProjectModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateProject} disabled={createProjectMutation.isPending || !projectName}>
+                  {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 

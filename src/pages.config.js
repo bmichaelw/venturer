@@ -65,6 +65,7 @@ import TeamEdit from './pages/TeamEdit';
 import Teams from './pages/Teams';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
+import Templates from './pages/Templates';
 import __Layout from './Layout.jsx';
 
 
@@ -87,6 +88,7 @@ export const PAGES = {
     "Teams": Teams,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
+    "Templates": Templates,
 }
 
 export const pagesConfig = {
