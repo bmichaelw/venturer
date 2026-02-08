@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Globe, Rocket, Users, Calendar as CalendarIcon, Music, GraduationCap } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { toast } from 'sonner';
+import TemplateEditorModal from '../components/templates/TemplateEditorModal';
 
 /* ───────── icon helpers ───────── */
 const Icon = ({ d, className = "w-4 h-4" }) => (
@@ -51,6 +52,8 @@ export default function TemplatesPage() {
   const [sourceProject, setSourceProject] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [templateCategory, setTemplateCategory] = useState("Business");
+  const [showEditorModal, setShowEditorModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -201,9 +204,13 @@ export default function TemplatesPage() {
   };
 
   const handleEditTemplate = (template) => {
-    setSelectedTemplate(template);
-    setView("browse");
-    // Open editor - you can add edit modal here
+    setEditingTemplate(template);
+    setShowEditorModal(true);
+  };
+
+  const handleCreateNewTemplate = () => {
+    setEditingTemplate(null);
+    setShowEditorModal(true);
   };
 
   const handleSaveTemplate = () => {
@@ -264,19 +271,34 @@ export default function TemplatesPage() {
                 }}
               />
             </div>
-            <button
-              onClick={() => setShowSaveModal(true)}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "0 18px", height: 42, borderRadius: 10,
-                border: "1px solid rgba(34,57,71,0.15)", background: "white",
-                fontSize: 13, fontWeight: 600, color: "#223947", cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <Save className="w-3.5 h-3.5" />
-              Save Project as Template
-            </button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={handleCreateNewTemplate}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "0 18px", height: 42, borderRadius: 10,
+                  border: "none", background: "#223947", color: "#fffbf6",
+                  fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New Template
+              </button>
+              <button
+                onClick={() => setShowSaveModal(true)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "0 18px", height: 42, borderRadius: 10,
+                  border: "1px solid rgba(34,57,71,0.15)", background: "white",
+                  fontSize: 13, fontWeight: 600, color: "#223947", cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <Save className="w-3.5 h-3.5" />
+                Save Project as Template
+              </button>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 6, marginBottom: 28, flexWrap: "wrap" }}>
@@ -425,7 +447,7 @@ export default function TemplatesPage() {
 
               <div style={{ display: "flex", gap: 8 }}>
                 <button
-                  onClick={() => navigate('/Templates')}
+                  onClick={() => handleEditTemplate(selectedTemplate)}
                   style={{
                     display: "flex", alignItems: "center", gap: 6,
                     padding: "10px 20px", borderRadius: 10,
@@ -819,6 +841,16 @@ export default function TemplatesPage() {
           </div>
         </div>
       )}
+
+      {/* Template Editor Modal */}
+      <TemplateEditorModal
+        template={editingTemplate}
+        isOpen={showEditorModal}
+        onClose={() => {
+          setShowEditorModal(false);
+          setEditingTemplate(null);
+        }}
+      />
     </div>
   );
 }
