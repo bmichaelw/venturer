@@ -200,6 +200,12 @@ export default function TemplatesPage() {
     });
   };
 
+  const handleEditTemplate = (template) => {
+    setSelectedTemplate(template);
+    setView("browse");
+    // Open editor - you can add edit modal here
+  };
+
   const handleSaveTemplate = () => {
     if (!sourceProject || !templateName) {
       toast.error('Please fill in all fields');
@@ -417,20 +423,35 @@ export default function TemplatesPage() {
                 </p>
               </div>
 
-              <button
-                onClick={() => setView("newProject")}
-                style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  padding: "12px 28px", borderRadius: 10, border: "none",
-                  background: "#223947", color: "#fffbf6", fontSize: 14,
-                  fontWeight: 700, cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  boxShadow: "0 2px 12px rgba(34,57,71,0.25)",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <Plus className="w-4 h-4" /> Use This Template
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => navigate('/Templates')}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "10px 20px", borderRadius: 10,
+                    border: "1px solid rgba(34,57,71,0.2)", background: "white",
+                    fontSize: 13, fontWeight: 600, color: "#223947", cursor: "pointer",
+                    fontFamily: "'Montserrat', sans-serif",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  Edit Template
+                </button>
+                <button
+                  onClick={() => setView("newProject")}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    padding: "12px 28px", borderRadius: 10, border: "none",
+                    background: "#223947", color: "#fffbf6", fontSize: 14,
+                    fontWeight: 700, cursor: "pointer",
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    boxShadow: "0 2px 12px rgba(34,57,71,0.25)",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <Plus className="w-4 h-4" /> Use This Template
+                </button>
+              </div>
             </div>
 
             <div style={{

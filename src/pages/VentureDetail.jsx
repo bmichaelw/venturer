@@ -52,46 +52,34 @@ export default function VentureDetailPage() {
     mutationFn: async (projectData) => {
       const project = await base44.entities.Project.create(projectData);
       
-      // If using template, create tasks and milestones
-      if (selectedTemplate) {
+      // If using template, create tasks from milestones
+      if (selectedTemplate && selectedTemplate.milestones?.length > 0) {
         const today = new Date();
+        const tasksToCreate = [];
         
-        // Create tasks from template
-        if (selectedTemplate.tasks?.length > 0) {
-          const taskPromises = selectedTemplate.tasks.map((task) => {
-            const dueDate = task.days_offset ? addDays(today, task.days_offset) : null;
-            return base44.entities.Item.create({
-              venture_id: ventureId,
-              project_id: project.id,
-              type: 'task',
-              title: task.title,
-              description: task.description || '',
-              status: task.status || 'not_started',
-              due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
-              estimated_time_minutes: task.estimated_time_minutes,
-              s_sextant: task.s_sextant,
-              t_time: task.t_time,
-              e_effort: task.e_effort,
-              p_priority: task.p_priority,
+        selectedTemplate.milestones.forEach((milestone) => {
+          if (milestone.tasks && milestone.tasks.length > 0) {
+            milestone.tasks.forEach((task) => {
+              const dueDate = task.days_offset ? addDays(today, task.days_offset) : null;
+              tasksToCreate.push({
+                venture_id: ventureId,
+                project_id: project.id,
+                type: 'task',
+                title: task.title,
+                description: task.description || `Part of: ${milestone.name}`,
+                status: 'not_started',
+                due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+                s_sextant: task.step?.s,
+                t_time: task.step?.t,
+                e_effort: task.step?.e,
+                p_priority: task.step?.p,
+              });
             });
-          });
-          await Promise.all(taskPromises);
-        }
+          }
+        });
         
-        // Create milestone notes from template
-        if (selectedTemplate.milestones?.length > 0) {
-          const milestonePromises = selectedTemplate.milestones.map((milestone) => {
-            const milestoneDate = milestone.days_offset ? addDays(today, milestone.days_offset) : null;
-            return base44.entities.Item.create({
-              venture_id: ventureId,
-              project_id: project.id,
-              type: 'note',
-              title: `📍 ${milestone.title}`,
-              description: milestone.description || '',
-              due_date: milestoneDate ? format(milestoneDate, 'yyyy-MM-dd') : null,
-            });
-          });
-          await Promise.all(milestonePromises);
+        if (tasksToCreate.length > 0) {
+          await base44.entities.Item.bulkCreate(tasksToCreate);
         }
       }
       
@@ -327,7 +315,7 @@ export default function VentureDetailPage() {
                     Using template: <strong>{selectedTemplate.name}</strong>
                   </p>
                   <p className="text-xs text-blue-700 mt-1">
-                    This will create {selectedTemplate.tasks?.length || 0} tasks and {selectedTemplate.milestones?.length || 0} milestones
+                    This will create {selectedTemplate.milestones?.reduce((sum, m) => sum + (m.tasks?.length || 0), 0) || 0} tasks across {selectedTemplate.milestones?.length || 0} milestones
                   </p>
                   <Button
                     type="button"

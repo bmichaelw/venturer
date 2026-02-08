@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Search, ChevronRight } from 'lucide-react';
+import { FileText, Search, ChevronRight, Layers } from 'lucide-react';
 
 export default function TemplateSelector({ onSelect, onSkip }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +24,9 @@ export default function TemplateSelector({ onSelect, onSkip }) {
     product: 'bg-blue-100 text-blue-700',
     operations: 'bg-green-100 text-green-700',
     sales: 'bg-orange-100 text-orange-700',
+    business: 'bg-slate-100 text-slate-700',
+    creative: 'bg-pink-100 text-pink-700',
+    education: 'bg-amber-100 text-amber-700',
     other: 'bg-gray-100 text-gray-700',
   };
 
@@ -53,36 +56,42 @@ export default function TemplateSelector({ onSelect, onSkip }) {
             <p className="text-sm text-slate-500">No templates found</p>
           </div>
         ) : (
-          filteredTemplates.map((template) => (
-            <button
-              key={template.id}
-              onClick={() => onSelect(template)}
-              className="w-full text-left border border-stone-200 rounded-lg p-4 hover:border-slate-300 hover:bg-slate-50 transition-all group"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Badge className={categoryColors[template.category] || categoryColors.other}>
-                    {template.category}
-                  </Badge>
-                  {template.is_public && (
-                    <Badge variant="outline" className="text-xs">Public</Badge>
+          filteredTemplates.map((template) => {
+            const totalTasks = template.milestones?.reduce((sum, m) => sum + (m.tasks?.length || 0), 0) || 0;
+            return (
+              <button
+                key={template.id}
+                onClick={() => onSelect(template)}
+                className="w-full text-left border border-stone-200 rounded-lg p-4 hover:border-slate-300 hover:bg-slate-50 transition-all group"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge className={categoryColors[template.category] || categoryColors.other}>
+                      {template.category}
+                    </Badge>
+                    {template.is_public && (
+                      <Badge variant="outline" className="text-xs">Public</Badge>
+                    )}
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Layers className="w-4 h-4 text-slate-400" />
+                  <h4 className="font-semibold text-slate-900">{template.name}</h4>
+                </div>
+                {template.description && (
+                  <p className="text-sm text-slate-600 mb-2 line-clamp-2">{template.description}</p>
+                )}
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span>{totalTasks} tasks</span>
+                  <span>{template.milestones?.length || 0} milestones</span>
+                  {template.estimated_duration_days && (
+                    <span>{template.estimated_duration_days} days</span>
                   )}
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-              </div>
-              <h4 className="font-semibold text-slate-900 mb-1">{template.name}</h4>
-              {template.description && (
-                <p className="text-sm text-slate-600 mb-2 line-clamp-2">{template.description}</p>
-              )}
-              <div className="flex items-center gap-3 text-xs text-slate-500">
-                <span>{template.tasks?.length || 0} tasks</span>
-                <span>{template.milestones?.length || 0} milestones</span>
-                {template.estimated_duration_days && (
-                  <span>{template.estimated_duration_days} days</span>
-                )}
-              </div>
-            </button>
-          ))
+              </button>
+            );
+          })
         )}
       </div>
     </div>
