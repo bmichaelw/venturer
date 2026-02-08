@@ -83,23 +83,34 @@ export default function ProjectDetailPage() {
         Back to Venture
       </Link>
 
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-8 mb-6">
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-8 mb-6">
         <div className="mb-6">
-          {venture && (
-            <Badge 
-              className="mb-3"
-              style={{ backgroundColor: venture.color, color: 'white' }}
-            >
-              {venture.name}
-            </Badge>
-          )}
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">{project.name}</h1>
-          {project.description && (
-            <p className="text-slate-600">{project.description}</p>
-          )}
-          <Badge variant={project.status === 'completed' ? 'default' : 'outline'} className="mt-3">
-            {project.status}
-          </Badge>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1">
+              {venture && (
+                <Badge 
+                  className="mb-3"
+                  style={{ backgroundColor: venture.color, color: 'white' }}
+                >
+                  {venture.name}
+                </Badge>
+              )}
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{project.name}</h1>
+              {project.description && (
+                <p className="text-sm sm:text-base text-slate-600">{project.description}</p>
+              )}
+              <Badge variant={project.status === 'completed' ? 'default' : 'outline'} className="mt-3">
+                {project.status}
+              </Badge>
+            </div>
+            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId}>
+              <Button variant="outline" size="sm">
+                <Sparkles className="w-4 h-4 mr-2" />
+                <span className="hidden xs:inline">Expand Project</span>
+                <span className="xs:hidden">Expand</span>
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Metrics Widgets */}
@@ -112,24 +123,17 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Tasks */}
-      <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+      <div className="bg-white rounded-2xl border border-stone-200/50 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <h2 className="text-xl font-bold text-slate-900">Tasks</h2>
           <div className="flex gap-2 flex-wrap">
-            <Link to={createPageUrl('ProjectBuilder') + '?projectId=' + projectId} className="flex-1 sm:flex-initial">
-              <Button variant="outline" size="sm" className="w-full">
-                <Sparkles className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Expand</span>
-              </Button>
-            </Link>
             <Button onClick={() => setShowAddItemModal(true)} className="flex-1 sm:flex-initial">
-              <Plus className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Add Task</span>
+              <Plus className="w-4 h-4 mr-2" />
+              <span>Add Task</span>
             </Button>
             <Link to="/Dump" className="flex-1 sm:flex-initial">
               <Button variant="outline" className="w-full">
-                <span className="hidden sm:inline">View All</span>
-                <span className="sm:hidden">All</span>
+                View All Tasks
               </Button>
             </Link>
           </div>
