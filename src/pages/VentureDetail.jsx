@@ -248,7 +248,7 @@ export default function VentureDetailPage() {
 
       // Use AI to extract project details from the PDF
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this project document thoroughly and extract structured information:
+        prompt: `Analyze this project document thoroughly and extract structured information following the Ideal Format guidelines:
 
       1. PROJECT TITLE: Clear, concise project name
 
@@ -269,6 +269,7 @@ export default function VentureDetailPage() {
       - Description of what defines completion
       - Expected deliverables at that milestone
       - Estimated timeline/duration if mentioned
+      - STEP values if present (s: Sextant 1-6, t: Time 1-3, e: Effort 1-3, p: Priority 1-3)
 
       5. WORKSTREAMS: Distinct work areas or tracks with:
       - Workstream name/title
@@ -278,8 +279,15 @@ export default function VentureDetailPage() {
       6. TASKS/DELIVERABLES: Specific actionable items with:
       - Task title
       - Detailed description of what needs to be done
+      - Milestone association (which milestone/phase this task belongs to)
       - Dependencies if mentioned
-      - Priority indicators if present
+      - STEP values if present:
+        * s (Sextant): 1=Urgent+Important, 2=Not Urgent+Important, 3=Urgent+Not Important, 4=Not Urgent+Not Important, 5=Late+Important, 6=Late+Not Important
+        * t (Time): 1=Short, 2=Medium, 3=Long
+        * e (Effort): 1=Low, 2=Medium, 3=High
+        * p (Priority): 1=Low, 2=Medium, 3=High
+
+      7. NOTES: Any important notes or reminders extracted from the document
 
       Extract all available information from the document. Be comprehensive but precise. If certain sections aren't present in the document, return empty arrays for those sections.`,
         file_urls: [file_url],
@@ -305,7 +313,16 @@ export default function VentureDetailPage() {
                   title: { type: 'string' },
                   description: { type: 'string' },
                   deliverables: { type: 'array', items: { type: 'string' } },
-                  estimated_duration: { type: 'string' }
+                  estimated_duration: { type: 'string' },
+                  step: {
+                    type: 'object',
+                    properties: {
+                      s: { type: 'number' },
+                      t: { type: 'number' },
+                      e: { type: 'number' },
+                      p: { type: 'number' }
+                    }
+                  }
                 }
               }
             },
@@ -326,8 +343,27 @@ export default function VentureDetailPage() {
                 properties: {
                   title: { type: 'string' },
                   description: { type: 'string' },
+                  milestone: { type: 'string' },
                   dependencies: { type: 'array', items: { type: 'string' } },
-                  priority: { type: 'string' }
+                  step: {
+                    type: 'object',
+                    properties: {
+                      s: { type: 'number' },
+                      t: { type: 'number' },
+                      e: { type: 'number' },
+                      p: { type: 'number' }
+                    }
+                  }
+                }
+              }
+            },
+            notes: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' }
                 }
               }
             }
