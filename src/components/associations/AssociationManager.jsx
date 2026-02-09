@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, X, Link2, ArrowRight, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const RELATIONSHIP_TYPES = [
   { value: 'blocks', label: '🚫 Blocks', color: 'bg-red-100 text-red-800' },
@@ -141,13 +142,16 @@ export default function AssociationManager({ entityType, entityId, entityTitle }
             const relConfig = getRelationshipConfig(assoc.relationship_type);
 
             return (
-              <div key={assoc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg">
-                <div className="flex items-center gap-2 flex-1">
+              <div key={assoc.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
+                <Link 
+                  to={`/${relatedType === 'item' ? 'ItemDetail' : relatedType === 'milestone' ? 'MilestoneDetail' : 'WorkstreamDetail'}?id=${relatedId}`}
+                  className="flex items-center gap-2 flex-1 hover:opacity-70 transition-opacity"
+                >
                   <Badge variant="outline" className="text-xs">{relatedType}</Badge>
                   <ArrowRight className="w-3 h-3 text-slate-400" />
                   <span className="text-sm font-medium text-slate-900">{relatedTitle}</span>
                   <Badge className={`text-xs ${relConfig.color}`}>{relConfig.label}</Badge>
-                </div>
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
