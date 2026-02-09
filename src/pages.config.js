@@ -53,8 +53,10 @@ import AdminUserDetail from './pages/AdminUserDetail';
 import AdminUsers from './pages/AdminUsers';
 import Calendar from './pages/Calendar';
 import Dump from './pages/Dump';
+import IdealFormat from './pages/IdealFormat';
 import ItemDetail from './pages/ItemDetail';
 import Kanban from './pages/Kanban';
+import MilestoneDetail from './pages/MilestoneDetail';
 import Profile from './pages/Profile';
 import ProjectBuilder from './pages/ProjectBuilder';
 import ProjectDetail from './pages/ProjectDetail';
@@ -68,9 +70,7 @@ import Teams from './pages/Teams';
 import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
-import MilestoneDetail from './pages/MilestoneDetail';
 import WorkstreamDetail from './pages/WorkstreamDetail';
-import IdealFormat from './pages/IdealFormat';
 import __Layout from './Layout.jsx';
 
 
@@ -81,8 +81,10 @@ export const PAGES = {
     "AdminUsers": AdminUsers,
     "Calendar": Calendar,
     "Dump": Dump,
+    "IdealFormat": IdealFormat,
     "ItemDetail": ItemDetail,
     "Kanban": Kanban,
+    "MilestoneDetail": MilestoneDetail,
     "Profile": Profile,
     "ProjectBuilder": ProjectBuilder,
     "ProjectDetail": ProjectDetail,
@@ -96,9 +98,7 @@ export const PAGES = {
     "Templates": Templates,
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
-    "MilestoneDetail": MilestoneDetail,
     "WorkstreamDetail": WorkstreamDetail,
-    "IdealFormat": IdealFormat,
 }
 
 export const pagesConfig = {

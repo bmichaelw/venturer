@@ -30,6 +30,7 @@ export default function VentureDetailPage() {
   const [workstreams, setWorkstreams] = useState([]);
   const [uploadedPdf, setUploadedPdf] = useState(null);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
+  const [extractedTasks, setExtractedTasks] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
