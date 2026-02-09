@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Folder, CheckCircle2, Clock, Sparkles, Trash2, Upload, FileText, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +15,7 @@ import DocumentList from '../components/documents/DocumentList';
 import AddItemModal from '../components/dump/AddItemModal';
 import TemplateSelector from '../components/templates/TemplateSelector';
 import { format, parseISO, addDays } from 'date-fns';
+import { toast } from 'sonner';
 
 export default function VentureDetailPage() {
   const [searchParams] = useSearchParams();
@@ -27,6 +28,8 @@ export default function VentureDetailPage() {
   const [projectDescription, setProjectDescription] = useState('');
   const [milestones, setMilestones] = useState([]);
   const [workstreams, setWorkstreams] = useState([]);
+  const [uploadedPdf, setUploadedPdf] = useState(null);
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -207,6 +210,88 @@ export default function VentureDetailPage() {
   const handleOpenProjectModal = () => {
     setShowTemplateSelector(true);
     setShowProjectModal(true);
+  };
+
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    setIsProcessingPdf(true);
+    try {
+      // Upload the PDF
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setUploadedPdf(file_url);
+
+      // Use AI to extract project details from the PDF
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this project rundown document and extract:
+1. Project name (clear, concise title)
+2. Project description/overview (2-3 sentences)
+3. Key milestones (if mentioned) with titles
+4. Key workstreams/work areas (if mentioned) with titles
+5. Main tasks/deliverables (if mentioned) with titles and descriptions
+
+Be thorough but concise. Extract only what's explicitly in the document.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            project_name: { type: 'string' },
+            project_description: { type: 'string' },
+            milestones: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' }
+                }
+              }
+            },
+            workstreams: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' }
+                }
+              }
+            },
+            tasks: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Populate form with extracted data
+      if (response.project_name) setProjectName(response.project_name);
+      if (response.project_description) setProjectDescription(response.project_description);
+      if (response.milestones?.length > 0) {
+        setMilestones(response.milestones.map(m => ({ title: m.title, status: 'not_started', description: m.description })));
+      }
+      if (response.workstreams?.length > 0) {
+        setWorkstreams(response.workstreams.map(w => ({ title: w.title, status: 'active', color: '#3B82F6' })));
+      }
+
+      setShowTemplateSelector(false);
+      toast.success('Project details extracted from PDF!');
+    } catch (error) {
+      toast.error('Failed to process PDF: ' + error.message);
+      setUploadedPdf(null);
+    } finally {
+      setIsProcessingPdf(false);
+    }
   };
 
   if (!venture) {
@@ -411,6 +496,8 @@ export default function VentureDetailPage() {
           setProjectDescription('');
           setMilestones([]);
           setWorkstreams([]);
+          setUploadedPdf(null);
+          setIsProcessingPdf(false);
         }
       }}>
         <DialogContent className="max-w-2xl">
@@ -419,10 +506,52 @@ export default function VentureDetailPage() {
           </DialogHeader>
           
           {showTemplateSelector ? (
-            <TemplateSelector
-              onSelect={handleTemplateSelect}
-              onSkip={() => setShowTemplateSelector(false)}
-            />
+            <div className="space-y-4">
+              <TemplateSelector
+                onSelect={handleTemplateSelect}
+                onSkip={() => setShowTemplateSelector(false)}
+              />
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handlePdfUpload}
+                  disabled={isProcessingPdf}
+                  className="hidden"
+                  id="pdf-upload"
+                />
+                <label htmlFor="pdf-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                  {isProcessingPdf ? (
+                    <>
+                      <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                      <p className="text-sm font-medium">Processing PDF...</p>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-10 h-10 text-gray-400" />
+                      <p className="text-sm font-medium">Upload Project PDF</p>
+                      <p className="text-xs text-gray-500 max-w-xs">
+                        Upload a PDF document that outlines your project. AI will automatically extract the project name, description, milestones, and tasks to create your project structure.
+                      </p>
+                      <Button type="button" variant="outline" size="sm" className="mt-2" disabled={isProcessingPdf}>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose PDF
+                      </Button>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
           ) : (
             <form onSubmit={handleCreateProject} className="space-y-4">
               {selectedTemplate && (
