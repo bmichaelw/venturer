@@ -29,11 +29,11 @@ export default function DumpPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showSavedFilters, setShowSavedFilters] = useState(false);
   const [filters, setFilters] = useState({
-    venture_id: null,
-    project_id: null,
-    type: null,
-    status: null,
-    assigned_to: null,
+    venture_ids: null,
+    project_ids: null,
+    types: null,
+    statuses: null,
+    assigned_tos: null,
     created_after: null,
     due_before: null,
     completed_after: null,
@@ -65,13 +65,15 @@ export default function DumpPage() {
     queryFn: () => base44.entities.Venture.filter({ active: true }, 'name'),
   });
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects', filters.venture_id],
-    queryFn: async () => {
-      if (!filters.venture_id) return [];
-      return base44.entities.Project.filter({ venture_id: filters.venture_id }, 'name');
-    },
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => base44.entities.Project.list('name'),
   });
+
+  const projects = React.useMemo(() => {
+    if (!filters.venture_ids || filters.venture_ids.length === 0) return allProjects;
+    return allProjects.filter(p => filters.venture_ids.includes(p.venture_id));
+  }, [allProjects, filters.venture_ids]);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users'],
@@ -96,24 +98,25 @@ export default function DumpPage() {
     }
 
     // Apply filters
-    if (filters.venture_id) {
-      filtered = filtered.filter(item => item.venture_id === filters.venture_id);
+    if (filters.venture_ids && filters.venture_ids.length > 0) {
+      filtered = filtered.filter(item => filters.venture_ids.includes(item.venture_id));
     }
-    if (filters.project_id) {
-      filtered = filtered.filter(item => item.project_id === filters.project_id);
+    if (filters.project_ids && filters.project_ids.length > 0) {
+      filtered = filtered.filter(item => filters.project_ids.includes(item.project_id));
     }
-    if (filters.type) {
-      filtered = filtered.filter(item => item.type === filters.type);
+    if (filters.types && filters.types.length > 0) {
+      filtered = filtered.filter(item => filters.types.includes(item.type));
     }
-    if (filters.status) {
-      filtered = filtered.filter(item => item.status === filters.status);
+    if (filters.statuses && filters.statuses.length > 0) {
+      filtered = filtered.filter(item => filters.statuses.includes(item.status));
     }
-    if (filters.assigned_to) {
-      if (filters.assigned_to === 'unassigned') {
-        filtered = filtered.filter(item => !item.assigned_to);
-      } else {
-        filtered = filtered.filter(item => item.assigned_to === filters.assigned_to);
-      }
+    if (filters.assigned_tos && filters.assigned_tos.length > 0) {
+      filtered = filtered.filter(item => {
+        if (filters.assigned_tos.includes('unassigned')) {
+          if (!item.assigned_to) return true;
+        }
+        return item.assigned_to && filters.assigned_tos.includes(item.assigned_to);
+      });
     }
     if (filters.created_after) {
       filtered = filtered.filter(item => 
@@ -263,11 +266,11 @@ export default function DumpPage() {
           filters={filters}
           onChange={setFilters}
           onClear={() => setFilters({
-            venture_id: null,
-            project_id: null,
-            type: null,
-            status: null,
-            assigned_to: null,
+            venture_ids: null,
+            project_ids: null,
+            types: null,
+            statuses: null,
+            assigned_tos: null,
             created_after: null,
             due_before: null,
             completed_after: null,

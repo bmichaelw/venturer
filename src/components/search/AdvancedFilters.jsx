@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X, Save } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AdvancedFilters({ 
   filters, 
@@ -35,100 +35,136 @@ export default function AdvancedFilters({
         {/* Type */}
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Type</Label>
-          <Select
-            value={filters.type || 'all'}
-            onValueChange={(value) => onChange({ ...filters, type: value === 'all' ? null : value })}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="All types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="idea">Idea</SelectItem>
-              <SelectItem value="note">Note</SelectItem>
-              <SelectItem value="task">Task</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2 border rounded-md p-3 bg-gray-50">
+            {['idea', 'note', 'task'].map((type) => (
+              <div key={type} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`type-${type}`}
+                  checked={filters.types?.includes(type) || false}
+                  onCheckedChange={(checked) => {
+                    const newTypes = checked
+                      ? [...(filters.types || []), type]
+                      : (filters.types || []).filter(t => t !== type);
+                    onChange({ ...filters, types: newTypes.length > 0 ? newTypes : null });
+                  }}
+                />
+                <label htmlFor={`type-${type}`} className="text-sm capitalize cursor-pointer">
+                  {type}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Venture */}
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Venture</Label>
-          <Select
-            value={filters.venture_id || 'all'}
-            onValueChange={(value) => onChange({ ...filters, venture_id: value === 'all' ? null : value, project_id: null })}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="All ventures" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Ventures</SelectItem>
-              {ventures.map((v) => (
-                <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-2 border rounded-md p-3 bg-gray-50 max-h-40 overflow-y-auto">
+            {ventures.map((v) => (
+              <div key={v.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`venture-${v.id}`}
+                  checked={filters.venture_ids?.includes(v.id) || false}
+                  onCheckedChange={(checked) => {
+                    const newVentureIds = checked
+                      ? [...(filters.venture_ids || []), v.id]
+                      : (filters.venture_ids || []).filter(id => id !== v.id);
+                    onChange({ ...filters, venture_ids: newVentureIds.length > 0 ? newVentureIds : null });
+                  }}
+                />
+                <label htmlFor={`venture-${v.id}`} className="text-sm cursor-pointer">
+                  {v.name}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Project */}
-        {filters.venture_id && (
-          <div className="space-y-2">
-            <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Project</Label>
-            <Select
-              value={filters.project_id || 'all'}
-              onValueChange={(value) => onChange({ ...filters, project_id: value === 'all' ? null : value })}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue placeholder="All projects" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Projects</SelectItem>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Project</Label>
+          <div className="space-y-2 border rounded-md p-3 bg-gray-50 max-h-40 overflow-y-auto">
+            {projects.map((p) => (
+              <div key={p.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`project-${p.id}`}
+                  checked={filters.project_ids?.includes(p.id) || false}
+                  onCheckedChange={(checked) => {
+                    const newProjectIds = checked
+                      ? [...(filters.project_ids || []), p.id]
+                      : (filters.project_ids || []).filter(id => id !== p.id);
+                    onChange({ ...filters, project_ids: newProjectIds.length > 0 ? newProjectIds : null });
+                  }}
+                />
+                <label htmlFor={`project-${p.id}`} className="text-sm cursor-pointer">
+                  {p.name}
+                </label>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Assignee */}
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Assigned To</Label>
-          <Select
-            value={filters.assigned_to || 'all'}
-            onValueChange={(value) => onChange({ ...filters, assigned_to: value === 'all' ? null : value })}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="Anyone" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Anyone</SelectItem>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.email}>{u.full_name || u.email}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-2 border rounded-md p-3 bg-gray-50 max-h-40 overflow-y-auto">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="assignee-unassigned"
+                checked={filters.assigned_tos?.includes('unassigned') || false}
+                onCheckedChange={(checked) => {
+                  const newAssignees = checked
+                    ? [...(filters.assigned_tos || []), 'unassigned']
+                    : (filters.assigned_tos || []).filter(a => a !== 'unassigned');
+                  onChange({ ...filters, assigned_tos: newAssignees.length > 0 ? newAssignees : null });
+                }}
+              />
+              <label htmlFor="assignee-unassigned" className="text-sm cursor-pointer">
+                Unassigned
+              </label>
+            </div>
+            {users.map((u) => (
+              <div key={u.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`assignee-${u.id}`}
+                  checked={filters.assigned_tos?.includes(u.email) || false}
+                  onCheckedChange={(checked) => {
+                    const newAssignees = checked
+                      ? [...(filters.assigned_tos || []), u.email]
+                      : (filters.assigned_tos || []).filter(a => a !== u.email);
+                    onChange({ ...filters, assigned_tos: newAssignees.length > 0 ? newAssignees : null });
+                  }}
+                />
+                <label htmlFor={`assignee-${u.id}`} className="text-sm cursor-pointer">
+                  {u.full_name || u.email}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Status */}
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Status</Label>
-          <Select
-            value={filters.status || 'all'}
-            onValueChange={(value) => onChange({ ...filters, status: value === 'all' ? null : value })}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="All statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="not_started">Not Started</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="canceled">Canceled</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2 border rounded-md p-3 bg-gray-50">
+            {['not_started', 'in_progress', 'completed', 'canceled'].map((status) => (
+              <div key={status} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`status-${status}`}
+                  checked={filters.statuses?.includes(status) || false}
+                  onCheckedChange={(checked) => {
+                    const newStatuses = checked
+                      ? [...(filters.statuses || []), status]
+                      : (filters.statuses || []).filter(s => s !== status);
+                    onChange({ ...filters, statuses: newStatuses.length > 0 ? newStatuses : null });
+                  }}
+                />
+                <label htmlFor={`status-${status}`} className="text-sm cursor-pointer capitalize">
+                  {status.replace('_', ' ')}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Creation Date */}
