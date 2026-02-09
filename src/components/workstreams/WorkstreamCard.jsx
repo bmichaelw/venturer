@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +29,7 @@ export default function WorkstreamCard({ workstream, itemCount, onEdit, onDelete
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-        <div className="flex-1 cursor-pointer" onClick={onClick}>
+        <Link to={`/WorkstreamDetail?id=${workstream.id}`} className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <div 
               className="w-3 h-3 rounded-full" 
@@ -39,7 +40,7 @@ export default function WorkstreamCard({ workstream, itemCount, onEdit, onDelete
           <Badge className={statusColors[workstream.status]}>
             {statusLabels[workstream.status]}
           </Badge>
-        </div>
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">

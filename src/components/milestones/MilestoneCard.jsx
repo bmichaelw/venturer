@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,12 +30,12 @@ export default function MilestoneCard({ milestone, itemCount, onEdit, onDelete, 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-        <div className="flex-1 cursor-pointer" onClick={onClick}>
+        <Link to={`/MilestoneDetail?id=${milestone.id}`} className="flex-1">
           <CardTitle className="text-lg font-semibold text-[#223947]">{milestone.title}</CardTitle>
           <Badge className={`mt-2 ${statusColors[milestone.status]}`}>
             {statusLabels[milestone.status]}
           </Badge>
-        </div>
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
