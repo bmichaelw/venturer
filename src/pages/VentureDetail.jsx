@@ -227,27 +227,64 @@ export default function VentureDetailPage() {
 
       // Use AI to extract project details from the PDF
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this project rundown document and extract:
-1. Project name (clear, concise title)
-2. Project description/overview (2-3 sentences)
-3. Key milestones (if mentioned) with titles
-4. Key workstreams/work areas (if mentioned) with titles
-5. Main tasks/deliverables (if mentioned) with titles and descriptions
+        prompt: `Analyze this project document thoroughly and extract structured information:
 
-Be thorough but concise. Extract only what's explicitly in the document.`,
+      1. PROJECT TITLE: Clear, concise project name
+
+      2. PROJECT DESCRIPTION: Comprehensive overview (3-5 sentences) covering:
+      - What the project is about
+      - Main objectives/goals
+      - Expected outcomes
+      - Target timeline if mentioned
+
+      3. PROJECT SCOPE: Detailed breakdown of what's included and excluded:
+      - In-scope items and deliverables
+      - Out-of-scope items (if mentioned)
+      - Key assumptions
+      - Constraints or dependencies
+
+      4. MILESTONES: Major project phases or checkpoints with:
+      - Clear milestone title
+      - Description of what defines completion
+      - Expected deliverables at that milestone
+      - Estimated timeline/duration if mentioned
+
+      5. WORKSTREAMS: Distinct work areas or tracks with:
+      - Workstream name/title
+      - Brief description of focus area
+      - Key responsibilities
+
+      6. TASKS/DELIVERABLES: Specific actionable items with:
+      - Task title
+      - Detailed description of what needs to be done
+      - Dependencies if mentioned
+      - Priority indicators if present
+
+      Extract all available information from the document. Be comprehensive but precise. If certain sections aren't present in the document, return empty arrays for those sections.`,
         file_urls: [file_url],
         response_json_schema: {
           type: 'object',
           properties: {
             project_name: { type: 'string' },
             project_description: { type: 'string' },
+            scope: {
+              type: 'object',
+              properties: {
+                in_scope: { type: 'array', items: { type: 'string' } },
+                out_of_scope: { type: 'array', items: { type: 'string' } },
+                assumptions: { type: 'array', items: { type: 'string' } },
+                constraints: { type: 'array', items: { type: 'string' } }
+              }
+            },
             milestones: {
               type: 'array',
               items: {
                 type: 'object',
                 properties: {
                   title: { type: 'string' },
-                  description: { type: 'string' }
+                  description: { type: 'string' },
+                  deliverables: { type: 'array', items: { type: 'string' } },
+                  estimated_duration: { type: 'string' }
                 }
               }
             },
@@ -256,7 +293,8 @@ Be thorough but concise. Extract only what's explicitly in the document.`,
               items: {
                 type: 'object',
                 properties: {
-                  title: { type: 'string' }
+                  title: { type: 'string' },
+                  description: { type: 'string' }
                 }
               }
             },
@@ -266,7 +304,9 @@ Be thorough but concise. Extract only what's explicitly in the document.`,
                 type: 'object',
                 properties: {
                   title: { type: 'string' },
-                  description: { type: 'string' }
+                  description: { type: 'string' },
+                  dependencies: { type: 'array', items: { type: 'string' } },
+                  priority: { type: 'string' }
                 }
               }
             }
@@ -276,12 +316,39 @@ Be thorough but concise. Extract only what's explicitly in the document.`,
 
       // Populate form with extracted data
       if (response.project_name) setProjectName(response.project_name);
-      if (response.project_description) setProjectDescription(response.project_description);
+
+      // Build comprehensive description with scope
+      let fullDescription = response.project_description || '';
+      if (response.scope) {
+        if (response.scope.in_scope?.length > 0) {
+          fullDescription += '\n\n📋 IN SCOPE:\n' + response.scope.in_scope.map(item => `• ${item}`).join('\n');
+        }
+        if (response.scope.out_of_scope?.length > 0) {
+          fullDescription += '\n\n🚫 OUT OF SCOPE:\n' + response.scope.out_of_scope.map(item => `• ${item}`).join('\n');
+        }
+        if (response.scope.assumptions?.length > 0) {
+          fullDescription += '\n\n💭 ASSUMPTIONS:\n' + response.scope.assumptions.map(item => `• ${item}`).join('\n');
+        }
+        if (response.scope.constraints?.length > 0) {
+          fullDescription += '\n\n⚠️ CONSTRAINTS:\n' + response.scope.constraints.map(item => `• ${item}`).join('\n');
+        }
+      }
+      setProjectDescription(fullDescription);
+
       if (response.milestones?.length > 0) {
-        setMilestones(response.milestones.map(m => ({ title: m.title, status: 'not_started', description: m.description })));
+        setMilestones(response.milestones.map(m => ({ 
+          title: m.title, 
+          status: 'not_started', 
+          description: m.description + (m.deliverables?.length ? '\n\nDeliverables:\n' + m.deliverables.map(d => `• ${d}`).join('\n') : '')
+        })));
       }
       if (response.workstreams?.length > 0) {
-        setWorkstreams(response.workstreams.map(w => ({ title: w.title, status: 'active', color: '#3B82F6' })));
+        setWorkstreams(response.workstreams.map(w => ({ 
+          title: w.title, 
+          description: w.description,
+          status: 'active', 
+          color: '#3B82F6' 
+        })));
       }
 
       setShowTemplateSelector(false);
