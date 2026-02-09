@@ -206,6 +206,7 @@ export default function VentureDetailPage() {
       setProjectDescription('');
       setMilestones([]);
       setWorkstreams([]);
+      setExtractedTasks([]);
     },
   });
 
