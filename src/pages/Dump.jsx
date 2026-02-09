@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Filter, Grid3x3, Bookmark } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ItemCard from '../components/dump/ItemCard';
-
 import KanbanCard from '../components/kanban/KanbanCard';
 import GlobalSearchBar from '../components/search/GlobalSearchBar';
 import AdvancedFilters from '../components/search/AdvancedFilters';
 import SavedFiltersModal from '../components/search/SavedFiltersModal';
+import DashboardAssistant from '../components/ai/DashboardAssistant';
 
 const STATUSES = [
   { id: 'not_started', label: 'Not Started', color: 'bg-slate-100' },
@@ -241,6 +241,11 @@ export default function DumpPage() {
           </div>
         </div>
       </form>
+
+      {/* AI Dashboard Assistant */}
+      <div className="mb-8">
+        <DashboardAssistant items={allItems} ventures={ventures} projects={projects} />
+      </div>
 
       {/* Search & Filters */}
       <div className="mb-6">
