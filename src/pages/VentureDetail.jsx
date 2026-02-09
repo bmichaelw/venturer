@@ -805,6 +805,7 @@ export default function VentureDetailPage() {
                   value={projectDescription}
                   onChange={(e) => setProjectDescription(e.target.value)}
                   placeholder="Enter project description"
+                  className="max-h-48 overflow-y-auto"
                   rows={3}
                 />
               </div>
