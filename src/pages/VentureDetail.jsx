@@ -25,6 +25,8 @@ export default function VentureDetailPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+  const [milestones, setMilestones] = useState([]);
+  const [workstreams, setWorkstreams] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -69,6 +71,29 @@ export default function VentureDetailPage() {
   const createProjectMutation = useMutation({
     mutationFn: async (projectData) => {
       const project = await base44.entities.Project.create(projectData);
+      
+      // Create milestones and workstreams
+      const createdMilestones = [];
+      const createdWorkstreams = [];
+      
+      if (milestones.length > 0) {
+        for (const milestone of milestones) {
+          const created = await base44.entities.Milestone.create({
+            ...milestone,
+            project_id: project.id
+          });
+          createdMilestones.push(created);
+        }
+      }
+      
+      if (workstreams.length > 0) {
+        for (const workstream of workstreams) {
+          await base44.entities.Workstream.create({
+            ...workstream,
+            project_id: project.id
+          });
+        }
+      }
       
       // If using template, create tasks from milestones
       if (selectedTemplate && selectedTemplate.milestones?.length > 0) {
@@ -149,11 +174,15 @@ export default function VentureDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', ventureId] });
       queryClient.invalidateQueries({ queryKey: ['items', ventureId] });
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
+      queryClient.invalidateQueries({ queryKey: ['workstreams'] });
       setShowProjectModal(false);
       setShowTemplateSelector(false);
       setSelectedTemplate(null);
       setProjectName('');
       setProjectDescription('');
+      setMilestones([]);
+      setWorkstreams([]);
     },
   });
 
@@ -380,6 +409,8 @@ export default function VentureDetailPage() {
           setSelectedTemplate(null);
           setProjectName('');
           setProjectDescription('');
+          setMilestones([]);
+          setWorkstreams([]);
         }
       }}>
         <DialogContent className="max-w-2xl">
@@ -437,6 +468,83 @@ export default function VentureDetailPage() {
                   rows={3}
                 />
               </div>
+
+              {/* Milestones */}
+              <div className="space-y-2">
+                <Label>Milestones (optional)</Label>
+                {milestones.map((milestone, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="Milestone title"
+                      value={milestone.title}
+                      onChange={(e) => {
+                        const updated = [...milestones];
+                        updated[index].title = e.target.value;
+                        setMilestones(updated);
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setMilestones(milestones.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMilestones([...milestones, { title: '', status: 'not_started' }])}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Milestone
+                </Button>
+              </div>
+
+              {/* Workstreams */}
+              <div className="space-y-2">
+                <Label>Workstreams (optional)</Label>
+                {workstreams.map((workstream, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="Workstream title"
+                      value={workstream.title}
+                      onChange={(e) => {
+                        const updated = [...workstreams];
+                        updated[index].title = e.target.value;
+                        setWorkstreams(updated);
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setWorkstreams(workstreams.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWorkstreams([...workstreams, { title: '', status: 'active', color: '#3B82F6' }])}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Workstream
+                </Button>
+              </div>
+
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setShowProjectModal(false)}>
                   Cancel
