@@ -320,7 +320,7 @@ Be thorough but concise. Extract only what's explicitly in the document.`,
               </span>
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-[#323232] mb-2" style={{fontFamily: 'Acherus Grotesque'}}>{venture.name}</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-[#323232] mb-2">{venture.name}</h1>
               {venture.description && (
                 <p className="text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>{venture.description}</p>
               )}
