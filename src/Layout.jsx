@@ -31,6 +31,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const resourcesItems = [
+    { name: 'How to Use', page: 'HowToUse', icon: BookOpen },
     { name: 'Templates', page: 'Templates', icon: BookOpen },
     { name: 'Build Project', page: 'ProjectBuilder', icon: Briefcase },
     { name: 'STEP Key', page: 'StepKey', icon: BookOpen },

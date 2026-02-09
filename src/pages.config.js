@@ -71,6 +71,7 @@ import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
 import WorkstreamDetail from './pages/WorkstreamDetail';
+import HowToUse from './pages/HowToUse';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +100,7 @@ export const PAGES = {
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
     "WorkstreamDetail": WorkstreamDetail,
+    "HowToUse": HowToUse,
 }
 
 export const pagesConfig = {
