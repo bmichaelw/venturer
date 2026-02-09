@@ -228,8 +228,25 @@ export default function ProjectDetailPage() {
         {/* Metrics Widgets */}
         <ProjectMetricsWidget tasks={tasks} project={project} />
 
-        {/* Documents Section */}
+        {/* Project Rundown Section */}
+        <div className="border-t border-stone-200 pt-6 mb-6">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-1">Project Rundown Document</h3>
+              <p className="text-sm text-slate-600">
+                Upload your project rundown for AI-powered insights and task generation.
+              </p>
+              <p className="text-xs text-amber-600 mt-1 font-medium">
+                ⚠️ PDF format required for AI interpretation
+              </p>
+            </div>
+          </div>
+          <DocumentList entityType="project" entityId={projectId} />
+        </div>
+
+        {/* Additional Documents */}
         <div className="border-t border-stone-200 pt-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Additional Documents</h3>
           <DocumentList entityType="project" entityId={projectId} />
         </div>
       </div>
