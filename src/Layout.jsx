@@ -34,6 +34,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Templates', page: 'Templates', icon: BookOpen },
     { name: 'Build Project', page: 'ProjectBuilder', icon: Briefcase },
     { name: 'STEP Key', page: 'StepKey', icon: BookOpen },
+    { name: 'Ideal Format', page: 'IdealFormat', icon: BookOpen },
   ];
 
   const analyticsItems = [

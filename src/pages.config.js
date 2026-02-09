@@ -70,6 +70,7 @@ import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
 import MilestoneDetail from './pages/MilestoneDetail';
 import WorkstreamDetail from './pages/WorkstreamDetail';
+import IdealFormat from './pages/IdealFormat';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "Ventures": Ventures,
     "MilestoneDetail": MilestoneDetail,
     "WorkstreamDetail": WorkstreamDetail,
+    "IdealFormat": IdealFormat,
 }
 
 export const pagesConfig = {
