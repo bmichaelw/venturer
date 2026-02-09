@@ -414,12 +414,17 @@ export default function VentureDetailPage() {
       
       // Store extracted tasks to be created when project is created
       if (response.tasks?.length > 0) {
-        setExtractedTasks(response.tasks.map(task => ({
+        const extractedTasksData = response.tasks.map(task => ({
           title: task.title,
           description: task.description || '',
           milestone: task.milestone,
           step: task.step
-        })));
+        }));
+        setExtractedTasks(extractedTasksData);
+        console.log('Extracted tasks:', extractedTasksData);
+      } else {
+        setExtractedTasks([]);
+        console.log('No tasks found in PDF');
       }
 
       setShowTemplateSelector(false);
