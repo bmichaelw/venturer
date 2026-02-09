@@ -699,26 +699,38 @@ export default function VentureDetailPage() {
           ) : (
             <form onSubmit={handleCreateProject} className="space-y-4">
               {selectedTemplate && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-900">
-                    Using template: <strong>{selectedTemplate.name}</strong>
-                  </p>
-                  <p className="text-xs text-blue-700 mt-1">
-                    This will create {selectedTemplate.milestones?.reduce((sum, m) => sum + (m.tasks?.length || 0), 0) || 0} tasks across {selectedTemplate.milestones?.length || 0} milestones
-                  </p>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTemplate(null);
-                      setShowTemplateSelector(true);
-                    }}
-                    className="mt-2 h-7 text-xs"
-                  >
-                    Choose Different Template
-                  </Button>
-                </div>
+               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                 <p className="text-sm text-blue-900">
+                   Using template: <strong>{selectedTemplate.name}</strong>
+                 </p>
+                 <p className="text-xs text-blue-700 mt-1">
+                   This will create {selectedTemplate.milestones?.reduce((sum, m) => sum + (m.tasks?.length || 0), 0) || 0} tasks across {selectedTemplate.milestones?.length || 0} milestones
+                 </p>
+                 <Button
+                   type="button"
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => {
+                     setSelectedTemplate(null);
+                     setShowTemplateSelector(true);
+                   }}
+                   className="mt-2 h-7 text-xs"
+                 >
+                   Choose Different Template
+                 </Button>
+               </div>
+              )}
+
+              {extractedTasks.length > 0 && (
+               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                 <p className="text-sm text-green-900">
+                   📄 PDF extracted: <strong>{extractedTasks.length} tasks</strong>
+                 </p>
+                 <p className="text-xs text-green-700 mt-1">
+                   {milestones.length > 0 && `${milestones.length} milestones, `}
+                   {workstreams.length > 0 && `${workstreams.length} workstreams`}
+                 </p>
+               </div>
               )}
               
               <div className="space-y-2">
