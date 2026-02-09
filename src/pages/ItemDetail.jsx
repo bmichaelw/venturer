@@ -13,6 +13,7 @@ import DocumentList from '../components/documents/DocumentList';
 import CommentSection from '../components/collaboration/CommentSection';
 import ItemDetailPanel from '../components/dump/ItemDetailPanel';
 import EnhancedTaskSuggestions from '../components/ai/EnhancedTaskSuggestions';
+import AssociationManager from '../components/associations/AssociationManager';
 
 export default function ItemDetailPage() {
   const [searchParams] = useSearchParams();
@@ -284,6 +285,15 @@ export default function ItemDetailPage() {
           {/* Documents */}
           <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
             <DocumentList entityType="item" entityId={itemId} />
+          </div>
+
+          {/* Associations */}
+          <div className="bg-white rounded-2xl border border-stone-200/50 p-6">
+            <AssociationManager
+              entityType="item"
+              entityId={itemId}
+              entityTitle={item.title}
+            />
           </div>
 
           {/* Comments */}
