@@ -634,6 +634,7 @@ export default function VentureDetailPage() {
           setProjectDescription('');
           setMilestones([]);
           setWorkstreams([]);
+          setExtractedTasks([]);
           setUploadedPdf(null);
           setIsProcessingPdf(false);
         }
