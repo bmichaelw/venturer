@@ -543,10 +543,10 @@ Be thorough but concise. Extract only what's explicitly in the document.`,
                       <p className="text-xs text-gray-500 max-w-xs">
                         Upload a PDF document that outlines your project. AI will automatically extract the project name, description, milestones, and tasks to create your project structure.
                       </p>
-                      <Button type="button" variant="outline" size="sm" className="mt-2" disabled={isProcessingPdf}>
-                        <Upload className="w-4 h-4 mr-2" />
+                      <div className="mt-2 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                        <Upload className="w-4 h-4" />
                         Choose PDF
-                      </Button>
+                      </div>
                     </>
                   )}
                 </label>
