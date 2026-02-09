@@ -214,9 +214,9 @@ export default function DumpPage() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-xs text-[#805c5c] uppercase tracking-widest mb-2" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 400}}>DUMP</h1>
-        <p className="text-xl sm:text-2xl text-[#323232]" style={{fontFamily: 'Acherus Grotesque, sans-serif', fontWeight: 700}}>Get everything out of your head first.</p>
-        <p className="text-sm sm:text-base text-[#323232] mt-1" style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 400}}>We'll help you sort it later.</p>
+        <h1 className="text-xs text-[#805c5c] uppercase tracking-widest mb-2">DUMP</h1>
+        <p className="text-xl sm:text-2xl text-[#323232] font-bold">Get everything out of your head first.</p>
+        <p className="text-sm sm:text-base text-[#323232] mt-1">We'll help you sort it later.</p>
       </div>
 
       {/* Quick Add */}
@@ -329,8 +329,8 @@ export default function DumpPage() {
             <div className="text-center py-12 text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Loading...</div>
           ) : items.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-xl border border-[#dbb4b4] p-8">
-              <p className="text-[#323232] text-lg font-medium mb-2" style={{fontFamily: 'Acherus Grotesque'}}>Got too many things in your head?</p>
-              <p className="text-[#805c5c]" style={{fontFamily: 'Montserrat'}}>Start dropping them here.</p>
+              <p className="text-[#323232] text-lg font-bold mb-2">Got too many things in your head?</p>
+              <p className="text-[#805c5c]">Start dropping them here.</p>
             </div>
           ) : (
             items.map((item) => (
