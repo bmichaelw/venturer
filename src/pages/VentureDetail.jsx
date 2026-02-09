@@ -173,6 +173,25 @@ export default function VentureDetailPage() {
         }
       }
       
+      // Create tasks from PDF extraction
+      if (extractedTasks.length > 0) {
+        const today = new Date();
+        const tasksToCreate = extractedTasks.map(task => ({
+          venture_id: ventureId,
+          project_id: project.id,
+          type: 'task',
+          title: task.title,
+          description: task.description || '',
+          status: 'not_started',
+          s_sextant: task.step?.s,
+          t_time: task.step?.t,
+          e_effort: task.step?.e,
+          p_priority: task.step?.p,
+        }));
+        
+        await base44.entities.Item.bulkCreate(tasksToCreate);
+      }
+      
       return project;
     },
     onSuccess: () => {
