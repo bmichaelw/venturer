@@ -396,7 +396,11 @@ export default function VentureDetailPage() {
         setMilestones(response.milestones.map(m => ({ 
           title: m.title, 
           status: 'not_started', 
-          description: m.description + (m.deliverables?.length ? '\n\nDeliverables:\n' + m.deliverables.map(d => `• ${d}`).join('\n') : '')
+          description: m.description + (m.deliverables?.length ? '\n\nDeliverables:\n' + m.deliverables.map(d => `• ${d}`).join('\n') : ''),
+          s_sextant: m.step?.s,
+          t_time: m.step?.t,
+          e_effort: m.step?.e,
+          p_priority: m.step?.p
         })));
       }
       if (response.workstreams?.length > 0) {
@@ -407,9 +411,19 @@ export default function VentureDetailPage() {
           color: '#3B82F6' 
         })));
       }
+      
+      // Store extracted tasks to be created when project is created
+      if (response.tasks?.length > 0) {
+        setExtractedTasks(response.tasks.map(task => ({
+          title: task.title,
+          description: task.description || '',
+          milestone: task.milestone,
+          step: task.step
+        })));
+      }
 
       setShowTemplateSelector(false);
-      toast.success('Project details extracted from PDF!');
+      toast.success(`Project details extracted from PDF! Found ${response.tasks?.length || 0} tasks.`);
     } catch (error) {
       toast.error('Failed to process PDF: ' + error.message);
       setUploadedPdf(null);
