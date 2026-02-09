@@ -189,7 +189,62 @@ export default function VentureDetailPage() {
           p_priority: task.step?.p,
         }));
         
-        await base44.entities.Item.bulkCreate(tasksToCreate);
+        const createdPdfTasks = await base44.entities.Item.bulkCreate(tasksToCreate);
+        console.log('Created PDF tasks:', createdPdfTasks);
+        
+        // Create associations for dependencies and milestone associations
+        const associationsToCreate = [];
+        
+        extractedTasks.forEach((extractedTask, idx) => {
+          const createdTask = createdPdfTasks[idx];
+          if (!createdTask) return;
+          
+          // Associate task with milestone if milestone name matches
+          if (extractedTask.milestone && createdMilestones.length > 0) {
+            const matchingMilestone = createdMilestones.find(m => 
+              m.title.toLowerCase().includes(extractedTask.milestone.toLowerCase()) ||
+              extractedTask.milestone.toLowerCase().includes(m.title.toLowerCase())
+            );
+            
+            if (matchingMilestone) {
+              associationsToCreate.push({
+                from_entity_type: 'milestone',
+                from_entity_id: matchingMilestone.id,
+                to_entity_type: 'item',
+                to_entity_id: createdTask.id,
+                relationship_type: 'parent_of',
+                notes: `Task belongs to milestone: ${matchingMilestone.title}`
+              });
+            }
+          }
+          
+          // Handle dependencies between tasks
+          if (extractedTask.dependencies && extractedTask.dependencies.length > 0) {
+            extractedTask.dependencies.forEach(depTitle => {
+              // Find the dependency task by title
+              const depIndex = extractedTasks.findIndex(t => 
+                t.title.toLowerCase() === depTitle.toLowerCase() ||
+                t.title.toLowerCase().includes(depTitle.toLowerCase())
+              );
+              
+              if (depIndex !== -1 && createdPdfTasks[depIndex]) {
+                associationsToCreate.push({
+                  from_entity_type: 'item',
+                  from_entity_id: createdTask.id,
+                  to_entity_type: 'item',
+                  to_entity_id: createdPdfTasks[depIndex].id,
+                  relationship_type: 'depends_on',
+                  notes: `${createdTask.title} depends on ${depTitle}`
+                });
+              }
+            });
+          }
+        });
+        
+        if (associationsToCreate.length > 0) {
+          await base44.entities.Association.bulkCreate(associationsToCreate);
+          console.log('Created associations:', associationsToCreate.length);
+        }
       }
       
       return project;
