@@ -574,7 +574,6 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                   </div>
                 </div>
               )}
-              </div>
             </>
           )}
 
