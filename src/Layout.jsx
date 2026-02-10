@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown, MessageCircle } from 'lucide-react';
+import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown, HelpCircle } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
 import ReminderManager from './components/reminders/ReminderManager';
 import {
@@ -180,7 +180,7 @@ export default function Layout({ children, currentPageName }) {
                 onClick={() => setShowFeedback(true)}
                 className="px-2 py-1.5"
               >
-                <MessageCircle className="w-4 h-4" />
+                <HelpCircle className="w-4 h-4" />
               </Button>
 
               <NotificationBell />
@@ -291,17 +291,18 @@ export default function Layout({ children, currentPageName }) {
               >
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
-                </Link>
-                <button
+              </Link>
+              <div className="border-t border-[#223947]/10 dark:border-white/10 my-2"></div>
+              <button
                 onClick={() => {
                   setShowFeedback(true);
                   setMobileMenuOpen(false);
                 }}
                 className="flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20 w-full text-left"
-                >
-                <MessageCircle className="w-4 h-4" />
+              >
+                <HelpCircle className="w-4 h-4" />
                 <span>Help & Feedback</span>
-                </button>
+              </button>
                 </div>
                 </div>
                 )}
