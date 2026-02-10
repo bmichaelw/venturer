@@ -176,47 +176,60 @@ export default function VentureDetailPage() {
       // Create tasks from PDF extraction
       if (extractedTasks.length > 0) {
         const today = new Date();
-        const tasksToCreate = extractedTasks.map(task => ({
-          venture_id: ventureId,
-          project_id: project.id,
-          type: 'task',
-          title: task.title,
-          description: task.description || '',
-          status: 'not_started',
-          s_sextant: task.step?.s,
-          t_time: task.step?.t,
-          e_effort: task.step?.e,
-          p_priority: task.step?.p,
-        }));
+        
+        // First, create a map of milestone names to IDs for quick lookup
+        const milestoneNameToId = {};
+        createdMilestones.forEach(m => {
+          milestoneNameToId[m.title.toLowerCase()] = m.id;
+        });
+        
+        // Create tasks with milestone_id directly assigned
+        const tasksToCreate = extractedTasks.map(task => {
+          let milestone_id = null;
+          
+          // Try to match the task's milestone to a created milestone
+          if (task.milestone && createdMilestones.length > 0) {
+            const taskMilestoneLower = task.milestone.toLowerCase();
+            
+            // Try exact match first
+            if (milestoneNameToId[taskMilestoneLower]) {
+              milestone_id = milestoneNameToId[taskMilestoneLower];
+            } else {
+              // Try partial match
+              const matchingMilestone = createdMilestones.find(m => 
+                m.title.toLowerCase().includes(taskMilestoneLower) ||
+                taskMilestoneLower.includes(m.title.toLowerCase())
+              );
+              if (matchingMilestone) {
+                milestone_id = matchingMilestone.id;
+              }
+            }
+          }
+          
+          return {
+            venture_id: ventureId,
+            project_id: project.id,
+            milestone_id: milestone_id, // Directly assign milestone
+            type: 'task',
+            title: task.title,
+            description: task.description || '',
+            status: 'not_started',
+            s_sextant: task.step?.s,
+            t_time: task.step?.t,
+            e_effort: task.step?.e,
+            p_priority: task.step?.p,
+          };
+        });
         
         const createdPdfTasks = await base44.entities.Item.bulkCreate(tasksToCreate);
-        console.log('Created PDF tasks:', createdPdfTasks);
+        console.log('Created PDF tasks with milestone assignments:', createdPdfTasks);
         
-        // Create associations for dependencies and milestone associations
+        // Create associations for dependencies
         const associationsToCreate = [];
         
         extractedTasks.forEach((extractedTask, idx) => {
           const createdTask = createdPdfTasks[idx];
           if (!createdTask) return;
-          
-          // Associate task with milestone if milestone name matches
-          if (extractedTask.milestone && createdMilestones.length > 0) {
-            const matchingMilestone = createdMilestones.find(m => 
-              m.title.toLowerCase().includes(extractedTask.milestone.toLowerCase()) ||
-              extractedTask.milestone.toLowerCase().includes(m.title.toLowerCase())
-            );
-            
-            if (matchingMilestone) {
-              associationsToCreate.push({
-                from_entity_type: 'milestone',
-                from_entity_id: matchingMilestone.id,
-                to_entity_type: 'item',
-                to_entity_id: createdTask.id,
-                relationship_type: 'parent_of',
-                notes: `Task belongs to milestone: ${matchingMilestone.title}`
-              });
-            }
-          }
           
           // Handle dependencies between tasks
           if (extractedTask.dependencies && extractedTask.dependencies.length > 0) {
@@ -243,7 +256,7 @@ export default function VentureDetailPage() {
         
         if (associationsToCreate.length > 0) {
           await base44.entities.Association.bulkCreate(associationsToCreate);
-          console.log('Created associations:', associationsToCreate.length);
+          console.log('Created dependency associations:', associationsToCreate.length);
         }
       }
       
