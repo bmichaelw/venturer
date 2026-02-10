@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Calendar, Briefcase, BarChart3, User, BookOpen, Menu, X, Settings, ChevronDown, MessageCircle } from 'lucide-react';
 import NotificationBell from './components/collaboration/NotificationBell';
 import ReminderManager from './components/reminders/ReminderManager';
 import {
@@ -11,9 +11,12 @@ import {
 } from './components/ui/dropdown-menu';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 import WelcomeScreen from './components/WelcomeScreen';
+import FeedbackModal from './components/feedback/FeedbackModal';
+import { Button } from './components/ui/button';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [showWelcome, setShowWelcome] = useState(() => {
     return !sessionStorage.getItem('welcomeShown');
   });
@@ -171,6 +174,15 @@ export default function Layout({ children, currentPageName }) {
                 <Settings className="w-4 h-4" />
               </Link>
 
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFeedback(true)}
+                className="px-2 py-1.5"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+
               <NotificationBell />
             </div>
 
@@ -279,11 +291,24 @@ export default function Layout({ children, currentPageName }) {
               >
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
-              </Link>
-            </div>
-          </div>
-          )}
-          </nav>
+                </Link>
+                <button
+                onClick={() => {
+                  setShowFeedback(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 px-6 py-2.5 transition-colors text-sm font-medium text-[#323232] dark:text-[#fffbf6] hover:bg-[#223947]/10 dark:hover:bg-[#805c5c]/20 w-full text-left"
+                >
+                <MessageCircle className="w-4 h-4" />
+                <span>Help & Feedback</span>
+                </button>
+                </div>
+                </div>
+                )}
+                </nav>
+
+                {/* Feedback Modal */}
+                <FeedbackModal isOpen={showFeedback} onClose={() => setShowFeedback(false)} />
 
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

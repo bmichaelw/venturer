@@ -53,6 +53,7 @@ import AdminUserDetail from './pages/AdminUserDetail';
 import AdminUsers from './pages/AdminUsers';
 import Calendar from './pages/Calendar';
 import Dump from './pages/Dump';
+import HowToUse from './pages/HowToUse';
 import IdealFormat from './pages/IdealFormat';
 import ItemDetail from './pages/ItemDetail';
 import Kanban from './pages/Kanban';
@@ -71,7 +72,6 @@ import Templates from './pages/Templates';
 import VentureDetail from './pages/VentureDetail';
 import Ventures from './pages/Ventures';
 import WorkstreamDetail from './pages/WorkstreamDetail';
-import HowToUse from './pages/HowToUse';
 import __Layout from './Layout.jsx';
 
 
@@ -82,6 +82,7 @@ export const PAGES = {
     "AdminUsers": AdminUsers,
     "Calendar": Calendar,
     "Dump": Dump,
+    "HowToUse": HowToUse,
     "IdealFormat": IdealFormat,
     "ItemDetail": ItemDetail,
     "Kanban": Kanban,
@@ -100,7 +101,6 @@ export const PAGES = {
     "VentureDetail": VentureDetail,
     "Ventures": Ventures,
     "WorkstreamDetail": WorkstreamDetail,
-    "HowToUse": HowToUse,
 }
 
 export const pagesConfig = {
