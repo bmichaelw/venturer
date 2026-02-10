@@ -12,6 +12,7 @@ import CommentSection from '../collaboration/CommentSection';
 import DocumentList from '../documents/DocumentList';
 import EnhancedTaskSuggestions from '../ai/EnhancedTaskSuggestions';
 import ReminderPicker from '../reminders/ReminderPicker';
+import TimeTracker from '../time/TimeTracker';
 
 export default function ItemDetailPanel({ item, onClose, ventures }) {
   const [formData, setFormData] = useState(item);
@@ -458,6 +459,24 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Estimated Time */}
+              <div className="space-y-2">
+                <Label htmlFor="estimated_time">Estimated Time (minutes)</Label>
+                <Input
+                  id="estimated_time"
+                  type="number"
+                  value={formData.estimated_time_minutes || ''}
+                  onChange={(e) => setFormData({ ...formData, estimated_time_minutes: parseInt(e.target.value) || null })}
+                  placeholder="Enter estimated minutes"
+                  min="1"
+                />
+              </div>
+
+              {/* Time Tracking */}
+              <div className="border-t border-stone-200 pt-4">
+                <TimeTracker item={item} />
               </div>
 
               {/* Blocked By */}

@@ -91,6 +91,12 @@ export default function ItemCard({ item, ventures, onClick }) {
               </Badge>
             )}
 
+            {item.type === 'task' && item.actual_time_minutes > 0 && (
+              <Badge variant="outline" className="text-[11px] text-slate-600 font-medium">
+                ⏱ {item.actual_time_minutes}m logged
+              </Badge>
+            )}
+
             {isBlocked && (
               <Badge variant="outline" className="text-[11px] font-medium border-red-300 text-red-600 bg-red-50">
                 <ShieldAlert className="w-3 h-3 mr-1" />
