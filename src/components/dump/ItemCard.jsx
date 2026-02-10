@@ -6,16 +6,20 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
 export default function ItemCard({ item, ventures, onClick }) {
-  // Fetch blocker item if exists
-  const { data: blockerItem } = useQuery({
-    queryKey: ['blockerItem', item.blocked_by],
+  // Fetch blocking associations
+  const { data: blockingAssociations = [] } = useQuery({
+    queryKey: ['blockingAssociations', item.id],
     queryFn: async () => {
-      if (!item.blocked_by) return null;
-      const items = await base44.entities.Item.filter({ id: item.blocked_by });
-      return items[0] || null;
+      const associations = await base44.entities.Association.filter({
+        to_entity_type: 'item',
+        to_entity_id: item.id,
+        relationship_type: 'blocks'
+      });
+      return associations;
     },
-    enabled: !!item.blocked_by,
   });
+
+  const isBlocked = blockingAssociations.length > 0;
   const typeConfig = {
     idea: { icon: Lightbulb, color: 'bg-purple-100 text-purple-700', label: 'Idea' },
     note: { icon: FileText, color: 'bg-blue-100 text-blue-700', label: 'Note' },
@@ -87,10 +91,10 @@ export default function ItemCard({ item, ventures, onClick }) {
               </Badge>
             )}
 
-            {item.blocked_by && blockerItem && (
+            {isBlocked && (
               <Badge variant="outline" className="text-[11px] font-medium border-red-300 text-red-600 bg-red-50">
                 <ShieldAlert className="w-3 h-3 mr-1" />
-                Blocked
+                Blocked by {blockingAssociations.length}
               </Badge>
             )}
           </div>

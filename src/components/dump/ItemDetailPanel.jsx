@@ -64,15 +64,53 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
     enabled: !!formData.project_id && formData.type === 'task',
   });
 
-  // Fetch blocker item details
-  const { data: blockerItem } = useQuery({
-    queryKey: ['blockerItem', formData.blocked_by],
+  // Fetch blocking and blocked associations
+  const { data: blockingAssociations = [] } = useQuery({
+    queryKey: ['blockingAssociations', item.id],
     queryFn: async () => {
-      if (!formData.blocked_by) return null;
-      const items = await base44.entities.Item.filter({ id: formData.blocked_by });
-      return items[0] || null;
+      const associations = await base44.entities.Association.filter({
+        to_entity_type: 'item',
+        to_entity_id: item.id,
+        relationship_type: 'blocks'
+      });
+      return associations;
     },
-    enabled: !!formData.blocked_by,
+  });
+
+  const { data: blockedByAssociations = [] } = useQuery({
+    queryKey: ['blockedByAssociations', item.id],
+    queryFn: async () => {
+      const associations = await base44.entities.Association.filter({
+        from_entity_type: 'item',
+        from_entity_id: item.id,
+        relationship_type: 'blocks'
+      });
+      return associations;
+    },
+  });
+
+  // Fetch blocker items
+  const { data: blockerItems = [] } = useQuery({
+    queryKey: ['blockerItems', blockingAssociations.map(a => a.from_entity_id).join(',')],
+    queryFn: async () => {
+      if (blockingAssociations.length === 0) return [];
+      const ids = blockingAssociations.map(a => a.from_entity_id);
+      const items = await base44.entities.Item.filter({ id: { $in: ids } });
+      return items;
+    },
+    enabled: blockingAssociations.length > 0,
+  });
+
+  // Fetch blocked items
+  const { data: blockedItems = [] } = useQuery({
+    queryKey: ['blockedItems', blockedByAssociations.map(a => a.to_entity_id).join(',')],
+    queryFn: async () => {
+      if (blockedByAssociations.length === 0) return [];
+      const ids = blockedByAssociations.map(a => a.to_entity_id);
+      const items = await base44.entities.Item.filter({ id: { $in: ids } });
+      return items;
+    },
+    enabled: blockedByAssociations.length > 0,
   });
 
   // Update mutation
@@ -133,14 +171,49 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
         project_id: formData.project_id,
         status: 'not_started',
       });
+      
+      // Create blocking association
+      await base44.entities.Association.create({
+        from_entity_type: 'item',
+        from_entity_id: newItem.id,
+        to_entity_type: 'item',
+        to_entity_id: item.id,
+        relationship_type: 'blocks',
+      });
+      
       return newItem;
     },
-    onSuccess: (newItem) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
       queryClient.invalidateQueries({ queryKey: ['projectTasks'] });
-      setFormData({ ...formData, blocked_by: newItem.id });
+      queryClient.invalidateQueries({ queryKey: ['blockingAssociations'] });
       setShowNewBlocker(false);
       setNewBlockerTitle('');
+    },
+  });
+
+  const addBlockerMutation = useMutation({
+    mutationFn: async (blockerId) => {
+      await base44.entities.Association.create({
+        from_entity_type: 'item',
+        from_entity_id: blockerId,
+        to_entity_type: 'item',
+        to_entity_id: item.id,
+        relationship_type: 'blocks',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockingAssociations'] });
+    },
+  });
+
+  const removeBlockerMutation = useMutation({
+    mutationFn: async (associationId) => {
+      await base44.entities.Association.delete(associationId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockingAssociations'] });
+      queryClient.invalidateQueries({ queryKey: ['blockedByAssociations'] });
     },
   });
 
@@ -150,8 +223,12 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
     }
   };
 
-  const handleRemoveBlocker = () => {
-    setFormData({ ...formData, blocked_by: null });
+  const handleRemoveBlocker = (associationId) => {
+    removeBlockerMutation.mutate(associationId);
+  };
+
+  const handleAddBlocker = (blockerId) => {
+    addBlockerMutation.mutate(blockerId);
   };
 
   // Clear project_id when venture changes
@@ -385,20 +462,37 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
 
               {/* Blocked By */}
               <div className="space-y-2">
-                <Label>Blocked By</Label>
-                {formData.blocked_by && blockerItem ? (
-                  <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-lg border border-stone-200">
-                    <span className="flex-1 text-sm break-words">{blockerItem.title}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleRemoveBlocker}
-                      className="h-8 w-8 flex-shrink-0 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </Button>
+                <div className="flex items-center justify-between">
+                  <Label>Blocked By</Label>
+                  {blockerItems.length > 0 && (
+                    <span className="text-xs text-red-600 font-medium">
+                      ⚠️ {blockerItems.length} blocker{blockerItems.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+                
+                {blockerItems.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {blockerItems.map((blocker) => {
+                      const association = blockingAssociations.find(a => a.from_entity_id === blocker.id);
+                      return (
+                        <div key={blocker.id} className="flex items-center gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+                          <span className="flex-1 text-sm break-words">{blocker.title}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveBlocker(association.id)}
+                            className="h-8 w-8 flex-shrink-0 hover:bg-red-100 hover:text-red-700"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
-                ) : showNewBlocker ? (
+                )}
+                
+                {showNewBlocker ? (
                   <div className="space-y-2">
                     <Input
                       placeholder="Enter blocker task title"
@@ -431,23 +525,21 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                 ) : (
                   <div className="space-y-2">
                     <Select
-                      value={formData.blocked_by || 'none'}
                       onValueChange={(value) => {
                         if (value === 'new') {
                           setShowNewBlocker(true);
-                        } else {
-                          setFormData({ ...formData, blocked_by: value === 'none' ? null : value });
+                        } else if (value !== 'none') {
+                          handleAddBlocker(value);
                         }
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select blocker" />
+                        <SelectValue placeholder="Add blocker..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No blocker</SelectItem>
                         {formData.project_id && projectTasks.length > 0 && (
                           <>
-                            {projectTasks.map((task) => (
+                            {projectTasks.filter(t => !blockerItems.find(b => b.id === t.id)).map((task) => (
                               <SelectItem key={task.id} value={task.id}>
                                 {task.title}
                               </SelectItem>
@@ -464,6 +556,24 @@ export default function ItemDetailPanel({ item, onClose, ventures }) {
                     </Select>
                   </div>
                 )}
+              </div>
+
+              {/* Blocks (What this item is blocking) */}
+              {blockedItems.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Blocking</Label>
+                  <div className="space-y-2">
+                    {blockedItems.map((blocked) => (
+                      <div key={blocked.id} className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <span className="flex-1 text-sm break-words">
+                          {blocked.title}
+                        </span>
+                        <span className="text-xs text-amber-600 font-medium">This blocks →</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               </div>
             </>
           )}
