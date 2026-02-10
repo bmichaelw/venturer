@@ -33,28 +33,13 @@ export default function WelcomeScreen({ onComplete }) {
               }}
               className="relative"
             >
-              <motion.div
-                animate={{
-                  boxShadow: [
-                    '0 0 0 0 rgba(34, 57, 71, 0.2)',
-                    '0 0 0 20px rgba(34, 57, 71, 0)',
-                    '0 0 0 0 rgba(34, 57, 71, 0)',
-                  ],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                className="w-24 h-24 bg-[#223947] rounded-3xl flex items-center justify-center"
-              >
-                <span 
-                  className="text-[#fffbf6] font-bold text-4xl" 
-                  style={{fontFamily: 'Acherus Grotesque, sans-serif'}}
-                >
-                  V
-                </span>
-              </motion.div>
+              <div className="w-24 h-24 rounded-3xl flex items-center justify-center">
+                <img
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69654cb007cf784156379cfc/2cecd9bac_Venturer-logos2.png"
+                  alt="Venturer Logo"
+                  className="w-full h-full object-cover rounded-3xl"
+                />
+              </div>
             </motion.div>
 
             {/* Animated Text */}
