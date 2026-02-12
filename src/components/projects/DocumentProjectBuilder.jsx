@@ -349,16 +349,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
               className="mt-2 text-lg font-bold border-0 bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[#223947]"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             />
-            {descriptionPreview && <p className="text-sm text-stone-500 mt-2 leading-relaxed">{descriptionPreview}</p>}
-            {workstreams.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {workstreams.map((ws, i) => (
-                  <Badge key={i} variant="outline" style={{ backgroundColor: ws.color + '15', color: ws.color, borderColor: ws.color + '30' }}>
-                    {ws.name}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            {description && <p className="text-sm text-stone-500 mt-2 leading-relaxed">{description}</p>}
           </div>
 
           {milestones.map((m, mi) => (
