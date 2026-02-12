@@ -382,11 +382,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
                         )}
                         {task.details && <p className="text-xs text-stone-400 mt-0.5 italic">{task.details}</p>}
                         <div className="flex flex-wrap gap-1 mt-1.5">
-                          {task.workstream && (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1.5" style={{ backgroundColor: workstreams.find(w => w.name === task.workstream)?.color + '15' || '#3B82F615', color: workstreams.find(w => w.name === task.workstream)?.color || '#3B82F6', borderColor: workstreams.find(w => w.name === task.workstream)?.color + '30' || '#3B82F630' }}>
-                              {task.workstream}
-                            </Badge>
-                          )}
                           <StepPill label="S" value={task.step.s} color="#223947" />
                           <StepPill label="T" value={task.step.t} color="#805c5c" />
                           <StepPill label="E" value={task.step.e} color="#5b8a72" />
