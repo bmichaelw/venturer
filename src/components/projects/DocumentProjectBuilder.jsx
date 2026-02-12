@@ -165,7 +165,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
         milestoneMap[i] = created.id;
       }
 
-      // Create tasks with milestone and workstream assignments
+      // Create tasks
       const tasksToCreate = [];
       milestones.forEach((milestone, mi) => {
         milestone.tasks.filter(t => t.title.trim()).forEach((task) => {
@@ -173,7 +173,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
             venture_id: ventureId,
             project_id: project.id,
             milestone_id: milestoneMap[mi],
-            workstream_id: task.workstream ? workstreamMap[task.workstream] : null,
             type: 'task',
             title: task.title,
             description: task.details || null,
