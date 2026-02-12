@@ -152,18 +152,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
         status: 'active',
       });
 
-      // Create workstreams first
-      const workstreamMap = {};
-      for (const ws of workstreams) {
-        const created = await base44.entities.Workstream.create({
-          project_id: project.id,
-          title: ws.name,
-          color: ws.color || '#3B82F6',
-          status: 'active',
-        });
-        workstreamMap[ws.name] = created.id;
-      }
-
       // Create milestones
       const milestoneMap = {};
       for (let i = 0; i < milestones.length; i++) {
