@@ -51,64 +51,107 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
       const documentText = await uploadedFile.text();
 
       if (!documentText || documentText.length < 50) {
-        throw new Error('Could not extract text from PDF. Make sure the PDF contains selectable text.');
+        throw new Error('Could not extract text from PDF.');
       }
 
-      setExtractionProgress('AI is analyzing your document — extracting milestones and tasks...');
+      // ===== CALL 1: Extract project info and milestone NAMES only =====
+      setExtractionProgress('Identifying project structure...');
+      
+      const structureResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: `Read this document and extract ONLY the project name, a brief description, and the names of all phases/milestones. Do NOT extract tasks yet.
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: EXTRACTION_PROMPT + "\n\n---\n\nHere is the full document text to extract from:\n\n" + documentText + "\n\n---\n\nExtract ALL milestones and tasks. Return ONLY the JSON object.",
+Document:
+${documentText}`,
         response_json_schema: {
           type: 'object',
           properties: {
             project_name: { type: 'string' },
             project_description: { type: 'string' },
-            milestones: {
+            milestone_names: {
               type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  status: { type: 'string' },
-                  notes: { type: 'array', items: { type: 'string' } },
-                  reminders: { type: 'array', items: { type: 'string' } },
-                  tasks: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        title: { type: 'string' },
-                        step: {
-                          type: 'object',
-                          properties: {
-                            s: { type: 'number' },
-                            t: { type: 'number' },
-                            e: { type: 'number' },
-                            p: { type: 'number' },
-                          },
-                        },
-                        details: { type: 'string' },
-                      },
-                      required: ['title'],
-                    },
-                  },
-                },
-                required: ['name', 'tasks'],
-              },
-            },
-            extraction_summary: {
-              type: 'object',
-              properties: {
-                total_milestones: { type: 'number' },
-                total_tasks: { type: 'number' },
-              },
-            },
+              items: { type: 'string' }
+            }
           },
-          required: ['project_name', 'milestones'],
-        },
+          required: ['project_name', 'milestone_names']
+        }
       });
 
-      return response;
+      const milestoneNames = structureResponse.milestone_names || [];
+      
+      if (milestoneNames.length === 0) {
+        throw new Error('No milestones found in document.');
+      }
+
+      // ===== CALL 2+: Extract tasks for EACH milestone separately =====
+      const allMilestones = [];
+      
+      for (let i = 0; i < milestoneNames.length; i++) {
+        const milestoneName = milestoneNames[i];
+        setExtractionProgress(`Extracting tasks from ${milestoneName} (${i + 1}/${milestoneNames.length})...`);
+
+        const milestoneResponse = await base44.integrations.Core.InvokeLLM({
+          prompt: `Read this document and extract ONLY the tasks that belong to "${milestoneName}". 
+
+A task is any line starting with ■, □, ▪, -, *, •, or a numbered item under the Tasks heading of that specific phase.
+Lines under "Notes" or "Reminders" are NOT tasks — return them separately.
+Keep the exact task text from the document. Do not skip any tasks.
+Default STEP values: s:2, t:2, e:2, p:2.
+
+Document:
+${documentText}`,
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              milestone_name: { type: 'string' },
+              status: { type: 'string' },
+              tasks: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    title: { type: 'string' },
+                    step: {
+                      type: 'object',
+                      properties: {
+                        s: { type: 'number' },
+                        t: { type: 'number' },
+                        e: { type: 'number' },
+                        p: { type: 'number' }
+                      }
+                    },
+                    details: { type: 'string' }
+                  },
+                  required: ['title']
+                }
+              },
+              notes: { type: 'array', items: { type: 'string' } },
+              reminders: { type: 'array', items: { type: 'string' } }
+            },
+            required: ['tasks']
+          }
+        });
+
+        allMilestones.push({
+          name: milestoneName,
+          status: milestoneResponse.status || 'not_started',
+          tasks: milestoneResponse.tasks || [],
+          notes: milestoneResponse.notes || [],
+          reminders: milestoneResponse.reminders || [],
+        });
+      }
+
+      // Build final result
+      const totalTasks = allMilestones.reduce((sum, m) => sum + m.tasks.length, 0);
+
+      return {
+        project_name: structureResponse.project_name,
+        project_description: structureResponse.project_description || '',
+        milestones: allMilestones,
+        extraction_summary: {
+          total_milestones: allMilestones.length,
+          total_tasks: totalTasks,
+        }
+      };
     },
     onSuccess: (data) => {
       setProjectName(data.project_name || 'Untitled Project');
