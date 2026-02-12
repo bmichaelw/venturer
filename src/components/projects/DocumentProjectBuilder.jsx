@@ -27,7 +27,7 @@ CRITICAL RULES:
 
 6. STEP values: If the document includes STEP values like (S:2, T:1, E:2, P:3), extract them. Otherwise default to s:2, t:2, e:2, p:2.
 
-7. WORKSTREAMS: Identify workstreams (categories like marketing, operations, development, sales, etc.) by analyzing task content. Assign each task to a workstream category. Common workstreams include: Marketing, Operations, Development, Sales, Product, Design, Finance, HR, Legal, Content, Research. Create a workstream for each category found.
+7. WORKSTREAMS (OPTIONAL): If you can identify clear workstreams (categories like marketing, operations, development, sales, etc.), create them and assign tasks. If not obvious, skip workstreams entirely.
 
 8. DESCRIPTION: Create TWO versions of the project description:
    - description_preview: A 1-2 sentence summary (max 150 characters)
@@ -39,7 +39,6 @@ VALIDATION - Before responding, verify:
 - total_tasks = sum of all tasks across all milestones
 - Notes/Reminders are NOT counted as tasks
 - Sub-options (Option A / Option B) ARE counted as tasks
-- Each task assigned to a workstream category`;
 
 export default function DocumentProjectBuilder({ initialVentureId, onComplete }) {
   const navigate = useNavigate();
