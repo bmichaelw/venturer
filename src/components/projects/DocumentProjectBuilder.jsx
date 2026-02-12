@@ -11,34 +11,16 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 
-const EXTRACTION_PROMPT = `You are Venturer's document extraction engine. Your job is to parse project rundown documents and extract a complete, structured project with milestones (phases), tasks, and workstreams.
+const EXTRACTION_PROMPT = `You are Venturer's document extraction engine. Parse this document and extract ALL milestones and ALL tasks.
 
 CRITICAL RULES:
+1. A TASK is any line starting with a checkbox, bullet, or number (■, □, ▪, -, *, •, 1., 2., etc.) under a Tasks heading. Extract EVERY SINGLE ONE. Do not skip any. Do not combine any.
+2. A MILESTONE is a top-level section like "PHASE 1:", "Phase 2:", "Milestone 1:", etc. 
+3. Lines under "Notes" or "Reminders" are metadata — NOT tasks. Include them as notes/reminders arrays.
+4. Keep exact task text. Do not rewrite or shorten.
+5. Default STEP values to s:2, t:2, e:2, p:2 unless the document specifies otherwise.
 
-1. Extract EVERY task. A task is ANY line that starts with a checkbox (■, □, ▪), bullet (-, *, •), or numbered item (1., 2., etc.) that appears under a "Tasks" heading within a phase/milestone. Do NOT skip tasks. Do NOT summarize or combine tasks. Each checkbox/bullet item = one task.
-
-2. Phases/Milestones are top-level sections. They are typically labeled "PHASE 1:", "Phase 2:", "Milestone 1:", "Step 1:", or similar numbered/named section headers. Each phase becomes a milestone.
-
-3. Notes and Reminders are metadata, not tasks. Lines under "Notes" or "Reminders" headings are contextual information. Attach them to their parent milestone as context, but do NOT create tasks from them.
-
-4. Preserve the exact task text. Do not rewrite, shorten, or paraphrase task descriptions. Use the original wording from the document.
-
-5. Preserve task order. Tasks must appear in the same order they appear in the document within each phase.
-
-6. STEP values: If the document includes STEP values like (S:2, T:1, E:2, P:3), extract them. Otherwise default to s:2, t:2, e:2, p:2.
-
-7. WORKSTREAMS (OPTIONAL): If you can identify clear workstreams (categories like marketing, operations, development, sales, etc.), create them and assign tasks. If not obvious, skip workstreams entirely.
-
-8. DESCRIPTION: Create TWO versions of the project description:
-   - description_preview: A 1-2 sentence summary (max 150 characters)
-   - description_full: The complete description with proper formatting (use \n\n for paragraphs, bullet points with •, etc.)
-
-VALIDATION - Before responding, verify:
-- ALL phases captured as milestones (count them)
-- ALL checkbox/bullet tasks captured per phase (count them)
-- total_tasks = sum of all tasks across all milestones
-- Notes/Reminders are NOT counted as tasks
-- Sub-options (Option A / Option B) ARE counted as tasks`;
+VALIDATION: Count every checkbox/bullet under each phase. Your total_tasks MUST equal the sum of all tasks across all milestones. If a phase has 9 bullets, you must return 9 tasks for that phase.`;
 
 export default function DocumentProjectBuilder({ initialVentureId, onComplete }) {
   const navigate = useNavigate();
