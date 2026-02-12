@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 
-const EXTRACTION_PROMPT = `You are Venturer's document extraction engine. Your job is to parse project rundown documents and extract a complete, structured project with milestones (phases) and tasks.
+const EXTRACTION_PROMPT = `You are Venturer's document extraction engine. Your job is to parse project rundown documents and extract a complete, structured project with milestones (phases), tasks, and workstreams.
 
 CRITICAL RULES:
 
@@ -27,12 +27,19 @@ CRITICAL RULES:
 
 6. STEP values: If the document includes STEP values like (S:2, T:1, E:2, P:3), extract them. Otherwise default to s:2, t:2, e:2, p:2.
 
+7. WORKSTREAMS: Identify workstreams (categories like marketing, operations, development, sales, etc.) by analyzing task content. Assign each task to a workstream category. Common workstreams include: Marketing, Operations, Development, Sales, Product, Design, Finance, HR, Legal, Content, Research. Create a workstream for each category found.
+
+8. DESCRIPTION: Create TWO versions of the project description:
+   - description_preview: A 1-2 sentence summary (max 150 characters)
+   - description_full: The complete description with proper formatting (use \n\n for paragraphs, bullet points with •, etc.)
+
 VALIDATION - Before responding, verify:
 - ALL phases captured as milestones (count them)
 - ALL checkbox/bullet tasks captured per phase (count them)
 - total_tasks = sum of all tasks across all milestones
 - Notes/Reminders are NOT counted as tasks
-- Sub-options (Option A / Option B) ARE counted as tasks`;
+- Sub-options (Option A / Option B) ARE counted as tasks
+- Each task assigned to a workstream category`;
 
 export default function DocumentProjectBuilder({ initialVentureId, onComplete }) {
   const navigate = useNavigate();
@@ -44,8 +51,10 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
   const [extractionProgress, setExtractionProgress] = useState('');
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionPreview, setDescriptionPreview] = useState('');
   const [ventureId, setVentureId] = useState(initialVentureId || '');
   const [milestones, setMilestones] = useState([]);
+  const [workstreams, setWorkstreams] = useState([]);
   const [extractionSummary, setExtractionSummary] = useState(null);
   const [expandedMilestones, setExpandedMilestones] = useState({});
   const [editingTask, setEditingTask] = useState(null);
@@ -72,7 +81,18 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
           type: 'object',
           properties: {
             project_name: { type: 'string' },
-            project_description: { type: 'string' },
+            description_preview: { type: 'string' },
+            description_full: { type: 'string' },
+            workstreams: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  color: { type: 'string' },
+                },
+              },
+            },
             milestones: {
               type: 'array',
               items: {
@@ -88,6 +108,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
                       type: 'object',
                       properties: {
                         title: { type: 'string' },
+                        workstream: { type: 'string' },
                         step: {
                           type: 'object',
                           properties: {
@@ -111,6 +132,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
               properties: {
                 total_milestones: { type: 'number' },
                 total_tasks: { type: 'number' },
+                total_workstreams: { type: 'number' },
               },
             },
           },
@@ -122,7 +144,9 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
     },
     onSuccess: (data) => {
       setProjectName(data.project_name || 'Untitled Project');
-      setDescription(data.project_description || '');
+      setDescriptionPreview(data.description_preview || '');
+      setDescription(data.description_full || data.description_preview || '');
+      setWorkstreams(data.workstreams || []);
 
       const mapped = (data.milestones || []).map((m) => ({
         name: m.name || 'Unnamed Milestone',
@@ -131,6 +155,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
         reminders: m.reminders || [],
         tasks: (m.tasks || []).map((t) => ({
           title: t.title || '',
+          workstream: t.workstream || null,
           step: { s: t.step?.s || 2, t: t.step?.t || 2, e: t.step?.e || 2, p: t.step?.p || 2 },
           details: t.details || null,
         })),
@@ -141,7 +166,8 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
       setExpandedMilestones({ 0: true });
 
       const totalTasks = mapped.reduce((s, m) => s + m.tasks.length, 0);
-      toast.success('Extracted ' + mapped.length + ' milestones and ' + totalTasks + ' tasks!');
+      const totalWorkstreams = (data.workstreams || []).length;
+      toast.success('Extracted ' + mapped.length + ' milestones, ' + totalTasks + ' tasks, and ' + totalWorkstreams + ' workstreams!');
       setStage('review');
     },
     onError: (error) => {
@@ -162,15 +188,43 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
         status: 'active',
       });
 
+      // Create workstreams first
+      const workstreamMap = {};
+      for (const ws of workstreams) {
+        const created = await base44.entities.Workstream.create({
+          project_id: project.id,
+          title: ws.name,
+          color: ws.color || '#3B82F6',
+          status: 'active',
+        });
+        workstreamMap[ws.name] = created.id;
+      }
+
+      // Create milestones
+      const milestoneMap = {};
+      for (let i = 0; i < milestones.length; i++) {
+        const m = milestones[i];
+        const created = await base44.entities.Milestone.create({
+          project_id: project.id,
+          title: m.name,
+          status: m.status || 'not_started',
+          order: i,
+        });
+        milestoneMap[i] = created.id;
+      }
+
+      // Create tasks with milestone and workstream assignments
       const tasksToCreate = [];
-      milestones.forEach((milestone) => {
+      milestones.forEach((milestone, mi) => {
         milestone.tasks.filter(t => t.title.trim()).forEach((task) => {
           tasksToCreate.push({
             venture_id: ventureId,
             project_id: project.id,
+            milestone_id: milestoneMap[mi],
+            workstream_id: task.workstream ? workstreamMap[task.workstream] : null,
             type: 'task',
             title: task.title,
-            description: 'Part of: ' + milestone.name,
+            description: task.details || null,
             status: 'not_started',
             s_sextant: task.step.s,
             t_time: task.step.t,
@@ -248,6 +302,8 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
     setFile(null);
     setProjectName('');
     setDescription('');
+    setDescriptionPreview('');
+    setWorkstreams([]);
     setMilestones([]);
     setExtractionSummary(null);
     setExpandedMilestones({});
@@ -342,7 +398,16 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
               className="mt-2 text-lg font-bold border-0 bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto text-[#223947]"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             />
-            {description && <p className="text-sm text-stone-500 mt-2 leading-relaxed">{description}</p>}
+            {descriptionPreview && <p className="text-sm text-stone-500 mt-2 leading-relaxed">{descriptionPreview}</p>}
+            {workstreams.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {workstreams.map((ws, i) => (
+                  <Badge key={i} variant="outline" style={{ backgroundColor: ws.color + '15', color: ws.color, borderColor: ws.color + '30' }}>
+                    {ws.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           {milestones.map((m, mi) => (
@@ -374,7 +439,12 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
                           <span className="text-sm text-[#223947] cursor-pointer hover:text-[#805c5c] transition-colors" onClick={() => setEditingTask({ mi, ti })}>{task.title}</span>
                         )}
                         {task.details && <p className="text-xs text-stone-400 mt-0.5 italic">{task.details}</p>}
-                        <div className="flex gap-1 mt-1.5">
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {task.workstream && (
+                            <Badge variant="outline" className="text-[10px] py-0 px-1.5" style={{ backgroundColor: workstreams.find(w => w.name === task.workstream)?.color + '15' || '#3B82F615', color: workstreams.find(w => w.name === task.workstream)?.color || '#3B82F6', borderColor: workstreams.find(w => w.name === task.workstream)?.color + '30' || '#3B82F630' }}>
+                              {task.workstream}
+                            </Badge>
+                          )}
                           <StepPill label="S" value={task.step.s} color="#223947" />
                           <StepPill label="T" value={task.step.t} color="#805c5c" />
                           <StepPill label="E" value={task.step.e} color="#5b8a72" />
