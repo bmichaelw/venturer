@@ -112,9 +112,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
     },
     onSuccess: (data) => {
       setProjectName(data.project_name || 'Untitled Project');
-      setDescriptionPreview(data.description_preview || '');
-      setDescription(data.description_full || data.description_preview || '');
-      setWorkstreams(data.workstreams || []);
+      setDescription(data.project_description || '');
 
       const mapped = (data.milestones || []).map((m) => ({
         name: m.name || 'Unnamed Milestone',
@@ -123,7 +121,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
         reminders: m.reminders || [],
         tasks: (m.tasks || []).map((t) => ({
           title: t.title || '',
-          workstream: t.workstream || null,
           step: { s: t.step?.s || 2, t: t.step?.t || 2, e: t.step?.e || 2, p: t.step?.p || 2 },
           details: t.details || null,
         })),
@@ -134,8 +131,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
       setExpandedMilestones({ 0: true });
 
       const totalTasks = mapped.reduce((s, m) => s + m.tasks.length, 0);
-      const totalWorkstreams = (data.workstreams || []).length;
-      toast.success('Extracted ' + mapped.length + ' milestones, ' + totalTasks + ' tasks, and ' + totalWorkstreams + ' workstreams!');
+      toast.success('Extracted ' + mapped.length + ' milestones and ' + totalTasks + ' tasks!');
       setStage('review');
     },
     onError: (error) => {
