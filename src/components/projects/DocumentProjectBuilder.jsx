@@ -62,18 +62,7 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
           type: 'object',
           properties: {
             project_name: { type: 'string' },
-            description_preview: { type: 'string' },
-            description_full: { type: 'string' },
-            workstreams: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  color: { type: 'string' },
-                },
-              },
-            },
+            project_description: { type: 'string' },
             milestones: {
               type: 'array',
               items: {
@@ -89,7 +78,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
                       type: 'object',
                       properties: {
                         title: { type: 'string' },
-                        workstream: { type: 'string' },
                         step: {
                           type: 'object',
                           properties: {
@@ -113,7 +101,6 @@ export default function DocumentProjectBuilder({ initialVentureId, onComplete })
               properties: {
                 total_milestones: { type: 'number' },
                 total_tasks: { type: 'number' },
-                total_workstreams: { type: 'number' },
               },
             },
           },
