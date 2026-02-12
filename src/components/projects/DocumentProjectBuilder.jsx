@@ -38,7 +38,7 @@ VALIDATION - Before responding, verify:
 - ALL checkbox/bullet tasks captured per phase (count them)
 - total_tasks = sum of all tasks across all milestones
 - Notes/Reminders are NOT counted as tasks
-- Sub-options (Option A / Option B) ARE counted as tasks
+- Sub-options (Option A / Option B) ARE counted as tasks`;
 
 export default function DocumentProjectBuilder({ initialVentureId, onComplete }) {
   const navigate = useNavigate();
